@@ -23,7 +23,7 @@ def home(request):
     
     statuses = api.GetUserTimeline(screen_name=request.user.username, count=10)
     
-    context = {"request": request, 'statuses': statuses}
+    context = {"request": request, 'api': api, 'statuses': statuses}
     return render_to_response('home.html', context, context_instance=RequestContext(request))
 
 @login_required
@@ -35,7 +35,9 @@ def beats(request):
     
     me = api.get_me()
     
-    context = {"request": request, 'me': me}
+    tracks = api.get_search_results('99 Problems', 'track')
+    
+    context = {"request": request, 'api': api, 'me': me, 'tracks': tracks}
     return render_to_response('beats.html', context, context_instance=RequestContext(request))
 
 @login_required
@@ -55,7 +57,7 @@ def spotify(request):
     playlist_id = playlists['items'][0]['uri']
     playlist= api.playlist(playlist_id)
     
-    context = {"request": request, 'me': me, 'artist': artist, "playlists": playlists}
+    context = {"request": request, 'api': api, 'me': me, 'artist': artist, "playlists": playlists}
     return render_to_response('spotify.html', context, context_instance=RequestContext(request))
 
 from django.contrib.auth import logout as auth_logout
