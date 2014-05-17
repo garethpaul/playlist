@@ -27,7 +27,7 @@ def twttr(request):
     
     statuses = api.GetUserTimeline(screen_name=request.user.username, count=10)
     
-    context = {"request": request, 'api': api, 'statuses': statuses}
+    context = {"request": request, "settings": settings, 'api': api, 'statuses': statuses}
     return render_to_response('twitter.html', context, context_instance=RequestContext(request))
 
 @login_required
@@ -39,7 +39,7 @@ def beats(request):
 
     twitter = get_twitter(request.user)
     twitter_username = "@" + request.user.username
-    statuses = twitter.GetMentions(count=10)
+    statuses = twitter.GetMentions(count=20)
 
     # beats stuff    
     beats = get_beats(request.user)
@@ -48,6 +48,8 @@ def beats(request):
     playlist = []
     
     for s in statuses:
+        if s.favorited:
+            continue
         search = s.text.replace(twitter_username, "")
         print search
         tracks = beats.get_search_results(search, 'track')
@@ -57,7 +59,10 @@ def beats(request):
     
     track = playlist[0][1]
     
-    context = {"request": request, 'beats': beats, 'twitter': twitter, 'me': me, 'track': track, 'tracks': tracks, 'statuses': statuses, 'playlist': playlist}
+#     if track:
+#         twitter.CreateFavorite(status=playlist[0][0])
+    
+    context = {"request": request, "settings": settings, 'beats': beats, 'twitter': twitter, 'me': me, 'track': track, 'tracks': tracks, 'statuses': statuses, 'playlist': playlist}
     return render_to_response('beats.html', context, context_instance=RequestContext(request))
 
 @login_required
@@ -79,21 +84,31 @@ def spotify(request):
     playlists = api.user_playlists(me['id'])
     
     playlist_id = playlists['items'][0]['uri']
-    playlist= api.playlist(playlist_id)
+    playlist = api.playlist(playlist_id)
     
-    context = {"request": request, 'api': api, 'me': me, 'artist': artist, "playlists": playlists}
+    context = {"request": request, "settings": settings, 'api': api, 'me': me, 'artist': artist, "playlists": playlists}
     return render_to_response('spotify.html', context, context_instance=RequestContext(request))
 
 from django.contrib.auth import logout as auth_logout
 def logout(request):
     """Logs out user"""
+    
+#     auths = get_auths(request)
+#     
+#     if auths.get("twitter", None):
+#         auths.get("twitter").disconnect()
+#     if auths.get("beats", None):
+#         auths.get("spotify").disconnect()
+#     if auths.get("spotify", None):
+#         auths.get("spotify").disconnect()
+    
     auth_logout(request)
     return HttpResponseRedirect('/')
 
 def get_twitter(user):
 
-    access_token_key=settings.TWITTER_ACCESS_TOKEN
-    access_token_secret=settings.TWITTER_ACCESS_TOKEN_SECRET
+    access_token_key = settings.TWITTER_ACCESS_TOKEN
+    access_token_secret = settings.TWITTER_ACCESS_TOKEN_SECRET
 
     usa = UserSocialAuth.objects.get(user=user, provider='twitter')
     if usa:

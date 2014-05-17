@@ -2,6 +2,161 @@
 
 {% block content %}
 
+<style>
+
+xdiv {
+  border: 1px solid red;
+}
+
+a {
+  color: #0084B4;
+  text-decoration: none;
+}
+
+.tweet {
+  background-color: white;
+  color: black;
+  font-family: "Gotham Narrow SSm",sans-serif;
+  border: 1px solid #e1e8ed;
+  border-radius: 4px;
+  margin: 0 auto;
+  width: 600px;
+  padding: 10px;
+  clear: both;
+}
+
+.profile {
+  float: left;
+  height: 300px;
+  margin-right: 12px; 
+}
+
+.profile img {
+  width: 60px;
+  border-radius: 4px;
+}
+
+.profile2 {
+  margin-left: 8px;
+}
+
+.name {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.handle {
+  color: #8899a6;
+  margin-bottom: 4px;
+}
+
+.text {
+  margin: 4px 0px 4px 0px;
+}
+
+.song {
+  font-size: .8em;
+  font-style: italic;
+}
+
+.crop {
+    margin: 6px 0px 6px 0px;
+    border-radius: 4px;
+    width: 500px;
+    height: 200px;
+    overflow: hidden;
+}
+
+.crop img {
+    width: 500px;
+    margin: -200px 0 0 0;
+}
+
+</style>
+
+{% if statuses %}
+
+  {% for pair in playlist %}
+  {% if forloop.first %}
+    <div class="title">Now Playing</div>
+  {% endif %}
+  <div class="tweet">
+      <div class="profile">
+        <img src="{{pair.0.user.profile_image_url}}">
+      </div>
+      <div class="profile2">
+          <span class="name">{{pair.0.user.name}}</span>
+          <span class="handle"><a href="http://twitter.com/{{pair.0.user.screen_name}}/status/{{pair.0.id}}" target="_target">@{{pair.0.user.screen_name}}</a></span>
+          <div class="text">{{pair.0.text}}</div>
+          <div class="crop">
+            <img src="https://partner.api.beatsmusic.com/v1/api/tracks/{{pair.1.id}}/images/default?client_id={{settings.SOCIAL_AUTH_BEATS_KEY}}&size=large">
+          </div>
+          <div class="song">{{pair.1.detail}}, "{{pair.1.display}}"</div>
+        </div>
+      </div>
+  </div>
+  {% endfor %}
+  
+{% else %}
+
+  No statuses.
+
+{% endif %}
+
+<br><br>
+
+<form action="">authentication
+    <input type="text" id="accessToken" size="50">
+    <br>trackId
+    <input type="text" id="trackId" size="50">
+    <br>autoplay
+    <input id="autoplay" type="checkbox" checked>
+    <br>loop
+    <input id="loopStream" type="checkbox">
+    <br>
+    <input id="loadStream" type="button" value="Load">
+    <input id="playStream" type="button" value="Play">
+    <input id="pauseStream" type="button" value="Pause">
+    <input id="stopStream" type="button" value="Stop">
+    <br>seek to
+    <input type="text" id="seek" size="20">
+    <input id="doSeek" type="button" value="Set">
+    <br>volume
+    <input type="text" id="volume" size="7">
+    <input id="doVolume" type="button" value="Set">
+    <input id="volumeDown" type="button" value="-">
+    <input id="volumeUp" type="button" value="+">
+    <input id="muted" type="button" value="unmute">
+    <input id="unmuted" type="button" value="mute">
+    <br>
+    <div id="trackName"></div>
+    <div id="timeDuration"></div>
+    <div id="timeElapsed"></div>
+    <div id="timeRemaining"></div>
+    <div>Buffered</div>
+    <div id="timeBufferedStart"></div>
+    <div id="timeBufferedEnd"></div>
+    <div id="timeBufferedLength"></div>
+    <div>Seekable</div>
+    <div id="timeSeekableStart"></div>
+    <div id="timeSeekableEnd"></div>
+    <div id="timeSeekableLength"></div>
+</form>
+
+<!--
+
+<br><br>
+
+{{ me }}
+
+<br><br>
+
+{{ playlist }}
+
+<br><br>
+
+-->
+
 <script src="http://bam.cdn.beatsmusic.com/bam-1.0.2.min.js"></script>
 <script language="JavaScript1.2">
 
@@ -159,6 +314,7 @@ function handleStreamPlaying() {
 function handleStreamEnded() {
     debug("bam:handleStreamEnded");
     showPause(false);
+    location.reload();
 }
 
 function handleMetadataLoaded(data) {
@@ -209,93 +365,5 @@ function debug(value) {
 }
 
 </script>
-
-{% if statuses %}
-
-  Statuses:
-  
-  <br>
-  
-  {% for pair in playlist %}
-  <br><br>
-  <a href="http://twitter.com/{{pair.0.user.screen_name}}/status/{{pair.0.id}}" target="_target">{{pair.0.id}}</a> {{pair.0.user.screen_name}} {{pair.0.text}}
-  <br>
-  {{pair.1.detail}}: {{pair.1.display}}
-  {% endfor %}
-  
-{% else %}
-
-  No statuses.
-
-{% endif %}
-
-<table border="1">
-<tr>
-<td>
-
-
-
-</td>
-<td>
-
-<form action="">authentication
-    <input type="text" id="accessToken" size="50">
-    <br>trackId
-    <input type="text" id="trackId" size="50">
-    <br>autoplay
-    <input id="autoplay" type="checkbox" checked>
-    <br>loop
-    <input id="loopStream" type="checkbox">
-    <br>
-    <input id="loadStream" type="button" value="Load">
-    <input id="playStream" type="button" value="Play">
-    <input id="pauseStream" type="button" value="Pause">
-    <input id="stopStream" type="button" value="Stop">
-    <br>seek to
-    <input type="text" id="seek" size="20">
-    <input id="doSeek" type="button" value="Set">
-    <br>volume
-    <input type="text" id="volume" size="7">
-    <input id="doVolume" type="button" value="Set">
-    <input id="volumeDown" type="button" value="-">
-    <input id="volumeUp" type="button" value="+">
-    <input id="muted" type="button" value="unmute">
-    <input id="unmuted" type="button" value="mute">
-    <br>
-    <div id="trackName"></div>
-    <div id="timeDuration"></div>
-    <div id="timeElapsed"></div>
-    <div id="timeRemaining"></div>
-    <div>Buffered</div>
-    <div id="timeBufferedStart"></div>
-    <div id="timeBufferedEnd"></div>
-    <div id="timeBufferedLength"></div>
-    <div>Seekable</div>
-    <div id="timeSeekableStart"></div>
-    <div id="timeSeekableEnd"></div>
-    <div id="timeSeekableLength"></div>
-</form>
-
-</td>
-</tr>
-</table>
-
-<br><br>
-
-{{ me }}
-
-<br><br>
-
-{{ api }}
-
-<br><br>
-
-
-
-{{ tracks }}
-
-<br><br>
-
-
 
 {% endblock %}
