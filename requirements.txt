@@ -1,5 +1,7 @@
 django>=1.4
-python-social-auth
 python-twitter
 south
 fabric
+git+https://github.com/ryankicks/python-social-auth.git
+git+https://github.com/Beats-Music/pybeats.git
+

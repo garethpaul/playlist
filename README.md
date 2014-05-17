@@ -14,11 +14,15 @@ To run this sample code, you'll need to install the following libraries:
 - south (http://south.aeracode.org/)
 - Fabric (http://www.fabfile.org/)
 
+You can install them with the following command:
+
+  pip install -r requirements.txt 
+
 GETTING STARTED
 ============
 
 - Create a Twitter App (https://apps.twitter.com/)
-- Create a Beats App (https://developer.beatsmusic.com/)
+- Create a Beats App (https://developer.beatsmusic.com/) -- Must be a paid subscription
 
 - Specify your Twitter App tokens in app/settings.py under the following section:
 
