@@ -19,7 +19,7 @@ a {
   font-family: "Gotham Narrow SSm",sans-serif;
   border: 1px solid #e1e8ed;
   border-radius: 4px;
-  margin: 0 auto;
+  margin: 0px auto 12px auto;
   width: 600px;
   padding: 10px;
   clear: both;
@@ -314,7 +314,7 @@ function handleStreamPlaying() {
 function handleStreamEnded() {
     debug("bam:handleStreamEnded");
     showPause(false);
-    window.location("/beats?fav={{ track.1.id }}");
+    window.location = "/beats?fav={{ track.0.id }}";
 }
 
 function handleMetadataLoaded(data) {
@@ -356,6 +356,11 @@ function showPause(value) {
 function toggleMute() {
     muted.hidden = !muted.hidden;
     unmuted.hidden = !unmuted.hidden;
+}
+
+function togglePause() {
+    bam.stop();
+    bam.play();
 }
 
 function debug(value) {

@@ -42,7 +42,10 @@ def beats(request):
 
     fav = request.REQUEST.get("fav", None)
     if fav:
-        twitter.CreateFavorite(id=fav)
+        try:
+            twitter.CreateFavorite(id=fav)
+        except:
+            pass;
     
     # beats stuff    
     beats = get_beats(request.user)
@@ -59,7 +62,7 @@ def beats(request):
         tracks = beats.get_search_results(search, 'track')
         if tracks and len(tracks['data']) > 0:
             track = tracks['data'][0]
-            playlist.append([s, track])
+            playlist.insert(0, [s, track])
     
     track_pair = playlist[0]
     
