@@ -9,9 +9,15 @@ import twitter
 import spotipy
 from pybeats.api import BeatsAPI
 
+import re
+twitter_username_re = re.compile(r'@([A-Za-z0-9_]+)', re.IGNORECASE)
+
 def login(request):
     
     auths = get_auths(request)
+    
+    if auths.get("twitter", None) and auths.get("beats", None):
+        return redirect("/beats")
 
     context = {"request": request, "auths": auths}
     return render_to_response('login.html', context, context_instance=RequestContext(request))
@@ -35,11 +41,11 @@ def beats(request):
     
     auths = get_auths(request)
     if not auths.get("twitter", None) or not auths.get("beats", None):
-        redirect("/login")
+        return redirect("/login")
 
     twitter = get_twitter(request.user)
-    twitter_username = "@" + request.user.username
 
+    trackNext = request.REQUEST.get("track", None)
     fav = request.REQUEST.get("fav", None)
     if fav:
         try:
@@ -49,24 +55,37 @@ def beats(request):
     
     # beats stuff    
     beats = get_beats(request.user)
-    me = beats.get_me()
+    beats_me = beats.get_me()
     
     playlist = []
     
-    statuses = twitter.GetMentions(count=20)
+    statuses = twitter.GetMentions(count=40)
+#     statuses = []
+    track_pair = None
+    count = 0
     for s in statuses:
         if s.favorited:
             continue
-        search = s.text.replace(twitter_username, "")
-        print search
-        tracks = beats.get_search_results(search, 'track')
+        search = twitter_username_re.sub('', s.text)
+        tracks = beats.get_search_results(search, 'track', limit=1)
+        
         if tracks and len(tracks['data']) > 0:
+            
+            count = count + 1
+            
             track = tracks['data'][0]
             playlist.insert(0, [s, track])
+            
+            if track['id'] == trackNext:
+                track_pair = playlist[0]
+                
+            if count == 5:
+                break
     
-    track_pair = playlist[0]
+    if not track_pair and playlist and len(playlist):
+        track_pair = playlist[0]
     
-    context = {"request": request, "settings": settings, "me": me, 'beats': beats, 'track': track_pair, 'playlist': playlist}
+    context = {"request": request, "settings": settings, 'beats': beats, "beats_me": beats_me, 'twitter': twitter, 'track': track_pair, 'playlist': playlist}
     return render_to_response('beats.html', context, context_instance=RequestContext(request))
 
 @login_required
@@ -74,7 +93,7 @@ def spotify(request):
 
     auths = get_auths(request)
     if not auths.get("twitter", None) or not auths.get("spotify", None):
-        redirect("/login")
+        return redirect("/login")
     
     status = request.REQUEST.get("status", None)
     
@@ -96,15 +115,12 @@ def spotify(request):
 from django.contrib.auth import logout as auth_logout
 def logout(request):
     """Logs out user"""
-    
-#     auths = get_auths(request)
-#     
-#     if auths.get("twitter", None):
-#         auths.get("twitter").disconnect()
-#     if auths.get("beats", None):
-#         auths.get("spotify").disconnect()
-#     if auths.get("spotify", None):
-#         auths.get("spotify").disconnect()
+
+    user = request.user
+
+    auth = UserSocialAuth.objects.filter(user=user)
+    for a in auth:
+        a.delete()
     
     auth_logout(request)
     return HttpResponseRedirect('/')

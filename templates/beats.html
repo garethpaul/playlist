@@ -13,16 +13,27 @@ a {
   text-decoration: none;
 }
 
+.tweet_container {
+  margin: 0px auto;
+  width: 602px;
+}
+
 .tweet {
   background-color: white;
   color: black;
   font-family: "Gotham Narrow SSm",sans-serif;
   border: 1px solid #e1e8ed;
   border-radius: 4px;
-  margin: 0px auto 12px auto;
+  margin: 0px auto 0px auto;
   width: 600px;
   padding: 10px;
   clear: both;
+}
+
+.tweet_action {
+  width: 100%;
+  text-align: right;
+  margin: 8px 0px 14px 0px;
 }
 
 .profile {
@@ -74,26 +85,39 @@ a {
 
 </style>
 
+<div style="text-align: center; vertical-align: top;">
+<img src="http://aweebitirish.com/wp-content/uploads/2014/03/twitter-icon-circle.png" height="100">
+&nbsp;&nbsp;&nbsp;&nbsp; 
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjc2NEE4RDgzNzgyNDExRTM4NkI3RjQ3QzFEMTMwMjA3IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjc2NEE4RDg0NzgyNDExRTM4NkI3RjQ3QzFEMTMwMjA3Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NzY0QThEODE3ODI0MTFFMzg2QjdGNDdDMUQxMzAyMDciIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NzY0QThEODI3ODI0MTFFMzg2QjdGNDdDMUQxMzAyMDciLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5BjaLsAAAO3ElEQVR42uydC3QU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" height="100">
+</div>
+
+<br><br>
+
 {% if playlist and playlist.0 %}
 
 {% for pair in playlist %}
-{% if forloop.first %}
-  <div class="title">Now Playing</div>
-{% endif %}
-<div class="tweet">
-    <div class="profile">
-      <img src="{{pair.0.user.profile_image_url}}">
-    </div>
-    <div class="profile2">
-        <span class="name">{{pair.0.user.name}}</span>
-        <span class="handle"><a href="http://twitter.com/{{pair.0.user.screen_name}}/status/{{pair.0.id}}" target="_target">@{{pair.0.user.screen_name}}</a></span>
-        <div class="text">{{pair.0.text}}</div>
-        <div class="crop">
-          <img src="https://partner.api.beatsmusic.com/v1/api/tracks/{{pair.1.id}}/images/default?client_id={{settings.SOCIAL_AUTH_BEATS_KEY}}&size=large">
-        </div>
-        <div class="song">{{pair.1.detail}}, "{{pair.1.display}}"</div>
+<div class="tweet_container">
+  <div class="tweet">
+      <div class="profile">
+        <img src="{{pair.0.user.profile_image_url}}">
       </div>
-    </div>
+      <div class="profile2">
+          <span class="name">{{pair.0.user.name}}</span>
+          <span class="handle"><a href="http://twitter.com/{{pair.0.user.screen_name}}/status/{{pair.0.id}}" target="_target">@{{pair.0.user.screen_name}}</a></span>
+          <div class="text">{{pair.0.text}}</div>
+          <div class="crop">
+            <img src="https://partner.api.beatsmusic.com/v1/api/tracks/{{pair.1.id}}/images/default?client_id={{settings.SOCIAL_AUTH_BEATS_KEY}}&size=large">
+          </div>
+          <div class="song">{{pair.1.detail}}, "{{pair.1.display}}"</div>
+      </div>
+  </div>
+  <div class="tweet_action">
+  {% if forloop.first %}
+    <a href="javascript:playNext();">Skip this</a>
+  {% else %}
+    <a href="javascript:playNext('{{pair.1.id}}');">Play this</a>
+  {% endif %}
+  </div>
 </div>
 {% endfor %}
 
@@ -143,20 +167,6 @@ a {
     <div id="timeSeekableLength"></div>
 </form>
 
-<!--
-
-<br><br>
-
-{{ me }}
-
-<br><br>
-
-{{ playlist }}
-
-<br><br>
-
--->
-
 <script src="http://bam.cdn.beatsmusic.com/bam-1.0.2.min.js"></script>
 <script language="JavaScript1.2">
 
@@ -180,10 +190,10 @@ function handleReady(value) {
     // bam_engine.style.width = "500px";
     // bam_engine.style.height = "300px";
     // set credentials
-    bam.clientId = '{{ me.result.client_id }}';
+    bam.clientId = '{{ beats_me.result.client_id }}';
     bam.authentication = {
         access_token: '{{ beats.access_token }}',
-        user_id: '{{ me.result.user_context }}'
+        user_id: '{{ beats_me.result.user_context }}'
     };
     bam.identifier = '{{ track.1.id }}'; 
     trackId.value = bam.identifier; // show trackId
@@ -195,7 +205,7 @@ function handleReady(value) {
     loadStream.onclick = function () {
         bam.authentication = {
             access_token: accessToken.value,
-            user_id: "{{ me.result.user_context }}"
+            user_id: "{{ beats_me.result.user_context }}"
         };
         // bam.authentication = accessToken.value;
         bam.identifier = trackId.value;
@@ -247,7 +257,8 @@ function handleReady(value) {
 
     doSeek.onclick = function () {
         bam.currentTime = seek.value;
-        togglePause(false);
+        bam.pause();
+        bam.play();
     };
     
     // autoplay
@@ -311,10 +322,18 @@ function handleStreamPlaying() {
     showPause(true);
 }
 
+function playNext(trackId){
+    loc = "/beats?fav={{ track.0.id }}";
+    if (trackId){
+      loc = loc + "&track=" + trackId
+    }
+    window.location = loc;
+}
+
 function handleStreamEnded() {
     debug("bam:handleStreamEnded");
     showPause(false);
-    window.location = "/beats?fav={{ track.0.id }}";
+    playNext();
 }
 
 function handleMetadataLoaded(data) {
