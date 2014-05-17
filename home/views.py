@@ -39,14 +39,18 @@ def beats(request):
 
     twitter = get_twitter(request.user)
     twitter_username = "@" + request.user.username
-    statuses = twitter.GetMentions(count=20)
 
+    fav = request.REQUEST.get("fav", None)
+    if fav:
+        twitter.CreateFavorite(id=fav)
+    
     # beats stuff    
     beats = get_beats(request.user)
     me = beats.get_me()
     
     playlist = []
     
+    statuses = twitter.GetMentions(count=20)
     for s in statuses:
         if s.favorited:
             continue
@@ -57,12 +61,9 @@ def beats(request):
             track = tracks['data'][0]
             playlist.append([s, track])
     
-    track = playlist[0][1]
+    track_pair = playlist[0]
     
-#     if track:
-#         twitter.CreateFavorite(status=playlist[0][0])
-    
-    context = {"request": request, "settings": settings, 'beats': beats, 'twitter': twitter, 'me': me, 'track': track, 'tracks': tracks, 'statuses': statuses, 'playlist': playlist}
+    context = {"request": request, "settings": settings, "me": me, 'beats': beats, 'track': track_pair, 'playlist': playlist}
     return render_to_response('beats.html', context, context_instance=RequestContext(request))
 
 @login_required

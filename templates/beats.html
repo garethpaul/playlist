@@ -74,35 +74,35 @@ a {
 
 </style>
 
-{% if statuses %}
+{% if playlist and playlist.0 %}
 
-  {% for pair in playlist %}
-  {% if forloop.first %}
-    <div class="title">Now Playing</div>
-  {% endif %}
-  <div class="tweet">
-      <div class="profile">
-        <img src="{{pair.0.user.profile_image_url}}">
-      </div>
-      <div class="profile2">
-          <span class="name">{{pair.0.user.name}}</span>
-          <span class="handle"><a href="http://twitter.com/{{pair.0.user.screen_name}}/status/{{pair.0.id}}" target="_target">@{{pair.0.user.screen_name}}</a></span>
-          <div class="text">{{pair.0.text}}</div>
-          <div class="crop">
-            <img src="https://partner.api.beatsmusic.com/v1/api/tracks/{{pair.1.id}}/images/default?client_id={{settings.SOCIAL_AUTH_BEATS_KEY}}&size=large">
-          </div>
-          <div class="song">{{pair.1.detail}}, "{{pair.1.display}}"</div>
+{% for pair in playlist %}
+{% if forloop.first %}
+  <div class="title">Now Playing</div>
+{% endif %}
+<div class="tweet">
+    <div class="profile">
+      <img src="{{pair.0.user.profile_image_url}}">
+    </div>
+    <div class="profile2">
+        <span class="name">{{pair.0.user.name}}</span>
+        <span class="handle"><a href="http://twitter.com/{{pair.0.user.screen_name}}/status/{{pair.0.id}}" target="_target">@{{pair.0.user.screen_name}}</a></span>
+        <div class="text">{{pair.0.text}}</div>
+        <div class="crop">
+          <img src="https://partner.api.beatsmusic.com/v1/api/tracks/{{pair.1.id}}/images/default?client_id={{settings.SOCIAL_AUTH_BEATS_KEY}}&size=large">
         </div>
+        <div class="song">{{pair.1.detail}}, "{{pair.1.display}}"</div>
       </div>
-  </div>
-  {% endfor %}
-  
+    </div>
+</div>
+{% endfor %}
+
 {% else %}
 
-  No statuses.
+<div class="title">Tweet a song title to @{{request.user.username}}</div>
 
 {% endif %}
-
+  
 <br><br>
 
 <form action="">authentication
@@ -185,7 +185,7 @@ function handleReady(value) {
         access_token: '{{ beats.access_token }}',
         user_id: '{{ me.result.user_context }}'
     };
-    bam.identifier = '{{ track.id }}'; 
+    bam.identifier = '{{ track.1.id }}'; 
     trackId.value = bam.identifier; // show trackId
     accessToken.value = bam.authentication.access_token; // show auth token
 
@@ -314,7 +314,7 @@ function handleStreamPlaying() {
 function handleStreamEnded() {
     debug("bam:handleStreamEnded");
     showPause(false);
-    location.reload();
+    window.location("/beats?fav={{ track.1.id }}");
 }
 
 function handleMetadataLoaded(data) {
