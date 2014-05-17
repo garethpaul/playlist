@@ -42,10 +42,13 @@ def beats(request):
     auths = get_auths(request)
     if not auths.get("twitter", None) or not auths.get("beats", None):
         return redirect("/login")
+    
+    auth_twitter = auths.get("twitter", None)
 
     twitter = get_twitter(request.user)
 
-    trackNext = request.REQUEST.get("track", None)
+    preview = request.REQUEST.get("preview", None)
+    track_next = request.REQUEST.get("track", None)
     fav = request.REQUEST.get("fav", None)
     if fav:
         try:
@@ -59,8 +62,9 @@ def beats(request):
     
     playlist = []
     
-    statuses = twitter.GetMentions(count=40)
-#     statuses = []
+    statuses = twitter.GetMentions(count=40, since_id=467486341941325824)
+    statuses = reversed(statuses)
+
     track_pair = None
     count = 0
     for s in statuses:
@@ -68,6 +72,7 @@ def beats(request):
             continue
         search = twitter_username_re.sub('', s.text)
         tracks = beats.get_search_results(search, 'track', limit=1)
+        print search, tracks
         
         if tracks and len(tracks['data']) > 0:
             
@@ -77,10 +82,10 @@ def beats(request):
             pair = [s, track]
             
             # if specified track to play, save for top of queue
-            if track['id'] == trackNext:
+            if track['id'] == track_next:
                 track_pair = pair
             else:
-                playlist.insert(0, pair)
+                playlist.append(pair)
                 
             if count == 5:
                 break
@@ -92,8 +97,11 @@ def beats(request):
         # if there's a playlist, choose first to play
         if playlist and len(playlist):
             track_pair = playlist[0]
-    
-    context = {"request": request, "settings": settings, 'beats': beats, "beats_me": beats_me, 'twitter': twitter, 'track': track_pair, 'playlist': playlist}
+            
+    if not playlist or len(playlist) == 0:
+        twitter_me = twitter.GetUser(auth_twitter.uid)
+
+    context = {"request": request, "settings": settings, 'beats': beats, "beats_me": beats_me, 'twitter': twitter, 'twitter_me': twitter_me, 'track': track_pair, 'playlist': playlist, 'preview': preview}
     return render_to_response('beats.html', context, context_instance=RequestContext(request))
 
 @login_required

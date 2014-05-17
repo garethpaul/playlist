@@ -8,15 +8,17 @@ xdiv {
   border: 1px solid red;
 }
 
-a {
-  color: #0084B4;
-  text-decoration: none;
-}
-
 .tweet_container {
   margin: 0px auto;
   width: 602px;
 }
+
+.tweet_container a {
+  color: #0084B4;
+  text-decoration: none;
+}
+
+
 
 .tweet {
   background-color: white;
@@ -57,8 +59,20 @@ a {
 }
 
 .handle {
+  font-size: .9em;
   color: #8899a6;
   margin-bottom: 4px;
+}
+
+.time {
+  font-size: .9em;
+  color: #8899a6;
+  margin-bottom: 4px;
+}
+
+.time:before {
+  content: "\00b7";
+  margin: 0px 4px 0px 2px;
 }
 
 .text {
@@ -80,7 +94,7 @@ a {
 
 .crop img {
     width: 500px;
-    margin: -200px 0 0 0;
+    margin: -100px 0 0 0;
 }
 
 </style>
@@ -103,7 +117,8 @@ a {
       </div>
       <div class="profile2">
           <span class="name">{{pair.0.user.name}}</span>
-          <span class="handle"><a href="http://twitter.com/{{pair.0.user.screen_name}}/status/{{pair.0.id}}" target="_target">@{{pair.0.user.screen_name}}</a></span>
+          <span class="handle"><a href="http://twitter.com/{{pair.0.user.screen_name}}" target="_target">@{{pair.0.user.screen_name}}</a></span>
+          <span class="time"><a href="http://twitter.com/{{pair.0.user.screen_name}}/status/{{pair.0.id}}" target="_target">{{ pair.0.created_at_in_seconds|add:"-1400317737" }}</a></span>
           <div class="text">{{pair.0.text}}</div>
           <div class="crop">
             <img src="https://partner.api.beatsmusic.com/v1/api/tracks/{{pair.1.id}}/images/default?client_id={{settings.SOCIAL_AUTH_BEATS_KEY}}&size=large">
@@ -123,7 +138,7 @@ a {
 
 {% else %}
 
-<div class="title">Tweet a song title to @{{request.user.username}}</div>
+<div class="title">Tweet a song title to @{{twitter_me.screen_name}}</div>
 
 {% endif %}
   
@@ -327,6 +342,9 @@ function playNext(trackId){
     if (trackId){
       loc = loc + "&track=" + trackId
     }
+    {% if preview %}
+    loc = loc + "&preview=" + {{ preview }}
+    {% endif %}
     window.location = loc;
 }
 
@@ -347,6 +365,7 @@ function handleVolumeChange(data) {
 }
 
 function handleTimeUpdate() {
+    
     var elapsed = bam.currentTime;
     var buffered = bam.buffered;
     var seekable = bam.seekable;
@@ -359,6 +378,12 @@ function handleTimeUpdate() {
     timeSeekableStart.innerHTML = "Start: " + seekable.start;
     timeSeekableEnd.innerHTML = "End: " + seekable.end;
     timeSeekableLength.innerHTML = "Length: " + seekable.length;
+    
+    {% if preview %}
+    if (elapsed > {{ preview }}){
+      playNext();
+    }
+    {% endif %}
 
 }
 
