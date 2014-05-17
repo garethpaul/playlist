@@ -2,46 +2,6 @@
 
 {% block content %}
 
-Player:
-
-<form action="">authentication
-    <input type="text" id="accessToken" size="50">
-    <br>trackId
-    <input type="text" id="trackId" size="50">
-    <br>autoplay
-    <input id="autoplay" type="checkbox" checked>
-    <br>loop
-    <input id="loopStream" type="checkbox">
-    <br>
-    <input id="loadStream" type="button" value="Load">
-    <input id="playStream" type="button" value="Play">
-    <input id="pauseStream" type="button" value="Pause">
-    <input id="stopStream" type="button" value="Stop">
-    <br>seek to
-    <input type="text" id="seek" size="20">
-    <input id="doSeek" type="button" value="Set">
-    <br>volume
-    <input type="text" id="volume" size="7">
-    <input id="doVolume" type="button" value="Set">
-    <input id="volumeDown" type="button" value="-">
-    <input id="volumeUp" type="button" value="+">
-    <input id="muted" type="button" value="unmute">
-    <input id="unmuted" type="button" value="mute">
-    <br>
-    <div id="trackName"></div>
-    <div id="timeDuration"></div>
-    <div id="timeElapsed"></div>
-    <div id="timeRemaining"></div>
-    <div>Buffered</div>
-    <div id="timeBufferedStart"></div>
-    <div id="timeBufferedEnd"></div>
-    <div id="timeBufferedLength"></div>
-    <div>Seekable</div>
-    <div id="timeSeekableStart"></div>
-    <div id="timeSeekableEnd"></div>
-    <div id="timeSeekableLength"></div>
-</form>
-
 <script src="http://bam.cdn.beatsmusic.com/bam-1.0.2.min.js"></script>
 <script language="JavaScript1.2">
 
@@ -60,16 +20,17 @@ bam.on("volumechange", handleVolumeChange);
 bam.on("error", handleError);
 
 function handleReady(value) {
+
     //show console
-    bam_engine.style.width = "500px";
-    bam_engine.style.height = "300px";
+    // bam_engine.style.width = "500px";
+    // bam_engine.style.height = "300px";
     // set credentials
     bam.clientId = '{{ me.result.client_id }}';
     bam.authentication = {
-        access_token: '{{ api.access_token }}',
+        access_token: '{{ beats.access_token }}',
         user_id: '{{ me.result.user_context }}'
     };
-    bam.identifier = '{{ tracks.data.0.id }}';
+    bam.identifier = '{{ track.id }}'; 
     trackId.value = bam.identifier; // show trackId
     accessToken.value = bam.authentication.access_token; // show auth token
 
@@ -79,7 +40,7 @@ function handleReady(value) {
     loadStream.onclick = function () {
         bam.authentication = {
             access_token: accessToken.value,
-            user_id: "164870365586129408"
+            user_id: "{{ me.result.user_context }}"
         };
         // bam.authentication = accessToken.value;
         bam.identifier = trackId.value;
@@ -133,6 +94,9 @@ function handleReady(value) {
         bam.currentTime = seek.value;
         togglePause(false);
     };
+    
+    // autoplay
+    bam.load();
 }
 
 function handleError(value) {
@@ -246,6 +210,76 @@ function debug(value) {
 
 </script>
 
+{% if statuses %}
+
+  Statuses:
+  
+  <br>
+  
+  {% for pair in playlist %}
+  <br><br>
+  <a href="http://twitter.com/{{pair.0.user.screen_name}}/status/{{pair.0.id}}" target="_target">{{pair.0.id}}</a> {{pair.0.user.screen_name}} {{pair.0.text}}
+  <br>
+  {{pair.1.detail}}: {{pair.1.display}}
+  {% endfor %}
+  
+{% else %}
+
+  No statuses.
+
+{% endif %}
+
+<table border="1">
+<tr>
+<td>
+
+
+
+</td>
+<td>
+
+<form action="">authentication
+    <input type="text" id="accessToken" size="50">
+    <br>trackId
+    <input type="text" id="trackId" size="50">
+    <br>autoplay
+    <input id="autoplay" type="checkbox" checked>
+    <br>loop
+    <input id="loopStream" type="checkbox">
+    <br>
+    <input id="loadStream" type="button" value="Load">
+    <input id="playStream" type="button" value="Play">
+    <input id="pauseStream" type="button" value="Pause">
+    <input id="stopStream" type="button" value="Stop">
+    <br>seek to
+    <input type="text" id="seek" size="20">
+    <input id="doSeek" type="button" value="Set">
+    <br>volume
+    <input type="text" id="volume" size="7">
+    <input id="doVolume" type="button" value="Set">
+    <input id="volumeDown" type="button" value="-">
+    <input id="volumeUp" type="button" value="+">
+    <input id="muted" type="button" value="unmute">
+    <input id="unmuted" type="button" value="mute">
+    <br>
+    <div id="trackName"></div>
+    <div id="timeDuration"></div>
+    <div id="timeElapsed"></div>
+    <div id="timeRemaining"></div>
+    <div>Buffered</div>
+    <div id="timeBufferedStart"></div>
+    <div id="timeBufferedEnd"></div>
+    <div id="timeBufferedLength"></div>
+    <div>Seekable</div>
+    <div id="timeSeekableStart"></div>
+    <div id="timeSeekableEnd"></div>
+    <div id="timeSeekableLength"></div>
+</form>
+
+</td>
+</tr>
+</table>
+
 <br><br>
 
 {{ me }}
@@ -255,6 +289,8 @@ function debug(value) {
 {{ api }}
 
 <br><br>
+
+
 
 {{ tracks }}
 

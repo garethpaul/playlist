@@ -1,6 +1,7 @@
+from django.conf import settings
 from django.shortcuts import *
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.conf import settings
+from django.contrib.auth.models import User
 
 from social.apps.django_app.default.models import UserSocialAuth
 
@@ -9,11 +10,14 @@ import spotipy
 from pybeats.api import BeatsAPI
 
 def login(request):
-    context = {"request": request}
+    
+    auths = get_auths(request)
+
+    context = {"request": request, "auths": auths}
     return render_to_response('login.html', context, context_instance=RequestContext(request))
 
 @login_required
-def home(request):
+def twttr(request):
     
     status = request.REQUEST.get("status", None)
     
@@ -24,24 +28,44 @@ def home(request):
     statuses = api.GetUserTimeline(screen_name=request.user.username, count=10)
     
     context = {"request": request, 'api': api, 'statuses': statuses}
-    return render_to_response('home.html', context, context_instance=RequestContext(request))
+    return render_to_response('twitter.html', context, context_instance=RequestContext(request))
 
 @login_required
 def beats(request):
     
-    status = request.REQUEST.get("status", None)
+    auths = get_auths(request)
+    if not auths.get("twitter", None) or not auths.get("beats", None):
+        redirect("/login")
+
+    twitter = get_twitter(request.user)
+    twitter_username = "@" + request.user.username
+    statuses = twitter.GetMentions(count=10)
+
+    # beats stuff    
+    beats = get_beats(request.user)
+    me = beats.get_me()
     
-    api = get_beats(request.user)
+    playlist = []
     
-    me = api.get_me()
+    for s in statuses:
+        search = s.text.replace(twitter_username, "")
+        print search
+        tracks = beats.get_search_results(search, 'track')
+        if tracks and len(tracks['data']) > 0:
+            track = tracks['data'][0]
+            playlist.append([s, track])
     
-    tracks = api.get_search_results('99 Problems', 'track')
+    track = playlist[0][1]
     
-    context = {"request": request, 'api': api, 'me': me, 'tracks': tracks}
+    context = {"request": request, 'beats': beats, 'twitter': twitter, 'me': me, 'track': track, 'tracks': tracks, 'statuses': statuses, 'playlist': playlist}
     return render_to_response('beats.html', context, context_instance=RequestContext(request))
 
 @login_required
 def spotify(request):
+
+    auths = get_auths(request)
+    if not auths.get("twitter", None) or not auths.get("spotify", None):
+        redirect("/login")
     
     status = request.REQUEST.get("status", None)
     
@@ -118,3 +142,28 @@ def get_spotify(user):
     api = spotipy.Spotify(access_token)
 
     return api
+
+def get_auths(request):
+    
+    twitter = None
+    beats = None
+    spotify = None
+
+    if request.user and request.user.is_authenticated():
+        user = request.user
+        try:
+            twitter = UserSocialAuth.objects.get(user=user, provider='twitter')
+        except UserSocialAuth.DoesNotExist:
+            pass
+        
+        try:
+            beats = UserSocialAuth.objects.get(user=user, provider='beats')
+        except UserSocialAuth.DoesNotExist:
+            pass
+    
+        try:
+            spotify = UserSocialAuth.objects.get(user=user, provider='spotify')
+        except UserSocialAuth.DoesNotExist:
+            pass      
+        
+    return {'twitter': twitter, 'beats': beats, 'spotify': spotify}

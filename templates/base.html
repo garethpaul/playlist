@@ -4,9 +4,13 @@
 </HEAD>
 <BODY>
 
+{% if request.user.is_authenticated %}
+
 You are logged in as {{request.user.username}} [<a href="/logout">Logout</a>]
 
 <br><br>
+
+{% endif %}
 
 {% block content %}{% endblock %}
 

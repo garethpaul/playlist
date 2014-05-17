@@ -1,5 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+{% if not auths.twitter %}
 <a href="/login/twitter">Login via Twitter</a>
 <br>
+{% endif %}
+
+{% if not auths.beats %}
 <a href="/login/beats">Login via Beats OAuth2</a>
 <br>
+{% endif %}
+
+{% if not auths.spotify %}
 <a href="/login/spotify">Login via Spotify OAuth2</a>
+<br>
+{% endif %}
+
+<hr>
+
+<a href="/twttr">Twitter Example</a>
+<br>
+<a href="/beats">Beats Example</a>
+<br>
+<a href="/spotify">Spotify Example</a>
+
+{% endblock %}
