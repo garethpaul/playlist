@@ -74,16 +74,24 @@ def beats(request):
             count = count + 1
             
             track = tracks['data'][0]
-            playlist.insert(0, [s, track])
+            pair = [s, track]
             
+            # if specified track to play, save for top of queue
             if track['id'] == trackNext:
-                track_pair = playlist[0]
+                track_pair = pair
+            else:
+                playlist.insert(0, pair)
                 
             if count == 5:
                 break
     
-    if not track_pair and playlist and len(playlist):
-        track_pair = playlist[0]
+    # if specified track to play, save for top of queue
+    if track_pair:
+        playlist.insert(0, track_pair)
+    else:
+        # if there's a playlist, choose first to play
+        if playlist and len(playlist):
+            track_pair = playlist[0]
     
     context = {"request": request, "settings": settings, 'beats': beats, "beats_me": beats_me, 'twitter': twitter, 'track': track_pair, 'playlist': playlist}
     return render_to_response('beats.html', context, context_instance=RequestContext(request))
