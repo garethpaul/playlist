@@ -99,6 +99,10 @@ xdiv {
 
 </style>
 
+{% if not playlist or not playlist.0 %}
+<div style="margin-top: 130px"></div>
+{% endif %}
+
 <div style="text-align: center; vertical-align: top;">
 <img src="http://aweebitirish.com/wp-content/uploads/2014/03/twitter-icon-circle.png" height="100">
 &nbsp;&nbsp;&nbsp;&nbsp; 
@@ -106,6 +110,10 @@ xdiv {
 </div>
 
 <br><br>
+
+<div class="title">Tweet your song title to @{{twitter_me.screen_name}}</div>
+
+<br>
 
 {% if playlist and playlist.0 %}
 
@@ -138,11 +146,13 @@ xdiv {
 
 {% else %}
 
-<div class="title">Tweet a song title to @{{twitter_me.screen_name}}</div>
+<script language="JavaScript1.2">
+  setTimeout(function(){window.location.reload();
+</script>
 
 {% endif %}
-  
-<br><br>
+
+<div style="margin-top: 400px;"></div>
 
 <form action="">authentication
     <input type="text" id="accessToken" size="50">

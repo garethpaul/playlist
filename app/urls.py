@@ -7,7 +7,6 @@ urlpatterns = patterns('',
 
     url(r'^$', 'home.views.login', name='login'),
     url(r'^twttr', 'home.views.twttr', name='twttr'),
-    url(r'^spotify', 'home.views.spotify', name='spotify'),
     url(r'^beats', 'home.views.beats', name='beats'),
     url(r'^logout$', 'home.views.logout', name='logout'),
 

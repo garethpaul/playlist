@@ -46,6 +46,7 @@ def beats(request):
     auth_twitter = auths.get("twitter", None)
 
     twitter = get_twitter(request.user)
+    twitter_me = twitter.GetUser(auth_twitter.uid)
 
     preview = request.REQUEST.get("preview", None)
     track_next = request.REQUEST.get("track", None)
@@ -62,7 +63,7 @@ def beats(request):
     
     playlist = []
     
-    statuses = twitter.GetMentions(count=40, since_id=467486341941325824)
+    statuses = twitter.GetMentions(count=100, since_id=467486341941325824)
     statuses = reversed(statuses)
 
     track_pair = None
@@ -98,35 +99,9 @@ def beats(request):
         if playlist and len(playlist):
             track_pair = playlist[0]
             
-    if not playlist or len(playlist) == 0:
-        twitter_me = twitter.GetUser(auth_twitter.uid)
 
     context = {"request": request, "settings": settings, 'beats': beats, "beats_me": beats_me, 'twitter': twitter, 'twitter_me': twitter_me, 'track': track_pair, 'playlist': playlist, 'preview': preview}
     return render_to_response('beats.html', context, context_instance=RequestContext(request))
-
-@login_required
-def spotify(request):
-
-    auths = get_auths(request)
-    if not auths.get("twitter", None) or not auths.get("spotify", None):
-        return redirect("/login")
-    
-    status = request.REQUEST.get("status", None)
-    
-    api = get_spotify(request.user)
-    
-    me = api.me()
-    
-    urn = 'spotify:artist:3jOstUTkEu2JkjvRdBA5Gu'
-    artist = api.artist(urn)
-    
-    playlists = api.user_playlists(me['id'])
-    
-    playlist_id = playlists['items'][0]['uri']
-    playlist = api.playlist(playlist_id)
-    
-    context = {"request": request, "settings": settings, 'api': api, 'me': me, 'artist': artist, "playlists": playlists}
-    return render_to_response('spotify.html', context, context_instance=RequestContext(request))
 
 from django.contrib.auth import logout as auth_logout
 def logout(request):
@@ -173,24 +148,10 @@ def get_beats(user):
         access_token = usa.extra_data['access_token']
             
     if not access_token:
-        raise Exception('No user for spotify API call')
+        raise Exception('No user for beats API call')
 
     api = BeatsAPI(client_id=settings.SOCIAL_AUTH_BEATS_KEY, client_secret=settings.SOCIAL_AUTH_BEATS_SECRET)
     api.access_token = access_token
-
-    return api
-
-def get_spotify(user):
-
-    access_token = None
-    usa = UserSocialAuth.objects.get(user=user, provider='spotify')
-    if usa:
-        access_token = usa.extra_data['access_token']
-            
-    if not access_token:
-        raise Exception('No user for spotify API call')
-
-    api = spotipy.Spotify(access_token)
 
     return api
 
@@ -198,7 +159,6 @@ def get_auths(request):
     
     twitter = None
     beats = None
-    spotify = None
 
     if request.user and request.user.is_authenticated():
         user = request.user
@@ -212,9 +172,4 @@ def get_auths(request):
         except UserSocialAuth.DoesNotExist:
             pass
     
-        try:
-            spotify = UserSocialAuth.objects.get(user=user, provider='spotify')
-        except UserSocialAuth.DoesNotExist:
-            pass      
-        
-    return {'twitter': twitter, 'beats': beats, 'spotify': spotify}
+    return {'twitter': twitter, 'beats': beats}

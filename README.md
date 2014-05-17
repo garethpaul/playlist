@@ -1,7 +1,7 @@
-sample-django-app
+playlist
 =================
 
-Sample Django App for Twitter XMusic Hackathon using OAuth
+Sample Django App for #musichackday Hackathon using Twitter X Beats API & BAM
 
 REQUIREMENTS
 ============
@@ -11,7 +11,6 @@ To run this sample code, you'll need to install the following libraries:
 - Python Social Auth, rchoi fork (https://github.com/ryankicks/python-social-auth)
 - Python Twitter (https://github.com/bear/python-twitter)
 - Beats Music Developer Platform SDK (https://github.com/Beats-Music/pybeats)
-- Spotify Python Client (https://github.com/plamere/spotipy) 
 - south (http://south.aeracode.org/)
 - Fabric (http://www.fabfile.org/)
 
@@ -20,7 +19,6 @@ GETTING STARTED
 
 - Create a Twitter App (https://apps.twitter.com/)
 - Create a Beats App (https://developer.beatsmusic.com/)
-- Create a Spotify App (https://developer.spotify.com/spotify-web-api/)
 
 - Specify your Twitter App tokens in app/settings.py under the following section:
 
@@ -33,14 +31,11 @@ GETTING STARTED
     SOCIAL_AUTH_BEATS_KEY = 'XXX'
     SOCIAL_AUTH_BEATS_SECRET = 'YYY'
     
-    SOCIAL_AUTH_SPOTIFY_KEY = 'XXX'
-    SOCIAL_AUTH_SPOTIFY_SECRET = 'YYY'
-    
-- To initialize your database, run the from the `sample-django-app` directory:
+- To initialize your database, run the from the `playlist` directory:
 
   python manage.py syncdb
 
-- To start the server, run the following from the `sample-django-app` directory:
+- To start the server, run the following from the `playlist` directory:
 
   fab start
   
