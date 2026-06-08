@@ -45,6 +45,9 @@ SQLite databases, session data, playlist data from real users, or captured
 Twitter/Beats/Spotify responses. Run `make check` before changing settings,
 authentication, or credential handling.
 
+Keep state-changing tweet, favorite, playlist, and playback actions on POST
+paths with CSRF protection.
+
 ## Dependency and Supply Chain Security
 
 Dependency updates should come from trusted package managers and should keep lockfiles in sync when lockfiles exist. Do not commit credentials, private keys, tokens, generated secrets, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.

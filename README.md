@@ -100,6 +100,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include templates/base.html, templates/beats.html, templates/login.html.
 - `make check` verifies that the previously documented hardcoded
   `SECRET_KEY` and default debug-mode issues stay fixed.
+- Keep state-changing tweet, favorite, and playlist actions on POST paths with
+  CSRF protection.
 
 ## Maintenance Notes
 
