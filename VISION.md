@@ -45,3 +45,6 @@ data should be fake or user-provided.
 - Silent posting, favoriting, or playlist changes
 - Framework upgrades mixed with feature work
 - Opaque background jobs that call user-linked services
+
+This list is a roadmap guardrail, not a permanent rule.
+Strong user demand and strong technical rationale can change it.
