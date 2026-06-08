@@ -13,18 +13,40 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in ('1', 'true', 'yes', 'on')
+
+
+def env_list(name, default=''):
+    value = os.environ.get(name, default)
+    return [item.strip() for item in value.split(',') if item.strip()]
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ')e-_u9#$xfu5(uw!izbq!yu+dtf1*ce5@7w42p^ro*i-+)$yy%'
+DEBUG = env_bool('DJANGO_DEBUG', False)
+
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = 'unsafe-development-secret-key'
+    else:
+        raise RuntimeError(
+            'DJANGO_SECRET_KEY must be set unless DJANGO_DEBUG is enabled for local development.'
+        )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+TEMPLATE_DEBUG = DEBUG
 
-TEMPLATE_DEBUG = True
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env_list(
+    'DJANGO_ALLOWED_HOSTS',
+    'localhost,127.0.0.1' if DEBUG else ''
+)
 
 
 # Application definition
@@ -78,7 +100,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.environ.get('DJANGO_SQLITE_PATH', os.path.join(BASE_DIR, 'db.sqlite3')),
     }
 }
 
@@ -101,18 +123,18 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# Get your Twitter key/secret from https://apps.twitter.com/
-SOCIAL_AUTH_TWITTER_KEY = 'YOUR_TWITTER_API_KEY'
-SOCIAL_AUTH_TWITTER_SECRET = 'YOUR_TWITTER_API_SECRET'
+# Get your Twitter key/secret from the Twitter developer portal.
+SOCIAL_AUTH_TWITTER_KEY = os.environ.get('SOCIAL_AUTH_TWITTER_KEY', '')
+SOCIAL_AUTH_TWITTER_SECRET = os.environ.get('SOCIAL_AUTH_TWITTER_SECRET', '')
 
-TWITTER_ACCESS_TOKEN = 'YOUR_TWITTER_ACCESS_TOKEN'
-TWITTER_ACCESS_TOKEN_SECRET = 'YOUR_TWITTER_ACCESS_TOKEN_SECRET'
+TWITTER_ACCESS_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN', '')
+TWITTER_ACCESS_TOKEN_SECRET = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET', '')
 
-SOCIAL_AUTH_BEATS_KEY = 'YOUR_BEATS_ACCESS_TOKEN'
-SOCIAL_AUTH_BEATS_SECRET = 'YOUR_BEATS_ACCESS_TOKEN_SECRET'
+SOCIAL_AUTH_BEATS_KEY = os.environ.get('SOCIAL_AUTH_BEATS_KEY', '')
+SOCIAL_AUTH_BEATS_SECRET = os.environ.get('SOCIAL_AUTH_BEATS_SECRET', '')
 
-SOCIAL_AUTH_SPOTIFY_KEY = 'YOUR_SPOTIFY_ACCESS_TOKEN'
-SOCIAL_AUTH_SPOTIFY_SECRET = 'YOUR_SPOTIFY_ACCESS_TOKEN_SECRET'
+SOCIAL_AUTH_SPOTIFY_KEY = os.environ.get('SOCIAL_AUTH_SPOTIFY_KEY', '')
+SOCIAL_AUTH_SPOTIFY_SECRET = os.environ.get('SOCIAL_AUTH_SPOTIFY_SECRET', '')
 
 SOCIAL_AUTH_LOGIN_URL          = '/'
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'

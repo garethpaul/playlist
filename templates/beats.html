@@ -147,12 +147,20 @@ xdiv {
 {% else %}
 
 <script language="JavaScript1.2">
-  setTimeout(function(){window.location.reload();
+  setTimeout(function(){
+    window.location.reload();
+  }, 5000);
 </script>
 
 {% endif %}
 
 <div style="margin-top: 400px;"></div>
+
+<form id="play-next-form" action="/beats" method="post" style="display: none;">{% csrf_token %}
+    <input type="hidden" name="fav" id="play-next-fav">
+    <input type="hidden" name="track" id="play-next-track">
+    <input type="hidden" name="preview" id="play-next-preview">
+</form>
 
 <form action="">authentication
     <input type="text" id="accessToken" size="50">
@@ -348,14 +356,13 @@ function handleStreamPlaying() {
 }
 
 function playNext(trackId){
-    loc = "/beats?fav={{ track.0.id }}";
-    if (trackId){
-      loc = loc + "&track=" + trackId
-    }
+    var form = document.getElementById("play-next-form");
+    document.getElementById("play-next-fav").value = "{{ track.0.id }}";
+    document.getElementById("play-next-track").value = trackId || "";
     {% if preview %}
-    loc = loc + "&preview=" + {{ preview }}
+    document.getElementById("play-next-preview").value = "{{ preview }}";
     {% endif %}
-    window.location = loc;
+    form.submit();
 }
 
 function handleStreamEnded() {

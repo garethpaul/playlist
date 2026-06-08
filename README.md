@@ -5,27 +5,38 @@
 
 ## Overview
 
-`garethpaul/playlist` is a Python web API or service project. The checked-in files describe a Python web API or service project with the structure summarized below.
+`garethpaul/playlist` is a legacy Django social/music integration sample for
+connecting Twitter authentication, Beats, and Spotify-era playlist flows.
+
+Runtime secrets are environment-driven. `DJANGO_DEBUG` defaults to off, and
+`DJANGO_SECRET_KEY` is required unless `DJANGO_DEBUG=1` is explicitly set for
+local development.
 
 This README is based on the checked-in source, manifests, scripts, and repository metadata on the `master` branch. The project language mix found during review was: Python (11).
 
 ## Repository Contents
 
+- `CHANGES.md` - baseline change log
+- `Makefile` - local verification entry point
 - `README.md` - project overview and local usage notes
 - `requirements.txt` - Python dependency or packaging metadata
 - `app` - source or example code
+- `docs/bugs` - tracked security findings and resolution notes
+- `docs/plans` - completed baseline and follow-up plans
 - `home` - source or example code
 - `manage.py`
+- `scripts/check-baseline.py` - static security baseline checks used by `make check`
 - `SECURITY.md` - security reporting and disclosure guidance
 - `templates` - source or example code
+- `test_settings_security.py` - stdlib tests for environment-based settings
 - `VISION.md` - project direction and maintenance guardrails
 
 Additional scan context:
 
 - Source directories: app, home, templates
-- Dependency and build manifests: requirements.txt
-- Entry points or build surfaces: manage.py
-- Test-looking files: home/tests.py
+- Dependency and build manifests: Makefile, requirements.txt
+- Entry points or build surfaces: manage.py, Makefile
+- Test-looking files: home/tests.py, test_settings_security.py
 
 ## Getting Started
 
@@ -42,21 +53,44 @@ cd playlist
 python -m pip install -r requirements.txt
 ```
 
+For local development without production secrets:
+
+```bash
+export DJANGO_DEBUG=1
+python manage.py runserver
+```
+
 The setup commands above are derived from repository files. Legacy mobile, Python, or JavaScript samples may require older SDKs or package versions than a modern workstation uses by default.
 
 ## Running or Using the Project
 
 - Run Django management commands through `python manage.py ...`.
+- For non-debug execution set `DJANGO_SECRET_KEY` and `DJANGO_ALLOWED_HOSTS`.
+- Set Twitter, Beats, and Spotify credentials through environment variables
+  before using the integration views.
 
 ## Testing and Verification
 
-- `python -m pytest` or the test runner used by the files above
+- `make check`
+- `python3 scripts/check-baseline.py`
+- `python3 test_settings_security.py -v`
+- Legacy Django integration tests when the original dependency set is
+  available
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
 ## Configuration and Secrets
 
 - Detected references to Twitter. Keep API keys, OAuth credentials, tokens, and account-specific values in local configuration only.
+- Required outside local debug: `DJANGO_SECRET_KEY`.
+- Optional runtime controls: `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`.
+- Social credentials: `SOCIAL_AUTH_TWITTER_KEY`,
+  `SOCIAL_AUTH_TWITTER_SECRET`, `TWITTER_ACCESS_TOKEN`,
+  `TWITTER_ACCESS_TOKEN_SECRET`, `SOCIAL_AUTH_BEATS_KEY`,
+  `SOCIAL_AUTH_BEATS_SECRET`, `SOCIAL_AUTH_SPOTIFY_KEY`, and
+  `SOCIAL_AUTH_SPOTIFY_SECRET`.
+- Do not commit `.env`, local settings modules, SQLite databases, access
+  tokens, OAuth secrets, or captured user data.
 
 ## Security and Privacy Notes
 
@@ -64,10 +98,15 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Review changes touching external API calls or credential-adjacent configuration; examples from the scan include app/settings.py, home/views.py, requirements.txt, templates/base.html, and 4 more.
 - Review changes touching network requests, sockets, or service endpoints; examples from the scan include app/settings.py, app/urls.py, app/wsgi.py, fabfile.py, and 6 more.
 - Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include templates/base.html, templates/beats.html, templates/login.html.
+- `make check` verifies that the previously documented hardcoded
+  `SECRET_KEY` and default debug-mode issues stay fixed.
 
 ## Maintenance Notes
 
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
+- See `CHANGES.md`, `docs/bugs/`, and
+  `docs/plans/2026-06-08-playlist-baseline.md` for the current
+  security baseline.
 - See `VISION.md` for project direction and contribution guardrails.
 
 ## Contributing

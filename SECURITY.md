@@ -31,10 +31,19 @@ Helpful reports include:
 - Review found mobile permission or privacy-sensitive data handling; changes in those areas should receive security-focused review before merge.
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
 - Dependency manifests detected: requirements.txt. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
+- Current baseline reads Django `SECRET_KEY`, `DJANGO_DEBUG`,
+  `DJANGO_ALLOWED_HOSTS`, Twitter, Beats, and Spotify credentials from
+  environment variables. `DJANGO_DEBUG` defaults to off, and
+  `DJANGO_SECRET_KEY` is required unless local debug mode is explicitly enabled.
 
 ## Service and API Notes
 
 For web services, APIs, sockets, or scraping workflows, prioritize reports involving authentication bypass, authorization errors, injection, server-side request forgery, unsafe deserialization, credential leakage, data exposure, or denial-of-service conditions. Use test accounts and minimal proof-of-concept traffic only.
+
+Do not commit `.env` files, local settings modules, OAuth tokens, API secrets,
+SQLite databases, session data, playlist data from real users, or captured
+Twitter/Beats/Spotify responses. Run `make check` before changing settings,
+authentication, or credential handling.
 
 ## Dependency and Supply Chain Security
 

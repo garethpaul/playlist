@@ -1,0 +1,200 @@
+#!/usr/bin/env python3
+"""Static baseline checks for the legacy playlist Django sample."""
+
+import ast
+import sys
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+REQUIRED_FILES = [
+    ".gitignore",
+    "CHANGES.md",
+    "Makefile",
+    "README.md",
+    "SECURITY.md",
+    "VISION.md",
+    "app/settings.py",
+    "app/urls.py",
+    "app/wsgi.py",
+    "docs/bugs/p1-hardcoded-django-secret-key-e36bcf60d3422b16.md",
+    "docs/bugs/p2-production-debug-mode-0de2f07d35e177f3.md",
+    "docs/plans/2026-06-08-playlist-baseline.md",
+    "docs/readme-overview.svg",
+    "fabfile.py",
+    "home/views.py",
+    "manage.py",
+    "requirements.txt",
+    "templates/beats.html",
+    "test_settings_security.py",
+]
+
+PYTHON_FILES = [
+    "app/settings.py",
+    "app/urls.py",
+    "app/wsgi.py",
+    "fabfile.py",
+    "home/admin.py",
+    "home/models.py",
+    "home/tests.py",
+    "home/views.py",
+    "manage.py",
+    "scripts/check-baseline.py",
+    "test_settings_security.py",
+]
+
+FORBIDDEN_SETTINGS_SNIPPETS = [
+    ")e-_u9#$xfu5(uw!izbq!yu+dtf1*ce5@7w42p^ro*i-+)$yy%",
+    "DEBUG = True",
+    "TEMPLATE_DEBUG = True",
+    "YOUR_TWITTER_API_KEY",
+    "YOUR_TWITTER_API_SECRET",
+    "YOUR_TWITTER_ACCESS_TOKEN",
+    "YOUR_TWITTER_ACCESS_TOKEN_SECRET",
+    "YOUR_BEATS_ACCESS_TOKEN",
+    "YOUR_BEATS_ACCESS_TOKEN_SECRET",
+    "YOUR_SPOTIFY_ACCESS_TOKEN",
+    "YOUR_SPOTIFY_ACCESS_TOKEN_SECRET",
+]
+
+
+def fail(message):
+    print("check-baseline: %s" % message, file=sys.stderr)
+    return False
+
+
+def read(path):
+    return (ROOT / path).read_text(encoding="utf-8")
+
+
+def require(condition, message, errors):
+    if not condition:
+        errors.append(message)
+
+
+def main():
+    errors = []
+
+    for path in REQUIRED_FILES:
+        require((ROOT / path).exists(), "missing required file: %s" % path, errors)
+
+    for path in PYTHON_FILES:
+        source = read(path)
+        try:
+            ast.parse(source, filename=path)
+        except SyntaxError as exc:
+            errors.append("%s is not Python 3 parseable: %s" % (path, exc))
+
+    makefile = read("Makefile")
+    for snippet in [
+        "check: static-check settings-test",
+        "python3 scripts/check-baseline.py",
+        "python3 test_settings_security.py -v",
+    ]:
+        require(snippet in makefile, "Makefile missing guardrail: %s" % snippet, errors)
+
+    settings = read("app/settings.py")
+    for snippet in FORBIDDEN_SETTINGS_SNIPPETS:
+        require(snippet not in settings, "forbidden settings snippet remains: %s" % snippet, errors)
+
+    for snippet in [
+        "def env_bool(",
+        "def env_list(",
+        "DEBUG = env_bool('DJANGO_DEBUG', False)",
+        "SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')",
+        "raise RuntimeError(",
+        "TEMPLATE_DEBUG = DEBUG",
+        "ALLOWED_HOSTS = env_list(",
+        "DJANGO_ALLOWED_HOSTS",
+        "DJANGO_SQLITE_PATH",
+    ]:
+        require(snippet in settings, "settings missing guardrail: %s" % snippet, errors)
+
+    for name in [
+        "SOCIAL_AUTH_TWITTER_KEY",
+        "SOCIAL_AUTH_TWITTER_SECRET",
+        "TWITTER_ACCESS_TOKEN",
+        "TWITTER_ACCESS_TOKEN_SECRET",
+        "SOCIAL_AUTH_BEATS_KEY",
+        "SOCIAL_AUTH_BEATS_SECRET",
+        "SOCIAL_AUTH_SPOTIFY_KEY",
+        "SOCIAL_AUTH_SPOTIFY_SECRET",
+    ]:
+        require(
+            "%s = os.environ.get('%s', '')" % (name, name) in settings,
+            "settings should read %s from the environment" % name,
+            errors,
+        )
+
+    views = read("home/views.py")
+    require("request.REQUEST" not in views, "legacy request.REQUEST access remains", errors)
+    for snippet in [
+        'request.POST.get("status", None)',
+        'request.POST.get("fav", None)',
+        'request.POST.get("track", request.GET.get("track", None))',
+        "except Exception:",
+        "print(search, tracks)",
+    ]:
+        require(snippet in views, "views missing guardrail: %s" % snippet, errors)
+
+    beats_template = read("templates/beats.html")
+    for snippet in [
+        'id="play-next-form"',
+        'method="post"',
+        "{% csrf_token %}",
+        'document.getElementById("play-next-fav").value',
+        "form.submit();",
+        "window.location.reload();",
+        "}, 5000);",
+    ]:
+        require(snippet in beats_template, "beats template missing POST favorite path: %s" % snippet, errors)
+    require('"/beats?fav=' not in beats_template, "favorite action still uses a query string", errors)
+
+    gitignore = read(".gitignore")
+    for snippet in [".env", "__pycache__/", "*.py[cod]", ".pytest_cache/", "db.sqlite3", "*.log"]:
+        require(snippet in gitignore, ".gitignore missing: %s" % snippet, errors)
+
+    readme = read("README.md")
+    for snippet in [
+        "make check",
+        "DJANGO_SECRET_KEY",
+        "DJANGO_DEBUG",
+        "DJANGO_ALLOWED_HOSTS",
+        "SOCIAL_AUTH_TWITTER_KEY",
+        "TWITTER_ACCESS_TOKEN",
+        "SOCIAL_AUTH_BEATS_KEY",
+        "SOCIAL_AUTH_SPOTIFY_KEY",
+        "python3 test_settings_security.py -v",
+    ]:
+        require(snippet in readme, "README missing: %s" % snippet, errors)
+
+    security = read("SECURITY.md")
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "OAuth"]:
+        require(snippet in security, "SECURITY missing: %s" % snippet, errors)
+
+    vision = read("VISION.md")
+    for snippet in ["environment-based configuration", "POST", "make check"]:
+        require(snippet in vision, "VISION missing: %s" % snippet, errors)
+
+    plan = read("docs/plans/2026-06-08-playlist-baseline.md")
+    for snippet in ["Status: Complete", "make check", "DJANGO_SECRET_KEY", "request.REQUEST", "test_settings_security.py"]:
+        require(snippet in plan, "plan missing: %s" % snippet, errors)
+
+    try:
+        ET.parse(ROOT / "docs/readme-overview.svg")
+    except ET.ParseError as exc:
+        errors.append("docs/readme-overview.svg is not parseable XML: %s" % exc)
+
+    if errors:
+        for error in errors:
+            fail(error)
+        return 1
+
+    print("check-baseline: ok")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

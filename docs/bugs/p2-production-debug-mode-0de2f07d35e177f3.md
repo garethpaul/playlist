@@ -17,6 +17,14 @@ Debug mode is enabled in application startup code. In deployed web apps, debug m
 
 Default debug mode to false, enable it only through an explicit local development setting, and keep deployed WSGI or Flask entry points in production mode.
 
+## Status
+
+Status: fixed on 2026-06-08.
+
+`app/settings.py` now derives `DEBUG` from `DJANGO_DEBUG` with a default of
+`False`, sets `TEMPLATE_DEBUG = DEBUG`, and includes tests that cover both
+local debug and production-style settings.
+
 ## Review metadata
 
 - Repository: `garethpaul/playlist`

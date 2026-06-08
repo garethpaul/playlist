@@ -13,21 +13,29 @@ service API clients, Django views, Fabric startup, and template-driven pages.
 The goal is to preserve the hackathon learning value while making legacy
 service dependencies, credential handling, and upgrade risks explicit.
 
+Current baseline: `make check` verifies Python 3 syntax, environment-based
+Django secret/debug configuration, static security guardrails, and the
+documented fixes for the hardcoded `SECRET_KEY` and default debug-mode bugs.
+
 The current focus is:
 
 Priority:
 
 - Preserve the Django sample flow from login to generated playlist
+- Keep environment-based configuration as the baseline for secrets and service
+  credentials
 - Keep service credentials out of source and documented as local configuration
 - Treat Django 1.6-era code and API clients as legacy
 - Keep template and view behavior easy to trace
+- Keep state-changing tweet, favorite, and playlist actions on POST paths
+- Keep `DJANGO_SECRET_KEY` and social API credentials environment-driven
 
 Next priorities:
 
-- Move placeholder credentials into environment-based configuration
 - Add setup notes for currently unavailable or changed third-party services
 - Add tests around auth-state routing and playlist selection logic
 - Modernize Django only in a separate compatibility pass
+- Replace deprecated Django rendering and request APIs in a compatibility pass
 
 Contribution rules:
 
@@ -35,6 +43,7 @@ Contribution rules:
 - Do not commit real access tokens or user data.
 - Include local setup and migration notes for dependency changes.
 - Keep hackathon-specific behavior visible rather than abstracting it away.
+- Keep `make check` passing for settings and credential guardrails.
 
 ## Security And Responsible Use
 

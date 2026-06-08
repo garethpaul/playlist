@@ -16,6 +16,14 @@ The Django `SECRET_KEY` is committed as a literal value. Anyone with the reposit
 
 Read `SECRET_KEY` from an environment variable or deployment secret store, provide a safe development default only outside production, and rotate the deployed key after removing the committed value.
 
+## Status
+
+Status: fixed on 2026-06-08.
+
+`app/settings.py` now reads `DJANGO_SECRET_KEY` from the environment, allows the
+unsafe development fallback only when `DJANGO_DEBUG=1`, and raises a
+configuration error when debug is off and no secret is provided.
+
 ## Review metadata
 
 - Repository: `garethpaul/playlist`

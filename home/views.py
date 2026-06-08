@@ -25,7 +25,7 @@ def login(request):
 @login_required
 def twttr(request):
     
-    status = request.REQUEST.get("status", None)
+    status = request.POST.get("status", None)
     
     api = get_twitter(request.user)
     if status:
@@ -48,13 +48,13 @@ def beats(request):
     twitter = get_twitter(request.user)
     twitter_me = twitter.GetUser(auth_twitter.uid)
 
-    preview = request.REQUEST.get("preview", None)
-    track_next = request.REQUEST.get("track", None)
-    fav = request.REQUEST.get("fav", None)
+    preview = request.POST.get("preview", request.GET.get("preview", None))
+    track_next = request.POST.get("track", request.GET.get("track", None))
+    fav = request.POST.get("fav", None)
     if fav:
         try:
             twitter.CreateFavorite(id=fav)
-        except:
+        except Exception:
             pass;
     
     # beats stuff    
@@ -73,7 +73,7 @@ def beats(request):
             continue
         search = twitter_username_re.sub('', s.text)
         tracks = beats.get_search_results(search, 'track', limit=1)
-        print search, tracks
+        print(search, tracks)
         
         if tracks and len(tracks['data']) > 0:
             
