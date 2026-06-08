@@ -1,56 +1,79 @@
 # playlist
 
-<!-- README-OVERVIEW-IMAGE -->
-![Project overview](docs/readme-overview.svg)
+## Overview
 
-playlist
-=================
+`garethpaul/playlist` is a Python web API or service project. No GitHub description is currently set.
 
-Sample Django App for #musichackday Hackathon using Twitter X Beats API & BAM
+This README is based on the checked-in source, manifests, scripts, and repository metadata on the `master` branch. The project language mix found during review was: Python (11).
 
-REQUIREMENTS
-============
+## Repository Contents
 
-To run this sample code, you'll need to install the following libraries:
+- `README.md` - project overview and local usage notes
+- `requirements.txt` - Python dependency or packaging metadata
+- `app` - source or example code
+- `home` - source or example code
+- `manage.py`
+- `SECURITY.md` - security reporting and disclosure guidance
+- `templates` - source or example code
+- `VISION.md` - project direction and maintenance guardrails
 
-- Python Social Auth, rchoi fork (https://github.com/ryankicks/python-social-auth)
-- Python Twitter (https://github.com/bear/python-twitter  )
-- Beats Music Developer Platform SDK (https://github.com/Beats-Music/pybeats)
-- south (http://south.aeracode.org/)
-- Fabric (http://www.fabfile.org/)
+Additional scan context:
 
-You can install them with the following command:
+- Source directories: app, home, templates
+- Dependency and build manifests: requirements.txt
+- Entry points or build surfaces: manage.py
+- Test-looking files: home/tests.py
 
-  pip install -r requirements.txt
+## Getting Started
 
-GETTING STARTED
-============
+### Prerequisites
 
+- Git
+- Python matching the era of the project
 
-- Create a Twitter App (https://apps.twitter.com/)
-- Create a Beats App (https://developer.beatsmusic.com/) -- Must be a paid subscription
+### Setup
 
-- Specify your Twitter App tokens in app/settings.py under the following section:
+```bash
+git clone https://github.com/garethpaul/playlist.git
+cd playlist
+python -m pip install -r requirements.txt
+```
 
-    SOCIAL_AUTH_TWITTER_KEY = 'YOUR_TWITTER_API_KEY'
-    SOCIAL_AUTH_TWITTER_SECRET = 'YOUR_TWITTER_API_SECRET'
+The setup commands above are derived from repository files. Legacy mobile, Python, or JavaScript samples may require older SDKs or package versions than a modern workstation uses by default.
 
-    TWITTER_ACCESS_TOKEN = 'YOUR_TWITTER_ACCESS_TOKEN'
-    TWITTER_ACCESS_TOKEN_SECRET = 'YOUR_TWITTER_ACCESS_TOKEN_SECRET'
+## Running or Using the Project
 
-    SOCIAL_AUTH_BEATS_KEY = 'XXX'
-    SOCIAL_AUTH_BEATS_SECRET = 'YYY'
+- Run Django management commands through `python manage.py ...`.
 
--- The next step of the process to run:
+## Testing and Verification
 
-  pip install -r requirements.txt
+- `python -m pytest` or the test runner used by the files above
 
-- To initialize your database, run the from the `playlist` directory:
+When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
-  python manage.py syncdb
+## Configuration and Secrets
 
-- To start the server, run the following from the `playlist` directory:
+- Detected references to Twitter. Keep API keys, OAuth credentials, tokens, and account-specific values in local configuration only.
 
-  fab start
+## Security and Privacy Notes
 
-- Open a browser and go to http://localhost:9000
+- Review changes touching authentication or token handling; examples from the scan include app/settings.py, app/urls.py, home/views.py, requirements.txt, and 2 more.
+- Review changes touching external API calls or credential-adjacent configuration; examples from the scan include app/settings.py, home/views.py, requirements.txt, templates/base.html, and 4 more.
+- Review changes touching network requests, sockets, or service endpoints; examples from the scan include app/settings.py, app/urls.py, app/wsgi.py, fabfile.py, and 6 more.
+- Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include templates/base.html, templates/beats.html, templates/login.html.
+
+## Maintenance Notes
+
+- See `SECURITY.md` for vulnerability reporting and safe research guidance.
+- See `VISION.md` for project direction and contribution guardrails.
+
+## Contributing
+
+Keep changes small and tied to the project that is already present in this repository. For code changes, document the toolchain used, avoid committing generated dependency directories or local configuration, and update this README when setup or verification steps change.
+
+## Existing Project Notes
+
+Prior README summary:
+
+> playlist <!-- README-OVERVIEW-IMAGE --> playlist ================= Sample Django App for #musichackday Hackathon using Twitter X Beats API & BAM REQUIREMENTS ============ To run this sample code, you'll need to install the following libraries:
+
