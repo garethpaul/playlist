@@ -39,7 +39,7 @@ The app touches social identities, access tokens, and music-service data.
 Credentials must remain local, token revocation should be respected, and sample
 data should be fake or user-provided.
 
-## What We Will Not Merge For Now
+## What We Will Not Merge (For Now)
 
 - Production credentials or captured user data
 - Silent posting, favoriting, or playlist changes
