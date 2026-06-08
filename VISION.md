@@ -1,5 +1,8 @@
 ## Playlist Vision
 
+This document explains the current state and direction of the project.
+Project overview and developer docs: [`README.md`](README.md)
+
 Playlist is a legacy Django sample for a Music Hack Day project that connects
 Twitter authentication, music-service authentication, mentions, and playlist
 creation into a small web app.
