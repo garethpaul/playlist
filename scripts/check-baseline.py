@@ -28,6 +28,7 @@ REQUIRED_FILES = [
     "manage.py",
     "requirements.txt",
     "templates/beats.html",
+    "templates/twitter.html",
     "test_settings_security.py",
 ]
 
@@ -152,6 +153,10 @@ def main():
         require(snippet in beats_template, "beats template missing POST favorite path: %s" % snippet, errors)
     require('"/beats?fav=' not in beats_template, "favorite action still uses a query string", errors)
 
+    twitter_template = read("templates/twitter.html")
+    for snippet in ['action="/twttr"', 'method="post"', "{% csrf_token %}"]:
+        require(snippet in twitter_template, "twitter template missing POST status path: %s" % snippet, errors)
+
     gitignore = read(".gitignore")
     for snippet in [".env", "__pycache__/", "*.py[cod]", ".pytest_cache/", "db.sqlite3", "*.log"]:
         require(snippet in gitignore, ".gitignore missing: %s" % snippet, errors)
@@ -179,7 +184,7 @@ def main():
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
-    for snippet in ["Status: Complete", "make check", "DJANGO_SECRET_KEY", "request.REQUEST", "test_settings_security.py"]:
+    for snippet in ["Status: Complete", "make check", "DJANGO_SECRET_KEY", "request.REQUEST", "test_settings_security.py", "/twttr"]:
         require(snippet in plan, "plan missing: %s" % snippet, errors)
 
     try:

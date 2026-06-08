@@ -21,6 +21,7 @@ Date: 2026-06-08
 - Settings now read `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_SQLITE_PATH`, and social-service credentials from environment variables.
 - Production-style startup fails closed when `DJANGO_SECRET_KEY` is absent and debug mode is not explicitly enabled.
 - Tweet posting and favorite creation read from POST data; preview and track routing can still preserve UI state.
+- The tweet form posts to the `/twttr` route with CSRF protection.
 - The Beats template submits favorite actions through a CSRF-protected POST form.
 - `make check` runs `scripts/check-baseline.py` and `test_settings_security.py`, which validate Python syntax, security guardrails, docs, SVG parseability, and environment-driven settings behavior.
 
