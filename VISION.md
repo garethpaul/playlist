@@ -35,6 +35,11 @@ Contribution rules:
 
 ## Security And Responsible Use
 
+Canonical security policy and reporting:
+
+- [`SECURITY.md`](SECURITY.md)
+
+
 The app touches social identities, access tokens, and music-service data.
 Credentials must remain local, token revocation should be respected, and sample
 data should be fake or user-provided.
