@@ -48,6 +48,10 @@ authentication, or credential handling.
 Keep state-changing tweet, favorite, playlist, and playback actions on POST
 paths with CSRF protection.
 
+Do not add debug print statements that expose OAuth tokens, mention text, track
+search terms, track results, playlist choices, or other user-linked service
+data.
+
 ## Dependency and Supply Chain Security
 
 Dependency updates should come from trusted package managers and should keep lockfiles in sync when lockfiles exist. Do not commit credentials, private keys, tokens, generated secrets, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.

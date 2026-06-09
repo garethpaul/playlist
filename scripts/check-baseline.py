@@ -22,6 +22,7 @@ REQUIRED_FILES = [
     "docs/bugs/p1-hardcoded-django-secret-key-e36bcf60d3422b16.md",
     "docs/bugs/p2-production-debug-mode-0de2f07d35e177f3.md",
     "docs/plans/2026-06-08-playlist-baseline.md",
+    "docs/plans/2026-06-09-remove-playlist-debug-print.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -136,9 +137,9 @@ def main():
         'request.POST.get("fav", None)',
         'request.POST.get("track", request.GET.get("track", None))',
         "except Exception:",
-        "print(search, tracks)",
     ]:
         require(snippet in views, "views missing guardrail: %s" % snippet, errors)
+    require("print(search, tracks)" not in views, "playlist debug print must not expose user-linked data", errors)
 
     beats_template = read("templates/beats.html")
     for snippet in [
@@ -171,21 +172,25 @@ def main():
         "TWITTER_ACCESS_TOKEN",
         "SOCIAL_AUTH_BEATS_KEY",
         "SOCIAL_AUTH_SPOTIFY_KEY",
+        "debug print",
         "python3 test_settings_security.py -v",
     ]:
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "OAuth"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "OAuth", "debug print"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "debug print"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
     for snippet in ["Status: Complete", "make check", "DJANGO_SECRET_KEY", "request.REQUEST", "test_settings_security.py", "/twttr"]:
         require(snippet in plan, "plan missing: %s" % snippet, errors)
+    debug_plan = read("docs/plans/2026-06-09-remove-playlist-debug-print.md")
+    for snippet in ["Status: Complete", "print(search, tracks)", "make check"]:
+        require(snippet in debug_plan, "debug print plan missing: %s" % snippet, errors)
 
     try:
         ET.parse(ROOT / "docs/readme-overview.svg")

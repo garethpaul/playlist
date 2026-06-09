@@ -29,11 +29,14 @@ Priority:
 - Keep template and view behavior easy to trace
 - Keep state-changing tweet, favorite, and playlist actions on POST paths
 - Keep `DJANGO_SECRET_KEY` and social API credentials environment-driven
+- Keep user-linked playlist data out of debug print output
 
 Next priorities:
 
 - Add setup notes for currently unavailable or changed third-party services
 - Add tests around auth-state routing and playlist selection logic
+- Add focused tests around log-safe playlist selection once dependencies are
+  pinned or replaced
 - Modernize Django only in a separate compatibility pass
 - Replace deprecated Django rendering and request APIs in a compatibility pass
 

@@ -73,7 +73,6 @@ def beats(request):
             continue
         search = twitter_username_re.sub('', s.text)
         tracks = beats.get_search_results(search, 'track', limit=1)
-        print(search, tracks)
         
         if tracks and len(tracks['data']) > 0:
             

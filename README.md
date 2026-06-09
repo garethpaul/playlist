@@ -102,6 +102,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   `SECRET_KEY` and default debug-mode issues stay fixed.
 - Keep state-changing tweet, favorite, and playlist actions on POST paths with
   CSRF protection.
+- Do not add debug print statements that expose mention text, track search
+  terms, track results, OAuth tokens, or user-linked playlist data.
 
 ## Maintenance Notes
 
