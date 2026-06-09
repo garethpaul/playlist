@@ -36,6 +36,7 @@ Priority:
 - Keep blank `DJANGO_SECRET_KEY` values from satisfying production settings
 - Keep allowed hosts required outside local debug mode
 - Keep wildcard allowed hosts rejected outside local debug mode
+- Keep Twitter and Beats URL patterns as exact-match integration routes
 - Keep user-linked playlist data out of debug print output
 - Keep standard Make gate aliases available for local verification
 

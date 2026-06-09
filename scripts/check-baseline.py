@@ -30,6 +30,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-09-make-gate-aliases.md",
     "docs/plans/2026-06-09-wildcard-allowed-hosts.md",
     "docs/plans/2026-06-09-non-string-post-inputs.md",
+    "docs/plans/2026-06-09-exact-integration-routes.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -39,6 +40,7 @@ REQUIRED_FILES = [
     "templates/twitter.html",
     "test_settings_security.py",
     "test_views_normalization.py",
+    "test_url_patterns.py",
 ]
 
 PYTHON_FILES = [
@@ -54,6 +56,7 @@ PYTHON_FILES = [
     "scripts/check-baseline.py",
     "test_settings_security.py",
     "test_views_normalization.py",
+    "test_url_patterns.py",
 ]
 
 FORBIDDEN_SETTINGS_SNIPPETS = [
@@ -103,13 +106,26 @@ def main():
         "check: verify",
         "verify: lint test build",
         "lint: static-check",
-        "test: settings-test",
+        "test: settings-test url-test",
         "build: static-check",
         "python3 scripts/check-baseline.py",
         "python3 test_settings_security.py -v",
         "python3 test_views_normalization.py -v",
+        "python3 test_url_patterns.py -v",
     ]:
         require(snippet in makefile, "Makefile missing guardrail: %s" % snippet, errors)
+
+    urls = read("app/urls.py")
+    for snippet in [
+        "url(r'^twttr$', 'home.views.twttr', name='twttr')",
+        "url(r'^beats$', 'home.views.beats', name='beats')",
+    ]:
+        require(snippet in urls, "urls missing exact route: %s" % snippet, errors)
+    for snippet in [
+        "url(r'^twttr', 'home.views.twttr', name='twttr')",
+        "url(r'^beats', 'home.views.beats', name='beats')",
+    ]:
+        require(snippet not in urls, "urls still contains prefix route: %s" % snippet, errors)
 
     settings = read("app/settings.py")
     for snippet in FORBIDDEN_SETTINGS_SNIPPETS:
@@ -209,19 +225,21 @@ def main():
         "debug print",
         "python3 test_settings_security.py -v",
         "python3 test_views_normalization.py -v",
+        "python3 test_url_patterns.py -v",
         "blank",
         "post input normalization",
         "non-string post inputs",
+        "exact-match integration routes",
         "CSRF-protected POST logout",
     ]:
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "post input normalization", "non-string post inputs", "CSRF-protected POST logout"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "post input normalization", "non-string post inputs", "exact-match integration routes", "CSRF-protected POST logout"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "post input normalization", "non-string post inputs", "allowed hosts", "wildcard allowed hosts", "POST-only logout"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "post input normalization", "non-string post inputs", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -251,6 +269,9 @@ def main():
     non_string_post_plan = read("docs/plans/2026-06-09-non-string-post-inputs.md")
     for snippet in ["Status: Complete", "clean_post_text", "non-string post inputs", "test_views_normalization.py", "make check"]:
         require(snippet in non_string_post_plan, "non-string post input plan missing: %s" % snippet, errors)
+    exact_routes_plan = read("docs/plans/2026-06-09-exact-integration-routes.md")
+    for snippet in ["Status: Complete", "twttr", "beats", "exact-match", "test_url_patterns.py", "make check"]:
+        require(snippet in exact_routes_plan, "exact integration routes plan missing: %s" % snippet, errors)
 
     try:
         ET.parse(ROOT / "docs/readme-overview.svg")

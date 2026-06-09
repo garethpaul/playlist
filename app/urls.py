@@ -6,8 +6,8 @@ admin.autodiscover()
 urlpatterns = patterns('',
 
     url(r'^$', 'home.views.login', name='login'),
-    url(r'^twttr', 'home.views.twttr', name='twttr'),
-    url(r'^beats', 'home.views.beats', name='beats'),
+    url(r'^twttr$', 'home.views.twttr', name='twttr'),
+    url(r'^beats$', 'home.views.beats', name='beats'),
     url(r'^logout$', 'home.views.logout', name='logout'),
 
     url('', include('social.apps.django_app.urls', namespace='social')),

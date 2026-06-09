@@ -82,6 +82,7 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `python3 scripts/check-baseline.py`
 - `python3 test_settings_security.py -v`
 - `python3 test_views_normalization.py -v`
+- `python3 test_url_patterns.py -v`
 - Legacy Django integration tests when the original dependency set is
   available
 
@@ -128,6 +129,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Keep post input normalization in place so non-string post inputs and blank
   status text are skipped, and favorite actions only call Twitter for numeric
   tweet IDs.
+- Keep the Twitter and Beats integration URL patterns as exact-match integration routes
+  so prefix paths do not enter those views.
 - Do not add debug print statements that expose mention text, track search
   terms, track results, OAuth tokens, or user-linked playlist data.
 
