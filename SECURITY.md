@@ -35,6 +35,7 @@ Helpful reports include:
   `DJANGO_ALLOWED_HOSTS`, Twitter, Beats, and Spotify credentials from
   environment variables. `DJANGO_DEBUG` defaults to off, and
   `DJANGO_SECRET_KEY` is required unless local debug mode is explicitly enabled.
+  A blank `DJANGO_SECRET_KEY` value is rejected in non-debug mode.
 
 ## Service and API Notes
 

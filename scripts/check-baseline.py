@@ -23,6 +23,7 @@ REQUIRED_FILES = [
     "docs/bugs/p2-production-debug-mode-0de2f07d35e177f3.md",
     "docs/plans/2026-06-08-playlist-baseline.md",
     "docs/plans/2026-06-09-remove-playlist-debug-print.md",
+    "docs/plans/2026-06-09-blank-secret-key.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -106,6 +107,7 @@ def main():
         "def env_list(",
         "DEBUG = env_bool('DJANGO_DEBUG', False)",
         "SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')",
+        "SECRET_KEY = SECRET_KEY.strip()",
         "raise RuntimeError(",
         "TEMPLATE_DEBUG = DEBUG",
         "ALLOWED_HOSTS = env_list(",
@@ -174,15 +176,16 @@ def main():
         "SOCIAL_AUTH_SPOTIFY_KEY",
         "debug print",
         "python3 test_settings_security.py -v",
+        "blank",
     ]:
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "OAuth", "debug print"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "OAuth", "debug print", "blank"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "debug print"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "debug print", "blank"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -191,6 +194,9 @@ def main():
     debug_plan = read("docs/plans/2026-06-09-remove-playlist-debug-print.md")
     for snippet in ["Status: Complete", "print(search, tracks)", "make check"]:
         require(snippet in debug_plan, "debug print plan missing: %s" % snippet, errors)
+    blank_secret_plan = read("docs/plans/2026-06-09-blank-secret-key.md")
+    for snippet in ["Status: Complete", "DJANGO_SECRET_KEY", "blank", "make check"]:
+        require(snippet in blank_secret_plan, "blank secret plan missing: %s" % snippet, errors)
 
     try:
         ET.parse(ROOT / "docs/readme-overview.svg")

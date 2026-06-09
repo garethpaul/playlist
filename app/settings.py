@@ -32,6 +32,8 @@ def env_list(name, default=''):
 DEBUG = env_bool('DJANGO_DEBUG', False)
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+if SECRET_KEY:
+    SECRET_KEY = SECRET_KEY.strip()
 if not SECRET_KEY:
     if DEBUG:
         SECRET_KEY = 'unsafe-development-secret-key'

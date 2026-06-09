@@ -83,6 +83,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - Detected references to Twitter. Keep API keys, OAuth credentials, tokens, and account-specific values in local configuration only.
 - Required outside local debug: `DJANGO_SECRET_KEY`.
+- Blank `DJANGO_SECRET_KEY` values are rejected outside local debug mode.
 - Optional runtime controls: `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`.
 - Social credentials: `SOCIAL_AUTH_TWITTER_KEY`,
   `SOCIAL_AUTH_TWITTER_SECRET`, `TWITTER_ACCESS_TOKEN`,
@@ -99,7 +100,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Review changes touching network requests, sockets, or service endpoints; examples from the scan include app/settings.py, app/urls.py, app/wsgi.py, fabfile.py, and 6 more.
 - Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include templates/base.html, templates/beats.html, templates/login.html.
 - `make check` verifies that the previously documented hardcoded
-  `SECRET_KEY` and default debug-mode issues stay fixed.
+  `SECRET_KEY`, blank secret, and default debug-mode issues stay fixed.
 - Keep state-changing tweet, favorite, and playlist actions on POST paths with
   CSRF protection.
 - Do not add debug print statements that expose mention text, track search

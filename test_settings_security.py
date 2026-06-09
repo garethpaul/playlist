@@ -24,6 +24,13 @@ class SettingsSecurityTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "DJANGO_SECRET_KEY"):
                 spec.loader.exec_module(module)
 
+    def test_blank_secret_key_rejected_when_debug_disabled(self):
+        with mock.patch.dict(os.environ, {"DJANGO_SECRET_KEY": "   ", "DJANGO_DEBUG": "0"}, clear=True):
+            spec = importlib.util.spec_from_file_location("playlist_settings_blank_secret", str(SETTINGS))
+            module = importlib.util.module_from_spec(spec)
+            with self.assertRaisesRegex(RuntimeError, "DJANGO_SECRET_KEY"):
+                spec.loader.exec_module(module)
+
     def test_local_debug_uses_explicit_development_fallback(self):
         settings = self.load_settings({"DJANGO_DEBUG": "1"})
 
@@ -33,7 +40,7 @@ class SettingsSecurityTest(unittest.TestCase):
 
     def test_production_settings_come_from_environment(self):
         settings = self.load_settings({
-            "DJANGO_SECRET_KEY": "test-production-secret",
+            "DJANGO_SECRET_KEY": "  test-production-secret  ",
             "DJANGO_DEBUG": "0",
             "DJANGO_ALLOWED_HOSTS": "playlist.example.com, api.example.com",
             "SOCIAL_AUTH_TWITTER_KEY": "twitter-key",
