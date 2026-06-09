@@ -31,6 +31,7 @@ Priority:
 - Keep state-changing tweet, favorite, and playlist actions on POST paths
 - Keep logout as a POST-only logout action with CSRF protection
 - Keep post input normalization close to outbound Twitter side effects
+- Keep non-string post inputs out of Twitter service calls
 - Keep `DJANGO_SECRET_KEY` and social API credentials environment-driven
 - Keep blank `DJANGO_SECRET_KEY` values from satisfying production settings
 - Keep allowed hosts required outside local debug mode

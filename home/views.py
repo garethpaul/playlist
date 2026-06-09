@@ -17,6 +17,8 @@ tweet_id_re = re.compile(r'^[0-9]+$')
 def clean_post_text(value):
     if value is None:
         return None
+    if not isinstance(value, str):
+        return None
     value = value.strip()
     return value or None
 

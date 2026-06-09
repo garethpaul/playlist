@@ -81,12 +81,14 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `make verify`
 - `python3 scripts/check-baseline.py`
 - `python3 test_settings_security.py -v`
+- `python3 test_views_normalization.py -v`
 - Legacy Django integration tests when the original dependency set is
   available
 
 `make lint` runs the static security baseline, `make test` runs the
-dependency-free settings test, `make build` reruns the static baseline as the
-local build gate, and `make verify` combines those standard targets.
+dependency-free settings and view-normalization tests, `make build` reruns the
+static baseline as the local build gate, and `make verify` combines those
+standard targets.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -123,8 +125,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
   CSRF protection.
 - Logout uses a CSRF-protected POST logout form instead of a GET link so
   session and social-auth cleanup stay user-initiated.
-- Keep post input normalization in place so blank status text is skipped and
-  favorite actions only call Twitter for numeric tweet IDs.
+- Keep post input normalization in place so non-string post inputs and blank
+  status text are skipped, and favorite actions only call Twitter for numeric
+  tweet IDs.
 - Do not add debug print statements that expose mention text, track search
   terms, track results, OAuth tokens, or user-linked playlist data.
 

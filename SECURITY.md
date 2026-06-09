@@ -53,7 +53,8 @@ paths with CSRF protection.
 Keep logout as a CSRF-protected POST logout action so session and social-auth
 cleanup are not triggered by a link visit.
 Keep post input normalization close to outbound Twitter side effects so blank
-status text and malformed favorite IDs do not reach service clients.
+status text, non-string post inputs, and malformed favorite IDs do not reach
+service clients.
 Keep `DJANGO_ALLOWED_HOSTS` required outside local debug so production host
 validation cannot be omitted accidentally.
 Reject wildcard allowed hosts outside local debug so production host validation

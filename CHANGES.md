@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Rejected non-string post inputs before Twitter status or favorite
+  normalization.
 - Rejected wildcard allowed hosts when debug is disabled.
 - Added stable Make aliases for lint, test, build, verify, and check gates.
 

@@ -15,3 +15,4 @@ static-check:
 
 settings-test:
 	python3 test_settings_security.py -v
+	python3 test_views_normalization.py -v

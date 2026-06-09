@@ -29,6 +29,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-09-post-only-logout.md",
     "docs/plans/2026-06-09-make-gate-aliases.md",
     "docs/plans/2026-06-09-wildcard-allowed-hosts.md",
+    "docs/plans/2026-06-09-non-string-post-inputs.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -37,6 +38,7 @@ REQUIRED_FILES = [
     "templates/beats.html",
     "templates/twitter.html",
     "test_settings_security.py",
+    "test_views_normalization.py",
 ]
 
 PYTHON_FILES = [
@@ -51,6 +53,7 @@ PYTHON_FILES = [
     "manage.py",
     "scripts/check-baseline.py",
     "test_settings_security.py",
+    "test_views_normalization.py",
 ]
 
 FORBIDDEN_SETTINGS_SNIPPETS = [
@@ -104,6 +107,7 @@ def main():
         "build: static-check",
         "python3 scripts/check-baseline.py",
         "python3 test_settings_security.py -v",
+        "python3 test_views_normalization.py -v",
     ]:
         require(snippet in makefile, "Makefile missing guardrail: %s" % snippet, errors)
 
@@ -147,6 +151,7 @@ def main():
     require("request.REQUEST" not in views, "legacy request.REQUEST access remains", errors)
     for snippet in [
         "def clean_post_text(",
+        "if not isinstance(value, str):",
         "def clean_tweet_id(",
         "tweet_id_re = re.compile(r'^[0-9]+$')",
         'status = clean_post_text(request.POST.get("status", None))',
@@ -203,18 +208,20 @@ def main():
         "SOCIAL_AUTH_SPOTIFY_KEY",
         "debug print",
         "python3 test_settings_security.py -v",
+        "python3 test_views_normalization.py -v",
         "blank",
         "post input normalization",
+        "non-string post inputs",
         "CSRF-protected POST logout",
     ]:
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "post input normalization", "CSRF-protected POST logout"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "post input normalization", "non-string post inputs", "CSRF-protected POST logout"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "post input normalization", "allowed hosts", "wildcard allowed hosts", "POST-only logout"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "post input normalization", "non-string post inputs", "allowed hosts", "wildcard allowed hosts", "POST-only logout"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -241,6 +248,9 @@ def main():
     wildcard_hosts_plan = read("docs/plans/2026-06-09-wildcard-allowed-hosts.md")
     for snippet in ["Status: Complete", "DJANGO_ALLOWED_HOSTS", "wildcard", "make check"]:
         require(snippet in wildcard_hosts_plan, "wildcard allowed hosts plan missing: %s" % snippet, errors)
+    non_string_post_plan = read("docs/plans/2026-06-09-non-string-post-inputs.md")
+    for snippet in ["Status: Complete", "clean_post_text", "non-string post inputs", "test_views_normalization.py", "make check"]:
+        require(snippet in non_string_post_plan, "non-string post input plan missing: %s" % snippet, errors)
 
     try:
         ET.parse(ROOT / "docs/readme-overview.svg")
