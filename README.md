@@ -106,6 +106,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   validation cannot be omitted accidentally.
 - Keep state-changing tweet, favorite, and playlist actions on POST paths with
   CSRF protection.
+- Logout uses a CSRF-protected POST logout form instead of a GET link so
+  session and social-auth cleanup stay user-initiated.
 - Keep post input normalization in place so blank status text is skipped and
   favorite actions only call Twitter for numeric tweet IDs.
 - Do not add debug print statements that expose mention text, track search
@@ -117,6 +119,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `CHANGES.md`, `docs/bugs/`, and
   `docs/plans/2026-06-08-playlist-baseline.md` for the current
   security baseline.
+- See `docs/plans/2026-06-09-post-only-logout.md` for the CSRF-protected POST
+  logout guardrail.
 - See `VISION.md` for project direction and contribution guardrails.
 
 ## Contributing

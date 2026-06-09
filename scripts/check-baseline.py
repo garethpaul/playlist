@@ -26,6 +26,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-09-blank-secret-key.md",
     "docs/plans/2026-06-09-post-input-normalization.md",
     "docs/plans/2026-06-09-required-allowed-hosts.md",
+    "docs/plans/2026-06-09-post-only-logout.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -144,6 +145,8 @@ def main():
         'status = clean_post_text(request.POST.get("status", None))',
         'fav = clean_tweet_id(request.POST.get("fav", None))',
         'request.POST.get("track", request.GET.get("track", None))',
+        "from django.views.decorators.http import require_POST",
+        "@login_required\n@require_POST\ndef logout(request):",
         "except Exception:",
     ]:
         require(snippet in views, "views missing guardrail: %s" % snippet, errors)
@@ -166,6 +169,11 @@ def main():
     for snippet in ['action="/twttr"', 'method="post"', "{% csrf_token %}"]:
         require(snippet in twitter_template, "twitter template missing POST status path: %s" % snippet, errors)
 
+    base_template = read("templates/base.html")
+    for snippet in ['action="/logout"', 'method="post"', "{% csrf_token %}"]:
+        require(snippet in base_template, "base template missing POST logout path: %s" % snippet, errors)
+    require('href="/logout"' not in base_template, "logout action still uses a GET link", errors)
+
     gitignore = read(".gitignore")
     for snippet in [".env", "__pycache__/", "*.py[cod]", ".pytest_cache/", "db.sqlite3", "*.log"]:
         require(snippet in gitignore, ".gitignore missing: %s" % snippet, errors)
@@ -185,15 +193,16 @@ def main():
         "python3 test_settings_security.py -v",
         "blank",
         "post input normalization",
+        "CSRF-protected POST logout",
     ]:
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "OAuth", "debug print", "blank", "post input normalization"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "OAuth", "debug print", "blank", "post input normalization", "CSRF-protected POST logout"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "debug print", "blank", "post input normalization", "allowed hosts"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "debug print", "blank", "post input normalization", "allowed hosts", "POST-only logout"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -211,6 +220,9 @@ def main():
     allowed_hosts_plan = read("docs/plans/2026-06-09-required-allowed-hosts.md")
     for snippet in ["Status: Complete", "DJANGO_ALLOWED_HOSTS", "test_allowed_hosts_required_when_debug_disabled", "make check"]:
         require(snippet in allowed_hosts_plan, "allowed hosts plan missing: %s" % snippet, errors)
+    post_logout_plan = read("docs/plans/2026-06-09-post-only-logout.md")
+    for snippet in ["Status: Complete", "logout", "POST", "CSRF", "make check"]:
+        require(snippet in post_logout_plan, "post-only logout plan missing: %s" % snippet, errors)
 
     try:
         ET.parse(ROOT / "docs/readme-overview.svg")

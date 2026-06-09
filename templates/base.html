@@ -62,7 +62,10 @@ img.greyscale {
 {% if request.user.is_authenticated %}
 
 <div style="float: right;">
-You are logged in as {{request.user.username}} [<a href="/logout">Logout</a>]
+You are logged in as {{request.user.username}}
+<form action="/logout" method="post" style="display: inline;">{% csrf_token %}
+  <input type="submit" value="Logout">
+</form>
 </div>
 
 <br><br>
