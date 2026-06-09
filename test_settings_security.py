@@ -31,6 +31,13 @@ class SettingsSecurityTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "DJANGO_SECRET_KEY"):
                 spec.loader.exec_module(module)
 
+    def test_allowed_hosts_required_when_debug_disabled(self):
+        with mock.patch.dict(os.environ, {"DJANGO_SECRET_KEY": "test-secret", "DJANGO_DEBUG": "0"}, clear=True):
+            spec = importlib.util.spec_from_file_location("playlist_settings_missing_hosts", str(SETTINGS))
+            module = importlib.util.module_from_spec(spec)
+            with self.assertRaisesRegex(RuntimeError, "DJANGO_ALLOWED_HOSTS"):
+                spec.loader.exec_module(module)
+
     def test_local_debug_uses_explicit_development_fallback(self):
         settings = self.load_settings({"DJANGO_DEBUG": "1"})
 

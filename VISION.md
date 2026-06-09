@@ -31,6 +31,7 @@ Priority:
 - Keep post input normalization close to outbound Twitter side effects
 - Keep `DJANGO_SECRET_KEY` and social API credentials environment-driven
 - Keep blank `DJANGO_SECRET_KEY` values from satisfying production settings
+- Keep allowed hosts required outside local debug mode
 - Keep user-linked playlist data out of debug print output
 
 Next priorities:

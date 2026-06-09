@@ -10,5 +10,6 @@
   results.
 - Rejected blank `DJANGO_SECRET_KEY` values outside local debug mode.
 - Added post input normalization for Twitter status text and favorite IDs.
+- Required `DJANGO_ALLOWED_HOSTS` outside local debug mode.
 - Added `make check` with dependency-free static baseline and settings tests
   for this legacy Django sample.

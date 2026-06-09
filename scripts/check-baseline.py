@@ -25,6 +25,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-09-remove-playlist-debug-print.md",
     "docs/plans/2026-06-09-blank-secret-key.md",
     "docs/plans/2026-06-09-post-input-normalization.md",
+    "docs/plans/2026-06-09-required-allowed-hosts.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -113,6 +114,7 @@ def main():
         "TEMPLATE_DEBUG = DEBUG",
         "ALLOWED_HOSTS = env_list(",
         "DJANGO_ALLOWED_HOSTS",
+        "if not DEBUG and not ALLOWED_HOSTS:",
         "DJANGO_SQLITE_PATH",
     ]:
         require(snippet in settings, "settings missing guardrail: %s" % snippet, errors)
@@ -174,6 +176,7 @@ def main():
         "DJANGO_SECRET_KEY",
         "DJANGO_DEBUG",
         "DJANGO_ALLOWED_HOSTS",
+        "required outside local debug",
         "SOCIAL_AUTH_TWITTER_KEY",
         "TWITTER_ACCESS_TOKEN",
         "SOCIAL_AUTH_BEATS_KEY",
@@ -186,11 +189,11 @@ def main():
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "OAuth", "debug print", "blank", "post input normalization"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "OAuth", "debug print", "blank", "post input normalization"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "debug print", "blank", "post input normalization"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "debug print", "blank", "post input normalization", "allowed hosts"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -205,6 +208,9 @@ def main():
     post_input_plan = read("docs/plans/2026-06-09-post-input-normalization.md")
     for snippet in ["Status: Complete", "clean_post_text", "clean_tweet_id", "make check"]:
         require(snippet in post_input_plan, "post input plan missing: %s" % snippet, errors)
+    allowed_hosts_plan = read("docs/plans/2026-06-09-required-allowed-hosts.md")
+    for snippet in ["Status: Complete", "DJANGO_ALLOWED_HOSTS", "test_allowed_hosts_required_when_debug_disabled", "make check"]:
+        require(snippet in allowed_hosts_plan, "allowed hosts plan missing: %s" % snippet, errors)
 
     try:
         ET.parse(ROOT / "docs/readme-overview.svg")

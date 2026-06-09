@@ -49,6 +49,10 @@ ALLOWED_HOSTS = env_list(
     'DJANGO_ALLOWED_HOSTS',
     'localhost,127.0.0.1' if DEBUG else ''
 )
+if not DEBUG and not ALLOWED_HOSTS:
+    raise RuntimeError(
+        'DJANGO_ALLOWED_HOSTS must be set unless DJANGO_DEBUG is enabled for local development.'
+    )
 
 
 # Application definition
