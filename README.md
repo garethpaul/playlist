@@ -51,6 +51,7 @@ Additional scan context:
 git clone https://github.com/garethpaul/playlist.git
 cd playlist
 python -m pip install -r requirements.txt
+make check
 ```
 
 For local development without production secrets:
@@ -72,10 +73,18 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 ## Testing and Verification
 
 - `make check`
+- `make lint`
+- `make test`
+- `make build`
+- `make verify`
 - `python3 scripts/check-baseline.py`
 - `python3 test_settings_security.py -v`
 - Legacy Django integration tests when the original dependency set is
   available
+
+`make lint` runs the static security baseline, `make test` runs the
+dependency-free settings test, `make build` reruns the static baseline as the
+local build gate, and `make verify` combines those standard targets.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -121,6 +130,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   security baseline.
 - See `docs/plans/2026-06-09-post-only-logout.md` for the CSRF-protected POST
   logout guardrail.
+- See `docs/plans/2026-06-09-make-gate-aliases.md` for the local Make gate
+  aliases.
 - See `VISION.md` for project direction and contribution guardrails.
 
 ## Contributing

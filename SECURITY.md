@@ -43,8 +43,9 @@ For web services, APIs, sockets, or scraping workflows, prioritize reports invol
 
 Do not commit `.env` files, local settings modules, OAuth tokens, API secrets,
 SQLite databases, session data, playlist data from real users, or captured
-Twitter/Beats/Spotify responses. Run `make check` before changing settings,
-authentication, or credential handling.
+Twitter/Beats/Spotify responses. Run `make lint`, `make test`, `make build`,
+`make verify`, and `make check` before changing settings, authentication, or
+credential handling.
 
 Keep state-changing tweet, favorite, playlist, and playback actions on POST
 paths with CSRF protection.

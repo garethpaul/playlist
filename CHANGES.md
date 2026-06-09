@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-06-09
+
+- Added stable Make aliases for lint, test, build, verify, and check gates.
+
 ## 2026-06-08
 
 - Removed checked-in Django and service credential placeholders from runtime configuration.

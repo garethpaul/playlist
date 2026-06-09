@@ -1,6 +1,14 @@
-.PHONY: check static-check settings-test
+.PHONY: build check lint settings-test static-check test verify
 
-check: static-check settings-test
+check: verify
+
+verify: lint test build
+
+lint: static-check
+
+test: settings-test
+
+build: static-check
 
 static-check:
 	python3 scripts/check-baseline.py

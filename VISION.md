@@ -13,9 +13,10 @@ service API clients, Django views, Fabric startup, and template-driven pages.
 The goal is to preserve the hackathon learning value while making legacy
 service dependencies, credential handling, and upgrade risks explicit.
 
-Current baseline: `make check` verifies Python 3 syntax, environment-based
-Django secret/debug configuration, static security guardrails, and the
-documented fixes for the hardcoded `SECRET_KEY` and default debug-mode bugs.
+Current baseline: `make lint`, `make test`, `make build`, `make verify`, and
+`make check` verify Python 3 syntax, environment-based Django secret/debug
+configuration, static security guardrails, and the documented fixes for the
+hardcoded `SECRET_KEY` and default debug-mode bugs.
 
 The current focus is:
 
@@ -34,6 +35,7 @@ Priority:
 - Keep blank `DJANGO_SECRET_KEY` values from satisfying production settings
 - Keep allowed hosts required outside local debug mode
 - Keep user-linked playlist data out of debug print output
+- Keep standard Make gate aliases available for local verification
 
 Next priorities:
 
@@ -50,7 +52,8 @@ Contribution rules:
 - Do not commit real access tokens or user data.
 - Include local setup and migration notes for dependency changes.
 - Keep hackathon-specific behavior visible rather than abstracting it away.
-- Keep `make check` passing for settings and credential guardrails.
+- Keep `make lint`, `make test`, `make build`, `make verify`, and `make check`
+  passing for settings and credential guardrails.
 
 ## Security And Responsible Use
 

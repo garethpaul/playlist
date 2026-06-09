@@ -27,6 +27,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-09-post-input-normalization.md",
     "docs/plans/2026-06-09-required-allowed-hosts.md",
     "docs/plans/2026-06-09-post-only-logout.md",
+    "docs/plans/2026-06-09-make-gate-aliases.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -95,7 +96,11 @@ def main():
 
     makefile = read("Makefile")
     for snippet in [
-        "check: static-check settings-test",
+        "check: verify",
+        "verify: lint test build",
+        "lint: static-check",
+        "test: settings-test",
+        "build: static-check",
         "python3 scripts/check-baseline.py",
         "python3 test_settings_security.py -v",
     ]:
@@ -181,6 +186,10 @@ def main():
     readme = read("README.md")
     for snippet in [
         "make check",
+        "make lint",
+        "make test",
+        "make build",
+        "make verify",
         "DJANGO_SECRET_KEY",
         "DJANGO_DEBUG",
         "DJANGO_ALLOWED_HOSTS",
@@ -202,7 +211,7 @@ def main():
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "debug print", "blank", "post input normalization", "allowed hosts", "POST-only logout"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "post input normalization", "allowed hosts", "POST-only logout"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -223,6 +232,9 @@ def main():
     post_logout_plan = read("docs/plans/2026-06-09-post-only-logout.md")
     for snippet in ["Status: Complete", "logout", "POST", "CSRF", "make check"]:
         require(snippet in post_logout_plan, "post-only logout plan missing: %s" % snippet, errors)
+    make_gates_plan = read("docs/plans/2026-06-09-make-gate-aliases.md")
+    for snippet in ["Status: Complete", "make lint", "make test", "make build", "make verify"]:
+        require(snippet in make_gates_plan, "make gate aliases plan missing: %s" % snippet, errors)
 
     try:
         ET.parse(ROOT / "docs/readme-overview.svg")
