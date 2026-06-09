@@ -103,6 +103,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   `SECRET_KEY`, blank secret, and default debug-mode issues stay fixed.
 - Keep state-changing tweet, favorite, and playlist actions on POST paths with
   CSRF protection.
+- Keep post input normalization in place so blank status text is skipped and
+  favorite actions only call Twitter for numeric tweet IDs.
 - Do not add debug print statements that expose mention text, track search
   terms, track results, OAuth tokens, or user-linked playlist data.
 

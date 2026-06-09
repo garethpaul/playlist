@@ -28,6 +28,7 @@ Priority:
 - Treat Django 1.6-era code and API clients as legacy
 - Keep template and view behavior easy to trace
 - Keep state-changing tweet, favorite, and playlist actions on POST paths
+- Keep post input normalization close to outbound Twitter side effects
 - Keep `DJANGO_SECRET_KEY` and social API credentials environment-driven
 - Keep blank `DJANGO_SECRET_KEY` values from satisfying production settings
 - Keep user-linked playlist data out of debug print output

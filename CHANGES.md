@@ -9,5 +9,6 @@
 - Removed a playlist debug print that exposed mention search text and track
   results.
 - Rejected blank `DJANGO_SECRET_KEY` values outside local debug mode.
+- Added post input normalization for Twitter status text and favorite IDs.
 - Added `make check` with dependency-free static baseline and settings tests
   for this legacy Django sample.

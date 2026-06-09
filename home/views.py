@@ -11,6 +11,19 @@ from pybeats.api import BeatsAPI
 
 import re
 twitter_username_re = re.compile(r'@([A-Za-z0-9_]+)', re.IGNORECASE)
+tweet_id_re = re.compile(r'^[0-9]+$')
+
+def clean_post_text(value):
+    if value is None:
+        return None
+    value = value.strip()
+    return value or None
+
+def clean_tweet_id(value):
+    value = clean_post_text(value)
+    if value and tweet_id_re.match(value):
+        return value
+    return None
 
 def login(request):
     
@@ -25,7 +38,7 @@ def login(request):
 @login_required
 def twttr(request):
     
-    status = request.POST.get("status", None)
+    status = clean_post_text(request.POST.get("status", None))
     
     api = get_twitter(request.user)
     if status:
@@ -50,7 +63,7 @@ def beats(request):
 
     preview = request.POST.get("preview", request.GET.get("preview", None))
     track_next = request.POST.get("track", request.GET.get("track", None))
-    fav = request.POST.get("fav", None)
+    fav = clean_tweet_id(request.POST.get("fav", None))
     if fav:
         try:
             twitter.CreateFavorite(id=fav)

@@ -48,6 +48,8 @@ authentication, or credential handling.
 
 Keep state-changing tweet, favorite, playlist, and playback actions on POST
 paths with CSRF protection.
+Keep post input normalization close to outbound Twitter side effects so blank
+status text and malformed favorite IDs do not reach service clients.
 
 Do not add debug print statements that expose OAuth tokens, mention text, track
 search terms, track results, playlist choices, or other user-linked service

@@ -24,6 +24,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-08-playlist-baseline.md",
     "docs/plans/2026-06-09-remove-playlist-debug-print.md",
     "docs/plans/2026-06-09-blank-secret-key.md",
+    "docs/plans/2026-06-09-post-input-normalization.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -135,8 +136,11 @@ def main():
     views = read("home/views.py")
     require("request.REQUEST" not in views, "legacy request.REQUEST access remains", errors)
     for snippet in [
-        'request.POST.get("status", None)',
-        'request.POST.get("fav", None)',
+        "def clean_post_text(",
+        "def clean_tweet_id(",
+        "tweet_id_re = re.compile(r'^[0-9]+$')",
+        'status = clean_post_text(request.POST.get("status", None))',
+        'fav = clean_tweet_id(request.POST.get("fav", None))',
         'request.POST.get("track", request.GET.get("track", None))',
         "except Exception:",
     ]:
@@ -177,15 +181,16 @@ def main():
         "debug print",
         "python3 test_settings_security.py -v",
         "blank",
+        "post input normalization",
     ]:
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "OAuth", "debug print", "blank"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "OAuth", "debug print", "blank", "post input normalization"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "debug print", "blank"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "debug print", "blank", "post input normalization"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -197,6 +202,9 @@ def main():
     blank_secret_plan = read("docs/plans/2026-06-09-blank-secret-key.md")
     for snippet in ["Status: Complete", "DJANGO_SECRET_KEY", "blank", "make check"]:
         require(snippet in blank_secret_plan, "blank secret plan missing: %s" % snippet, errors)
+    post_input_plan = read("docs/plans/2026-06-09-post-input-normalization.md")
+    for snippet in ["Status: Complete", "clean_post_text", "clean_tweet_id", "make check"]:
+        require(snippet in post_input_plan, "post input plan missing: %s" % snippet, errors)
 
     try:
         ET.parse(ROOT / "docs/readme-overview.svg")
