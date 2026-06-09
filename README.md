@@ -67,6 +67,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 - Run Django management commands through `python manage.py ...`.
 - For non-debug execution set `DJANGO_SECRET_KEY` and `DJANGO_ALLOWED_HOSTS`.
+- `DJANGO_ALLOWED_HOSTS=*` wildcard allowed hosts are rejected outside local
+  debug.
 - Set Twitter, Beats, and Spotify credentials through environment variables
   before using the integration views.
 
@@ -94,6 +96,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Required outside local debug: `DJANGO_SECRET_KEY`.
 - Blank `DJANGO_SECRET_KEY` values are rejected outside local debug mode.
 - `DJANGO_ALLOWED_HOSTS` is required outside local debug mode.
+- `DJANGO_ALLOWED_HOSTS=*` wildcard allowed hosts are rejected outside local
+  debug.
 - Optional runtime controls: `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`.
 - Social credentials: `SOCIAL_AUTH_TWITTER_KEY`,
   `SOCIAL_AUTH_TWITTER_SECRET`, `TWITTER_ACCESS_TOKEN`,
@@ -113,6 +117,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   `SECRET_KEY`, blank secret, and default debug-mode issues stay fixed.
 - `DJANGO_ALLOWED_HOSTS` stays required outside local debug so production host
   validation cannot be omitted accidentally.
+- Wildcard allowed hosts stay rejected outside local debug so production host
+  validation remains explicit.
 - Keep state-changing tweet, favorite, and playlist actions on POST paths with
   CSRF protection.
 - Logout uses a CSRF-protected POST logout form instead of a GET link so

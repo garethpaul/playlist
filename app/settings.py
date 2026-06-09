@@ -53,6 +53,10 @@ if not DEBUG and not ALLOWED_HOSTS:
     raise RuntimeError(
         'DJANGO_ALLOWED_HOSTS must be set unless DJANGO_DEBUG is enabled for local development.'
     )
+if not DEBUG and '*' in ALLOWED_HOSTS:
+    raise RuntimeError(
+        'DJANGO_ALLOWED_HOSTS must not contain wildcard hosts when DJANGO_DEBUG is disabled.'
+    )
 
 
 # Application definition

@@ -35,7 +35,8 @@ Helpful reports include:
   `DJANGO_ALLOWED_HOSTS`, Twitter, Beats, and Spotify credentials from
   environment variables. `DJANGO_DEBUG` defaults to off, and
   `DJANGO_SECRET_KEY` is required unless local debug mode is explicitly enabled.
-  A blank `DJANGO_SECRET_KEY` value is rejected in non-debug mode.
+  A blank `DJANGO_SECRET_KEY` value is rejected in non-debug mode, and wildcard
+  allowed hosts are rejected outside local debug.
 
 ## Service and API Notes
 
@@ -55,6 +56,8 @@ Keep post input normalization close to outbound Twitter side effects so blank
 status text and malformed favorite IDs do not reach service clients.
 Keep `DJANGO_ALLOWED_HOSTS` required outside local debug so production host
 validation cannot be omitted accidentally.
+Reject wildcard allowed hosts outside local debug so production host validation
+stays explicit.
 
 Do not add debug print statements that expose OAuth tokens, mention text, track
 search terms, track results, playlist choices, or other user-linked service

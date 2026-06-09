@@ -28,6 +28,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-09-required-allowed-hosts.md",
     "docs/plans/2026-06-09-post-only-logout.md",
     "docs/plans/2026-06-09-make-gate-aliases.md",
+    "docs/plans/2026-06-09-wildcard-allowed-hosts.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -121,6 +122,7 @@ def main():
         "ALLOWED_HOSTS = env_list(",
         "DJANGO_ALLOWED_HOSTS",
         "if not DEBUG and not ALLOWED_HOSTS:",
+        "if not DEBUG and '*' in ALLOWED_HOSTS:",
         "DJANGO_SQLITE_PATH",
     ]:
         require(snippet in settings, "settings missing guardrail: %s" % snippet, errors)
@@ -194,6 +196,7 @@ def main():
         "DJANGO_DEBUG",
         "DJANGO_ALLOWED_HOSTS",
         "required outside local debug",
+        "wildcard allowed hosts",
         "SOCIAL_AUTH_TWITTER_KEY",
         "TWITTER_ACCESS_TOKEN",
         "SOCIAL_AUTH_BEATS_KEY",
@@ -207,11 +210,11 @@ def main():
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "OAuth", "debug print", "blank", "post input normalization", "CSRF-protected POST logout"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "post input normalization", "CSRF-protected POST logout"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "post input normalization", "allowed hosts", "POST-only logout"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "post input normalization", "allowed hosts", "wildcard allowed hosts", "POST-only logout"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -235,6 +238,9 @@ def main():
     make_gates_plan = read("docs/plans/2026-06-09-make-gate-aliases.md")
     for snippet in ["Status: Complete", "make lint", "make test", "make build", "make verify"]:
         require(snippet in make_gates_plan, "make gate aliases plan missing: %s" % snippet, errors)
+    wildcard_hosts_plan = read("docs/plans/2026-06-09-wildcard-allowed-hosts.md")
+    for snippet in ["Status: Complete", "DJANGO_ALLOWED_HOSTS", "wildcard", "make check"]:
+        require(snippet in wildcard_hosts_plan, "wildcard allowed hosts plan missing: %s" % snippet, errors)
 
     try:
         ET.parse(ROOT / "docs/readme-overview.svg")
