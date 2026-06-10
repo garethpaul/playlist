@@ -33,6 +33,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-09-non-string-post-inputs.md",
     "docs/plans/2026-06-09-exact-integration-routes.md",
     "docs/plans/2026-06-10-malformed-beats-results.md",
+    "docs/plans/2026-06-10-malformed-twitter-mentions.md",
     "docs/plans/2026-06-10-hosted-security-validation.md",
     "docs/readme-overview.svg",
     "fabfile.py",
@@ -198,6 +199,11 @@ def main():
         "if not isinstance(value, str):",
         "def clean_tweet_id(",
         "def first_track_result(",
+        "MAX_TRACK_SEARCH_LENGTH = 200",
+        "def clean_track_search(",
+        "getattr(s, 'favorited', False)",
+        "clean_track_search(getattr(s, 'text', None))",
+        "if not search:",
         "not isinstance(results, dict)",
         "not isinstance(data, list) or not data",
         "not isinstance(track, dict) or not clean_post_text(track.get('id'))",
@@ -239,6 +245,9 @@ def main():
     for snippet in [
         "test_first_track_result_rejects_malformed_beats_results",
         "test_first_track_result_accepts_first_identified_track",
+        "test_clean_track_search_rejects_malformed_twitter_mentions",
+        "test_clean_track_search_removes_handles_and_bounds_queries",
+        "views.MAX_TRACK_SEARCH_LENGTH + 1",
     ]:
         require(snippet in view_tests, "view normalization tests missing: %s" % snippet, errors)
 
@@ -270,6 +279,7 @@ def main():
         "post input normalization",
         "non-string post inputs",
         "malformed Beats search results",
+        "malformed Twitter mention text",
         "exact-match integration routes",
         "CSRF-protected POST logout",
         "hosted Linux",
@@ -277,11 +287,11 @@ def main():
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "post input normalization", "non-string post inputs", "malformed Beats search results", "exact-match integration routes", "CSRF-protected POST logout"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "exact-match integration routes", "CSRF-protected POST logout"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "post input normalization", "non-string post inputs", "malformed Beats search results", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -317,6 +327,9 @@ def main():
     malformed_beats_plan = read("docs/plans/2026-06-10-malformed-beats-results.md")
     for snippet in ["Status: Complete", "first_track_result", "malformed Beats search results", "make check"]:
         require(snippet in malformed_beats_plan, "malformed Beats results plan missing: %s" % snippet, errors)
+    malformed_twitter_plan = read("docs/plans/2026-06-10-malformed-twitter-mentions.md")
+    for snippet in ["Status: Complete", "clean_track_search", "malformed Twitter mention text", "make check"]:
+        require(snippet in malformed_twitter_plan, "malformed Twitter mention plan missing: %s" % snippet, errors)
     hosted_validation_plan = read("docs/plans/2026-06-10-hosted-security-validation.md")
     for snippet in ["Status: Complete", "make check", "Python 3.10", "Python 3.12"]:
         require(snippet in hosted_validation_plan, "hosted validation plan missing: %s" % snippet, errors)

@@ -33,6 +33,7 @@ Priority:
 - Keep post input normalization close to outbound Twitter side effects
 - Keep non-string post inputs out of Twitter service calls
 - Keep malformed Beats search results out of the playlist queue
+- Keep malformed Twitter mention text out of outbound track searches
 - Keep `DJANGO_SECRET_KEY` and social API credentials environment-driven
 - Keep blank `DJANGO_SECRET_KEY` values from satisfying production settings
 - Keep allowed hosts required outside local debug mode

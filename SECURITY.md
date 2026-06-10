@@ -60,6 +60,8 @@ cleanup are not triggered by a link visit.
 Keep post input normalization close to outbound Twitter side effects so blank
 status text, non-string post inputs, and malformed favorite IDs do not reach
 service clients.
+Keep malformed Twitter mention text out of Beats searches, and bound cleaned
+search queries before outbound provider calls.
 Skip malformed Beats search results before playlist entries are
 queued.
 Keep Twitter and Beats view URL patterns as exact-match integration routes so

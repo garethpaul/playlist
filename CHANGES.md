@@ -14,6 +14,8 @@
 - Rejected wildcard allowed hosts when debug is disabled.
 - Added stable Make aliases for lint, test, build, verify, and check gates.
 - Skipped malformed Beats search results before queueing playlist entries.
+- Normalized malformed Twitter mention text and bounded outbound track search
+  queries.
 
 ## 2026-06-08
 

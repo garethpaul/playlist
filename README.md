@@ -135,6 +135,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   tweet IDs.
 - Skip malformed Beats search results before playlist entries are
   queued.
+- Skip malformed Twitter mention text and bound cleaned Beats search queries to
+  200 characters.
 - Keep the Twitter and Beats integration URL patterns as exact-match integration routes
   so prefix paths do not enter those views.
 - Do not add debug print statements that expose mention text, track search
@@ -152,6 +154,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   aliases.
 - See `docs/plans/2026-06-10-malformed-beats-results.md` for the malformed
   Beats search result guardrail.
+- See `docs/plans/2026-06-10-malformed-twitter-mentions.md` for the Twitter
+  mention search normalization guardrail.
 - See `VISION.md` for project direction and contribution guardrails.
 
 ## Contributing
