@@ -55,6 +55,8 @@ cleanup are not triggered by a link visit.
 Keep post input normalization close to outbound Twitter side effects so blank
 status text, non-string post inputs, and malformed favorite IDs do not reach
 service clients.
+Skip malformed Beats search results before playlist entries are
+queued.
 Keep Twitter and Beats view URL patterns as exact-match integration routes so
 prefix paths cannot reach those authenticated service views.
 Keep `DJANGO_ALLOWED_HOSTS` required outside local debug so production host

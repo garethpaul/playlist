@@ -129,6 +129,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Keep post input normalization in place so non-string post inputs and blank
   status text are skipped, and favorite actions only call Twitter for numeric
   tweet IDs.
+- Skip malformed Beats search results before playlist entries are
+  queued.
 - Keep the Twitter and Beats integration URL patterns as exact-match integration routes
   so prefix paths do not enter those views.
 - Do not add debug print statements that expose mention text, track search
@@ -144,6 +146,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   logout guardrail.
 - See `docs/plans/2026-06-09-make-gate-aliases.md` for the local Make gate
   aliases.
+- See `docs/plans/2026-06-10-malformed-beats-results.md` for the malformed
+  Beats search result guardrail.
 - See `VISION.md` for project direction and contribution guardrails.
 
 ## Contributing

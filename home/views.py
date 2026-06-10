@@ -28,6 +28,17 @@ def clean_tweet_id(value):
         return value
     return None
 
+def first_track_result(results):
+    if not isinstance(results, dict):
+        return None
+    data = results.get('data')
+    if not isinstance(data, list) or not data:
+        return None
+    track = data[0]
+    if not isinstance(track, dict) or not clean_post_text(track.get('id')):
+        return None
+    return track
+
 def login(request):
     
     auths = get_auths(request)
@@ -90,11 +101,11 @@ def beats(request):
         search = twitter_username_re.sub('', s.text)
         tracks = beats.get_search_results(search, 'track', limit=1)
         
-        if tracks and len(tracks['data']) > 0:
+        track = first_track_result(tracks)
+        if track:
             
             count = count + 1
             
-            track = tracks['data'][0]
             pair = [s, track]
             
             # if specified track to play, save for top of queue

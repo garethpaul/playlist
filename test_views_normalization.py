@@ -106,6 +106,27 @@ class ViewsNormalizationTest(unittest.TestCase):
             with self.subTest(value=value):
                 self.assertIsNone(views.clean_tweet_id(value))
 
+    def test_first_track_result_rejects_malformed_beats_results(self):
+        views = load_views()
+
+        for value in [
+            None,
+            [],
+            {"data": None},
+            {"data": []},
+            {"data": ["track"]},
+            {"data": [{}]},
+            {"data": [{"id": "  "}]},
+        ]:
+            with self.subTest(value=value):
+                self.assertIsNone(views.first_track_result(value))
+
+    def test_first_track_result_accepts_first_identified_track(self):
+        views = load_views()
+        track = {"id": " track-1 ", "title": "Example"}
+
+        self.assertEqual(track, views.first_track_result({"data": [track]}))
+
 
 if __name__ == "__main__":
     unittest.main()

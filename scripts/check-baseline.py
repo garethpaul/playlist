@@ -31,6 +31,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-09-wildcard-allowed-hosts.md",
     "docs/plans/2026-06-09-non-string-post-inputs.md",
     "docs/plans/2026-06-09-exact-integration-routes.md",
+    "docs/plans/2026-06-10-malformed-beats-results.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -169,10 +170,15 @@ def main():
         "def clean_post_text(",
         "if not isinstance(value, str):",
         "def clean_tweet_id(",
+        "def first_track_result(",
+        "not isinstance(results, dict)",
+        "not isinstance(data, list) or not data",
+        "not isinstance(track, dict) or not clean_post_text(track.get('id'))",
         "tweet_id_re = re.compile(r'^[0-9]+$')",
         'status = clean_post_text(request.POST.get("status", None))',
         'fav = clean_tweet_id(request.POST.get("fav", None))',
         'request.POST.get("track", request.GET.get("track", None))',
+        "track = first_track_result(tracks)",
         "from django.views.decorators.http import require_POST",
         "@login_required\n@require_POST\ndef logout(request):",
         "except Exception:",
@@ -202,6 +208,13 @@ def main():
         require(snippet in base_template, "base template missing POST logout path: %s" % snippet, errors)
     require('href="/logout"' not in base_template, "logout action still uses a GET link", errors)
 
+    view_tests = read("test_views_normalization.py")
+    for snippet in [
+        "test_first_track_result_rejects_malformed_beats_results",
+        "test_first_track_result_accepts_first_identified_track",
+    ]:
+        require(snippet in view_tests, "view normalization tests missing: %s" % snippet, errors)
+
     gitignore = read(".gitignore")
     for snippet in [".env", "__pycache__/", "*.py[cod]", ".pytest_cache/", "db.sqlite3", "*.log"]:
         require(snippet in gitignore, ".gitignore missing: %s" % snippet, errors)
@@ -229,17 +242,18 @@ def main():
         "blank",
         "post input normalization",
         "non-string post inputs",
+        "malformed Beats search results",
         "exact-match integration routes",
         "CSRF-protected POST logout",
     ]:
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "post input normalization", "non-string post inputs", "exact-match integration routes", "CSRF-protected POST logout"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "post input normalization", "non-string post inputs", "malformed Beats search results", "exact-match integration routes", "CSRF-protected POST logout"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "post input normalization", "non-string post inputs", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "post input normalization", "non-string post inputs", "malformed Beats search results", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -272,6 +286,9 @@ def main():
     exact_routes_plan = read("docs/plans/2026-06-09-exact-integration-routes.md")
     for snippet in ["Status: Complete", "twttr", "beats", "exact-match", "test_url_patterns.py", "make check"]:
         require(snippet in exact_routes_plan, "exact integration routes plan missing: %s" % snippet, errors)
+    malformed_beats_plan = read("docs/plans/2026-06-10-malformed-beats-results.md")
+    for snippet in ["Status: Complete", "first_track_result", "malformed Beats search results", "make check"]:
+        require(snippet in malformed_beats_plan, "malformed Beats results plan missing: %s" % snippet, errors)
 
     try:
         ET.parse(ROOT / "docs/readme-overview.svg")
