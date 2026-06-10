@@ -83,6 +83,10 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `python3 test_settings_security.py -v`
 - `python3 test_views_normalization.py -v`
 - `python3 test_url_patterns.py -v`
+- Pinned hosted Linux validation runs the dependency-free `make check` security
+  baseline on Python 3.10 and 3.12 without integration credentials or API calls.
+- Local Make gates disable Python bytecode writes and reject leftover
+  `__pycache__` or `.pyc` output.
 - Legacy Django integration tests when the original dependency set is
   available
 

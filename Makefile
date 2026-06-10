@@ -11,11 +11,11 @@ test: settings-test url-test
 build: static-check
 
 static-check:
-	python3 scripts/check-baseline.py
+	PYTHONDONTWRITEBYTECODE=1 python3 scripts/check-baseline.py
 
 settings-test:
-	python3 test_settings_security.py -v
-	python3 test_views_normalization.py -v
+	PYTHONDONTWRITEBYTECODE=1 python3 test_settings_security.py -v
+	PYTHONDONTWRITEBYTECODE=1 python3 test_views_normalization.py -v
 
 url-test:
-	python3 test_url_patterns.py -v
+	PYTHONDONTWRITEBYTECODE=1 python3 test_url_patterns.py -v

@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 REQUIRED_FILES = [
+    ".github/workflows/check.yml",
     ".gitignore",
     "CHANGES.md",
     "Makefile",
@@ -32,6 +33,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-09-non-string-post-inputs.md",
     "docs/plans/2026-06-09-exact-integration-routes.md",
     "docs/plans/2026-06-10-malformed-beats-results.md",
+    "docs/plans/2026-06-10-hosted-security-validation.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -109,12 +111,37 @@ def main():
         "lint: static-check",
         "test: settings-test url-test",
         "build: static-check",
-        "python3 scripts/check-baseline.py",
-        "python3 test_settings_security.py -v",
-        "python3 test_views_normalization.py -v",
-        "python3 test_url_patterns.py -v",
+        "PYTHONDONTWRITEBYTECODE=1 python3 scripts/check-baseline.py",
+        "PYTHONDONTWRITEBYTECODE=1 python3 test_settings_security.py -v",
+        "PYTHONDONTWRITEBYTECODE=1 python3 test_views_normalization.py -v",
+        "PYTHONDONTWRITEBYTECODE=1 python3 test_url_patterns.py -v",
     ]:
         require(snippet in makefile, "Makefile missing guardrail: %s" % snippet, errors)
+
+    workflow = read(".github/workflows/check.yml")
+    for snippet in [
+        "permissions:\n  contents: read",
+        "cancel-in-progress: true",
+        "runs-on: ubuntu-24.04",
+        "timeout-minutes: 10",
+        "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+        "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405",
+        'python-version: ["3.10", "3.12"]',
+        "PYTHONDONTWRITEBYTECODE: \"1\"",
+        "run: make check",
+    ]:
+        require(snippet in workflow, "Check workflow missing: %s" % snippet, errors)
+
+    bytecode_paths = sorted(
+        str(path.relative_to(ROOT))
+        for pattern in ("__pycache__", "*.pyc")
+        for path in ROOT.rglob(pattern)
+    )
+    require(
+        not bytecode_paths,
+        "generated Python bytecode must not remain after gates: %s" % ", ".join(bytecode_paths[:5]),
+        errors,
+    )
 
     urls = read("app/urls.py")
     for snippet in [
@@ -245,6 +272,7 @@ def main():
         "malformed Beats search results",
         "exact-match integration routes",
         "CSRF-protected POST logout",
+        "hosted Linux",
     ]:
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
@@ -289,6 +317,9 @@ def main():
     malformed_beats_plan = read("docs/plans/2026-06-10-malformed-beats-results.md")
     for snippet in ["Status: Complete", "first_track_result", "malformed Beats search results", "make check"]:
         require(snippet in malformed_beats_plan, "malformed Beats results plan missing: %s" % snippet, errors)
+    hosted_validation_plan = read("docs/plans/2026-06-10-hosted-security-validation.md")
+    for snippet in ["Status: Complete", "make check", "Python 3.10", "Python 3.12"]:
+        require(snippet in hosted_validation_plan, "hosted validation plan missing: %s" % snippet, errors)
 
     try:
         ET.parse(ROOT / "docs/readme-overview.svg")
