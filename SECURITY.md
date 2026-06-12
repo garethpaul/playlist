@@ -31,6 +31,7 @@ Helpful reports include:
 - Review found mobile permission or privacy-sensitive data handling; changes in those areas should receive security-focused review before merge.
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
 - Dependency manifests detected: requirements.txt. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
+- GitHub Actions runs the dependency-free `make check` baseline; review workflow, checker, and dependency changes as part of the supply-chain surface.
 - Current baseline reads Django `SECRET_KEY`, `DJANGO_DEBUG`,
   `DJANGO_ALLOWED_HOSTS`, Twitter, Beats, and Spotify credentials from
   environment variables. `DJANGO_DEBUG` defaults to off, and

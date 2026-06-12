@@ -31,6 +31,8 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-09-wildcard-allowed-hosts.md",
     "docs/plans/2026-06-09-non-string-post-inputs.md",
     "docs/plans/2026-06-09-exact-integration-routes.md",
+    "docs/plans/2026-06-10-ci-baseline.md",
+    ".github/workflows/check.yml",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -114,6 +116,15 @@ def main():
         "python3 test_url_patterns.py -v",
     ]:
         require(snippet in makefile, "Makefile missing guardrail: %s" % snippet, errors)
+
+    workflow = read(".github/workflows/check.yml")
+    for snippet in [
+        "actions/checkout@v4",
+        "actions/setup-python@v5",
+        'python-version: "3.12"',
+        "make check",
+    ]:
+        require(snippet in workflow, "GitHub Actions workflow missing: %s" % snippet, errors)
 
     urls = read("app/urls.py")
     for snippet in [
@@ -231,6 +242,7 @@ def main():
         "non-string post inputs",
         "exact-match integration routes",
         "CSRF-protected POST logout",
+        "GitHub Actions",
     ]:
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
@@ -272,6 +284,9 @@ def main():
     exact_routes_plan = read("docs/plans/2026-06-09-exact-integration-routes.md")
     for snippet in ["Status: Complete", "twttr", "beats", "exact-match", "test_url_patterns.py", "make check"]:
         require(snippet in exact_routes_plan, "exact integration routes plan missing: %s" % snippet, errors)
+    ci_plan = read("docs/plans/2026-06-10-ci-baseline.md")
+    for snippet in ["Status: Complete", "GitHub Actions", "make check"]:
+        require(snippet in ci_plan, "CI baseline plan missing: %s" % snippet, errors)
 
     try:
         ET.parse(ROOT / "docs/readme-overview.svg")

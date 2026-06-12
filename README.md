@@ -17,6 +17,7 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 ## Repository Contents
 
 - `CHANGES.md` - baseline change log
+- `.github/workflows/check.yml` - GitHub Actions baseline for `make check`
 - `Makefile` - local verification entry point
 - `README.md` - project overview and local usage notes
 - `requirements.txt` - Python dependency or packaging metadata
@@ -83,6 +84,7 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `python3 test_settings_security.py -v`
 - `python3 test_views_normalization.py -v`
 - `python3 test_url_patterns.py -v`
+- GitHub Actions runs `make check` on pushes and pull requests with Python 3.12.
 - Legacy Django integration tests when the original dependency set is
   available
 
@@ -144,6 +146,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   logout guardrail.
 - See `docs/plans/2026-06-09-make-gate-aliases.md` for the local Make gate
   aliases.
+- See `docs/plans/2026-06-10-ci-baseline.md` for the lightweight GitHub
+  Actions baseline.
 - See `VISION.md` for project direction and contribution guardrails.
 
 ## Contributing

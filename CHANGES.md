@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-10
+
+- Added a lightweight GitHub Actions workflow that runs `make check` for the
+  dependency-free Django security baseline.
+- Extended the static baseline to require the CI workflow and completed CI plan.
+
 ## 2026-06-09
 
 - Rejected non-string post inputs before Twitter status or favorite

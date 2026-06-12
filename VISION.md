@@ -39,6 +39,7 @@ Priority:
 - Keep Twitter and Beats URL patterns as exact-match integration routes
 - Keep user-linked playlist data out of debug print output
 - Keep standard Make gate aliases available for local verification
+- Keep the dependency-free `make check` baseline running in GitHub Actions
 
 Next priorities:
 
