@@ -2,6 +2,7 @@
 """Static baseline checks for the legacy playlist Django sample."""
 
 import ast
+import re
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -10,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 REQUIRED_FILES = [
+    ".github/workflows/check.yml",
     ".gitignore",
     "CHANGES.md",
     "Makefile",
@@ -32,7 +34,9 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-09-non-string-post-inputs.md",
     "docs/plans/2026-06-09-exact-integration-routes.md",
     "docs/plans/2026-06-10-ci-baseline.md",
-    ".github/workflows/check.yml",
+    "docs/plans/2026-06-10-malformed-beats-results.md",
+    "docs/plans/2026-06-10-malformed-twitter-mentions.md",
+    "docs/plans/2026-06-10-hosted-security-validation.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -110,22 +114,52 @@ def main():
         "lint: static-check",
         "test: settings-test url-test",
         "build: static-check",
-        "python3 scripts/check-baseline.py",
-        "python3 test_settings_security.py -v",
-        "python3 test_views_normalization.py -v",
-        "python3 test_url_patterns.py -v",
+        "PYTHONDONTWRITEBYTECODE=1 python3 scripts/check-baseline.py",
+        "PYTHONDONTWRITEBYTECODE=1 python3 test_settings_security.py -v",
+        "PYTHONDONTWRITEBYTECODE=1 python3 test_views_normalization.py -v",
+        "PYTHONDONTWRITEBYTECODE=1 python3 test_url_patterns.py -v",
     ]:
         require(snippet in makefile, "Makefile missing guardrail: %s" % snippet, errors)
 
     workflow = read(".github/workflows/check.yml")
-    for snippet in [
-        "actions/checkout@v4",
-        "actions/setup-python@v5",
-        'python-version: "3.12"',
-        "make check",
-    ]:
-        require(snippet in workflow, "GitHub Actions workflow missing: %s" % snippet, errors)
+    actions = re.findall(r"(?m)^\s*(?:-\s*)?uses:\s*(\S+)(?:\s+#.*)?$", workflow)
+    checkout_step = re.search(
+        r"(?m)^      - name: Check out repository\n"
+        r"        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6\.0\.3\n"
+        r"        with:\n"
+        r"          persist-credentials: false\n",
+        workflow,
+    )
+    require(
+        checkout_step is not None
+        and actions == [
+            "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+            "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405",
+        ]
+        and workflow.count("persist-credentials:") == 1
+        and workflow.count("permissions:") == 1
+        and re.search(r"(?m)^\s+[A-Za-z-]+:\s+write\s*$", workflow) is None
+        and "permissions:\n  contents: read" in workflow
+        and "cancel-in-progress: true" in workflow
+        and "runs-on: ubuntu-24.04" in workflow
+        and "timeout-minutes: 10" in workflow
+        and 'python-version: ["3.10", "3.12"]' in workflow
+        and 'PYTHONDONTWRITEBYTECODE: "1"' in workflow
+        and "run: make check" in workflow,
+        "Check workflow must stay singular, pinned, credential-free, read-only, matrixed, and bounded",
+        errors,
+    )
 
+    bytecode_paths = sorted(
+        str(path.relative_to(ROOT))
+        for pattern in ("__pycache__", "*.pyc")
+        for path in ROOT.rglob(pattern)
+    )
+    require(
+        not bytecode_paths,
+        "generated Python bytecode must not remain after gates: %s" % ", ".join(bytecode_paths[:5]),
+        errors,
+    )
     urls = read("app/urls.py")
     for snippet in [
         "url(r'^twttr$', 'home.views.twttr', name='twttr')",
@@ -180,10 +214,20 @@ def main():
         "def clean_post_text(",
         "if not isinstance(value, str):",
         "def clean_tweet_id(",
+        "def first_track_result(",
+        "MAX_TRACK_SEARCH_LENGTH = 200",
+        "def clean_track_search(",
+        "getattr(s, 'favorited', False)",
+        "clean_track_search(getattr(s, 'text', None))",
+        "if not search:",
+        "not isinstance(results, dict)",
+        "not isinstance(data, list) or not data",
+        "not isinstance(track, dict) or not clean_post_text(track.get('id'))",
         "tweet_id_re = re.compile(r'^[0-9]+$')",
         'status = clean_post_text(request.POST.get("status", None))',
         'fav = clean_tweet_id(request.POST.get("fav", None))',
         'request.POST.get("track", request.GET.get("track", None))',
+        "track = first_track_result(tracks)",
         "from django.views.decorators.http import require_POST",
         "@login_required\n@require_POST\ndef logout(request):",
         "except Exception:",
@@ -213,6 +257,16 @@ def main():
         require(snippet in base_template, "base template missing POST logout path: %s" % snippet, errors)
     require('href="/logout"' not in base_template, "logout action still uses a GET link", errors)
 
+    view_tests = read("test_views_normalization.py")
+    for snippet in [
+        "test_first_track_result_rejects_malformed_beats_results",
+        "test_first_track_result_accepts_first_identified_track",
+        "test_clean_track_search_rejects_malformed_twitter_mentions",
+        "test_clean_track_search_removes_handles_and_bounds_queries",
+        "views.MAX_TRACK_SEARCH_LENGTH + 1",
+    ]:
+        require(snippet in view_tests, "view normalization tests missing: %s" % snippet, errors)
+
     gitignore = read(".gitignore")
     for snippet in [".env", "__pycache__/", "*.py[cod]", ".pytest_cache/", "db.sqlite3", "*.log"]:
         require(snippet in gitignore, ".gitignore missing: %s" % snippet, errors)
@@ -240,18 +294,21 @@ def main():
         "blank",
         "post input normalization",
         "non-string post inputs",
+        "malformed Beats search results",
+        "malformed Twitter mention text",
         "exact-match integration routes",
         "CSRF-protected POST logout",
         "GitHub Actions",
+        "hosted Linux",
     ]:
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "post input normalization", "non-string post inputs", "exact-match integration routes", "CSRF-protected POST logout"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "exact-match integration routes", "CSRF-protected POST logout"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "post input normalization", "non-string post inputs", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -287,6 +344,15 @@ def main():
     ci_plan = read("docs/plans/2026-06-10-ci-baseline.md")
     for snippet in ["Status: Complete", "GitHub Actions", "make check"]:
         require(snippet in ci_plan, "CI baseline plan missing: %s" % snippet, errors)
+    malformed_beats_plan = read("docs/plans/2026-06-10-malformed-beats-results.md")
+    for snippet in ["Status: Complete", "first_track_result", "malformed Beats search results", "make check"]:
+        require(snippet in malformed_beats_plan, "malformed Beats results plan missing: %s" % snippet, errors)
+    malformed_twitter_plan = read("docs/plans/2026-06-10-malformed-twitter-mentions.md")
+    for snippet in ["Status: Complete", "clean_track_search", "malformed Twitter mention text", "make check"]:
+        require(snippet in malformed_twitter_plan, "malformed Twitter mention plan missing: %s" % snippet, errors)
+    hosted_validation_plan = read("docs/plans/2026-06-10-hosted-security-validation.md")
+    for snippet in ["Status: Complete", "make check", "Python 3.10", "Python 3.12"]:
+        require(snippet in hosted_validation_plan, "hosted validation plan missing: %s" % snippet, errors)
 
     try:
         ET.parse(ROOT / "docs/readme-overview.svg")

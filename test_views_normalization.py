@@ -106,6 +106,41 @@ class ViewsNormalizationTest(unittest.TestCase):
             with self.subTest(value=value):
                 self.assertIsNone(views.clean_tweet_id(value))
 
+    def test_clean_track_search_rejects_malformed_twitter_mentions(self):
+        views = load_views()
+
+        for value in [None, 123, b"song", [], {}, "", "  ", "@listener", "@one @two"]:
+            with self.subTest(value=value):
+                self.assertIsNone(views.clean_track_search(value))
+
+    def test_clean_track_search_removes_handles_and_bounds_queries(self):
+        views = load_views()
+
+        self.assertEqual("Song Name", views.clean_track_search(" @listener  Song Name "))
+        query = views.clean_track_search("x" * (views.MAX_TRACK_SEARCH_LENGTH + 1))
+        self.assertEqual(views.MAX_TRACK_SEARCH_LENGTH, len(query))
+
+    def test_first_track_result_rejects_malformed_beats_results(self):
+        views = load_views()
+
+        for value in [
+            None,
+            [],
+            {"data": None},
+            {"data": []},
+            {"data": ["track"]},
+            {"data": [{}]},
+            {"data": [{"id": "  "}]},
+        ]:
+            with self.subTest(value=value):
+                self.assertIsNone(views.first_track_result(value))
+
+    def test_first_track_result_accepts_first_identified_track(self):
+        views = load_views()
+        track = {"id": " track-1 ", "title": "Example"}
+
+        self.assertEqual(track, views.first_track_result({"data": [track]}))
+
 
 if __name__ == "__main__":
     unittest.main()

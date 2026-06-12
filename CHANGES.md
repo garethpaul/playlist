@@ -2,16 +2,21 @@
 
 ## 2026-06-10
 
-- Added a lightweight GitHub Actions workflow that runs `make check` for the
-  dependency-free Django security baseline.
-- Extended the static baseline to require the CI workflow and completed CI plan.
-
+- Added pinned, credential-free, read-only GitHub Actions validation on Python
+  3.10 and 3.12 for the dependency-free Django security baseline.
+- Made every Make gate bytecode-free and added a guard against leftover Python
+  cache output.
+- Extended the static baseline to require both completed hosted-validation
+  plans and the exact least-privilege workflow contract.
 ## 2026-06-09
 
 - Rejected non-string post inputs before Twitter status or favorite
   normalization.
 - Rejected wildcard allowed hosts when debug is disabled.
 - Added stable Make aliases for lint, test, build, verify, and check gates.
+- Skipped malformed Beats search results before queueing playlist entries.
+- Normalized malformed Twitter mention text and bounded outbound track search
+  queries.
 
 ## 2026-06-08
 

@@ -31,7 +31,12 @@ Helpful reports include:
 - Review found mobile permission or privacy-sensitive data handling; changes in those areas should receive security-focused review before merge.
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
 - Dependency manifests detected: requirements.txt. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
-- GitHub Actions runs the dependency-free `make check` baseline; review workflow, checker, and dependency changes as part of the supply-chain surface.
+- Pinned, credential-free, read-only GitHub Actions validation runs the
+  dependency-free settings, route, and input-normalization baseline without
+  installing legacy packages or using Twitter, Beats, Spotify, or Django
+  production credentials.
+- Keep verification bytecode-free so generated Python caches do not enter
+  commits or obscure the reviewed source tree.
 - Current baseline reads Django `SECRET_KEY`, `DJANGO_DEBUG`,
   `DJANGO_ALLOWED_HOSTS`, Twitter, Beats, and Spotify credentials from
   environment variables. `DJANGO_DEBUG` defaults to off, and
@@ -56,6 +61,10 @@ cleanup are not triggered by a link visit.
 Keep post input normalization close to outbound Twitter side effects so blank
 status text, non-string post inputs, and malformed favorite IDs do not reach
 service clients.
+Keep malformed Twitter mention text out of Beats searches, and bound cleaned
+search queries before outbound provider calls.
+Skip malformed Beats search results before playlist entries are
+queued.
 Keep Twitter and Beats view URL patterns as exact-match integration routes so
 prefix paths cannot reach those authenticated service views.
 Keep `DJANGO_ALLOWED_HOSTS` required outside local debug so production host

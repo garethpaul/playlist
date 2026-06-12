@@ -32,6 +32,8 @@ Priority:
 - Keep logout as a POST-only logout action with CSRF protection
 - Keep post input normalization close to outbound Twitter side effects
 - Keep non-string post inputs out of Twitter service calls
+- Keep malformed Beats search results out of the playlist queue
+- Keep malformed Twitter mention text out of outbound track searches
 - Keep `DJANGO_SECRET_KEY` and social API credentials environment-driven
 - Keep blank `DJANGO_SECRET_KEY` values from satisfying production settings
 - Keep allowed hosts required outside local debug mode
@@ -39,7 +41,9 @@ Priority:
 - Keep Twitter and Beats URL patterns as exact-match integration routes
 - Keep user-linked playlist data out of debug print output
 - Keep standard Make gate aliases available for local verification
-- Keep the dependency-free `make check` baseline running in GitHub Actions
+- Keep the dependency-free security baseline running in pinned,
+  credential-free, read-only GitHub Actions with Python 3.10 and 3.12
+- Keep local and hosted verification free of generated Python bytecode
 
 Next priorities:
 

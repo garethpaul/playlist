@@ -13,6 +13,7 @@ from pybeats.api import BeatsAPI
 import re
 twitter_username_re = re.compile(r'@([A-Za-z0-9_]+)', re.IGNORECASE)
 tweet_id_re = re.compile(r'^[0-9]+$')
+MAX_TRACK_SEARCH_LENGTH = 200
 
 def clean_post_text(value):
     if value is None:
@@ -27,6 +28,26 @@ def clean_tweet_id(value):
     if value and tweet_id_re.match(value):
         return value
     return None
+
+def clean_track_search(value):
+    value = clean_post_text(value)
+    if not value:
+        return None
+    value = twitter_username_re.sub('', value).strip()
+    if not value:
+        return None
+    return value[:MAX_TRACK_SEARCH_LENGTH].strip() or None
+
+def first_track_result(results):
+    if not isinstance(results, dict):
+        return None
+    data = results.get('data')
+    if not isinstance(data, list) or not data:
+        return None
+    track = data[0]
+    if not isinstance(track, dict) or not clean_post_text(track.get('id')):
+        return None
+    return track
 
 def login(request):
     
@@ -85,16 +106,18 @@ def beats(request):
     track_pair = None
     count = 0
     for s in statuses:
-        if s.favorited:
+        if getattr(s, 'favorited', False):
             continue
-        search = twitter_username_re.sub('', s.text)
+        search = clean_track_search(getattr(s, 'text', None))
+        if not search:
+            continue
         tracks = beats.get_search_results(search, 'track', limit=1)
         
-        if tracks and len(tracks['data']) > 0:
+        track = first_track_result(tracks)
+        if track:
             
             count = count + 1
             
-            track = tracks['data'][0]
             pair = [s, track]
             
             # if specified track to play, save for top of queue
