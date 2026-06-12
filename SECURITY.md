@@ -31,9 +31,10 @@ Helpful reports include:
 - Review found mobile permission or privacy-sensitive data handling; changes in those areas should receive security-focused review before merge.
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
 - Dependency manifests detected: requirements.txt. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
-- Pinned, read-only hosted Linux validation runs the dependency-free settings,
-  route, and input-normalization baseline without installing legacy packages or
-  using Twitter, Beats, Spotify, or Django production credentials.
+- Pinned, credential-free, read-only GitHub Actions validation runs the
+  dependency-free settings, route, and input-normalization baseline without
+  installing legacy packages or using Twitter, Beats, Spotify, or Django
+  production credentials.
 - Keep verification bytecode-free so generated Python caches do not enter
   commits or obscure the reviewed source tree.
 - Current baseline reads Django `SECRET_KEY`, `DJANGO_DEBUG`,

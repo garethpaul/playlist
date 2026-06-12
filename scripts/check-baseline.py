@@ -2,6 +2,7 @@
 """Static baseline checks for the legacy playlist Django sample."""
 
 import ast
+import re
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -32,6 +33,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-09-wildcard-allowed-hosts.md",
     "docs/plans/2026-06-09-non-string-post-inputs.md",
     "docs/plans/2026-06-09-exact-integration-routes.md",
+    "docs/plans/2026-06-10-ci-baseline.md",
     "docs/plans/2026-06-10-malformed-beats-results.md",
     "docs/plans/2026-06-10-malformed-twitter-mentions.md",
     "docs/plans/2026-06-10-hosted-security-validation.md",
@@ -87,6 +89,14 @@ def read(path):
     return (ROOT / path).read_text(encoding="utf-8")
 
 
+def markdown_section(text, heading):
+    match = re.search(
+        rf"(?ms)^## {re.escape(heading)}\s*$\n(.*?)(?=^## |\Z)",
+        text,
+    )
+    return match.group(1).strip() if match else ""
+
+
 def require(condition, message, errors):
     if not condition:
         errors.append(message)
@@ -120,18 +130,33 @@ def main():
         require(snippet in makefile, "Makefile missing guardrail: %s" % snippet, errors)
 
     workflow = read(".github/workflows/check.yml")
-    for snippet in [
-        "permissions:\n  contents: read",
-        "cancel-in-progress: true",
-        "runs-on: ubuntu-24.04",
-        "timeout-minutes: 10",
-        "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
-        "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405",
-        'python-version: ["3.10", "3.12"]',
-        "PYTHONDONTWRITEBYTECODE: \"1\"",
-        "run: make check",
-    ]:
-        require(snippet in workflow, "Check workflow missing: %s" % snippet, errors)
+    actions = re.findall(r"(?m)^\s*(?:-\s*)?uses:\s*(\S+)(?:\s+#.*)?$", workflow)
+    checkout_step = re.search(
+        r"(?m)^      - name: Check out repository\n"
+        r"        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6\.0\.3\n"
+        r"        with:\n"
+        r"          persist-credentials: false\n",
+        workflow,
+    )
+    require(
+        checkout_step is not None
+        and actions == [
+            "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+            "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405",
+        ]
+        and workflow.count("persist-credentials:") == 1
+        and workflow.count("permissions:") == 1
+        and re.search(r"(?m)^\s+[A-Za-z-]+:\s+write\s*$", workflow) is None
+        and "permissions:\n  contents: read" in workflow
+        and "cancel-in-progress: true" in workflow
+        and "runs-on: ubuntu-24.04" in workflow
+        and "timeout-minutes: 10" in workflow
+        and 'python-version: ["3.10", "3.12"]' in workflow
+        and 'PYTHONDONTWRITEBYTECODE: "1"' in workflow
+        and "run: make check" in workflow,
+        "Check workflow must stay singular, pinned, credential-free, read-only, matrixed, and bounded",
+        errors,
+    )
 
     bytecode_paths = sorted(
         str(path.relative_to(ROOT))
@@ -143,7 +168,6 @@ def main():
         "generated Python bytecode must not remain after gates: %s" % ", ".join(bytecode_paths[:5]),
         errors,
     )
-
     urls = read("app/urls.py")
     for snippet in [
         "url(r'^twttr$', 'home.views.twttr', name='twttr')",
@@ -282,6 +306,7 @@ def main():
         "malformed Twitter mention text",
         "exact-match integration routes",
         "CSRF-protected POST logout",
+        "GitHub Actions",
         "hosted Linux",
     ]:
         require(snippet in readme, "README missing: %s" % snippet, errors)
@@ -324,6 +349,9 @@ def main():
     exact_routes_plan = read("docs/plans/2026-06-09-exact-integration-routes.md")
     for snippet in ["Status: Complete", "twttr", "beats", "exact-match", "test_url_patterns.py", "make check"]:
         require(snippet in exact_routes_plan, "exact integration routes plan missing: %s" % snippet, errors)
+    ci_plan = read("docs/plans/2026-06-10-ci-baseline.md")
+    for snippet in ["Status: Complete", "GitHub Actions", "make check"]:
+        require(snippet in ci_plan, "CI baseline plan missing: %s" % snippet, errors)
     malformed_beats_plan = read("docs/plans/2026-06-10-malformed-beats-results.md")
     for snippet in ["Status: Complete", "first_track_result", "malformed Beats search results", "make check"]:
         require(snippet in malformed_beats_plan, "malformed Beats results plan missing: %s" % snippet, errors)
@@ -331,8 +359,53 @@ def main():
     for snippet in ["Status: Complete", "clean_track_search", "malformed Twitter mention text", "make check"]:
         require(snippet in malformed_twitter_plan, "malformed Twitter mention plan missing: %s" % snippet, errors)
     hosted_validation_plan = read("docs/plans/2026-06-10-hosted-security-validation.md")
-    for snippet in ["Status: Complete", "make check", "Python 3.10", "Python 3.12"]:
-        require(snippet in hosted_validation_plan, "hosted validation plan missing: %s" % snippet, errors)
+    hosted_validation_status = re.findall(
+        r"(?mi)^status:\s*(.+?)\s*$", hosted_validation_plan
+    )
+    hosted_validation_work = markdown_section(hosted_validation_plan, "Work Completed")
+    hosted_validation_verification = markdown_section(
+        hosted_validation_plan, "Verification Completed"
+    )
+    require(
+        hosted_validation_status == ["Complete"] and bool(hosted_validation_work),
+        "hosted validation plan must record one complete status and completed work",
+        errors,
+    )
+    require(
+        bool(hosted_validation_verification)
+        and not re.search(
+            r"(?i)\b(?:pending|todo|tbd|not run)\b", hosted_validation_verification
+        ),
+        "hosted validation plan must record finished verification without pending markers",
+        errors,
+    )
+    for evidence in [
+        "make lint",
+        "make test",
+        "make build",
+        "make verify",
+        "make check",
+        "PYTHONDONTWRITEBYTECODE=1 python3 scripts/check-baseline.py",
+        "git diff --check",
+        "Six hostile workflow, normalization, and generated-bytecode mutations",
+        "27390853154",
+        "27390897822",
+        "298b6814e6a0d4d88c63ec5672bea61d3281b1ca",
+        "Python 3.10",
+        "Python 3.12",
+        "df4cb1c069e1874edd31b4311f1884172cec0e10",
+        "a309ff8b426b58ec0e2a45f0f869d46889d02405",
+        "persist-credentials: false",
+        'PYTHONDONTWRITEBYTECODE: "1"',
+        "test_secret_key_required_when_debug_disabled",
+        "test_first_track_result_rejects_malformed_beats_results",
+        "test_clean_track_search_rejects_malformed_twitter_mentions",
+    ]:
+        require(
+            evidence in hosted_validation_verification,
+            "hosted validation plan must preserve verification evidence: %s" % evidence,
+            errors,
+        )
 
     try:
         ET.parse(ROOT / "docs/readme-overview.svg")

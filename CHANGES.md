@@ -2,11 +2,12 @@
 
 ## 2026-06-10
 
-- Added pinned, read-only hosted Linux validation on Python 3.10 and 3.12 for
-  the dependency-free Django security baseline.
+- Added pinned, credential-free, read-only GitHub Actions validation on Python
+  3.10 and 3.12 for the dependency-free Django security baseline.
 - Made every Make gate bytecode-free and added a guard against leftover Python
   cache output.
-
+- Extended the static baseline to require both completed hosted-validation
+  plans and the exact least-privilege workflow contract.
 ## 2026-06-09
 
 - Rejected non-string post inputs before Twitter status or favorite

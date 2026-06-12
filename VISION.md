@@ -41,8 +41,8 @@ Priority:
 - Keep Twitter and Beats URL patterns as exact-match integration routes
 - Keep user-linked playlist data out of debug print output
 - Keep standard Make gate aliases available for local verification
-- Keep the dependency-free security baseline running on pinned hosted Linux
-  with Python 3.10 and 3.12
+- Keep the dependency-free security baseline running in pinned,
+  credential-free, read-only GitHub Actions with Python 3.10 and 3.12
 - Keep local and hosted verification free of generated Python bytecode
 
 Next priorities:

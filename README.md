@@ -17,6 +17,7 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 ## Repository Contents
 
 - `CHANGES.md` - baseline change log
+- `.github/workflows/check.yml` - GitHub Actions baseline for `make check`
 - `Makefile` - local verification entry point
 - `README.md` - project overview and local usage notes
 - `requirements.txt` - Python dependency or packaging metadata
@@ -83,8 +84,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `python3 test_settings_security.py -v`
 - `python3 test_views_normalization.py -v`
 - `python3 test_url_patterns.py -v`
-- Pinned hosted Linux validation runs the dependency-free `make check` security
-  baseline on Python 3.10 and 3.12 without integration credentials or API calls.
+- Pinned, credential-free, read-only GitHub Actions hosted Linux validation
+  runs the dependency-free `make check` security baseline on Python 3.10 and
+  3.12 without integration credentials or API calls.
 - Local Make gates disable Python bytecode writes and reject leftover
   `__pycache__` or `.pyc` output.
 - Legacy Django integration tests when the original dependency set is
@@ -152,6 +154,10 @@ When the required SDK or runtime is unavailable, use static checks and source re
   logout guardrail.
 - See `docs/plans/2026-06-09-make-gate-aliases.md` for the local Make gate
   aliases.
+- See `docs/plans/2026-06-10-ci-baseline.md` for the lightweight GitHub
+  Actions baseline.
+- See `docs/plans/2026-06-10-hosted-security-validation.md` for the pinned
+  Python matrix and no-credential validation boundary.
 - See `docs/plans/2026-06-10-malformed-beats-results.md` for the malformed
   Beats search result guardrail.
 - See `docs/plans/2026-06-10-malformed-twitter-mentions.md` for the Twitter
