@@ -36,6 +36,8 @@ Priority:
 - Keep malformed Twitter mention text out of outbound track searches
 - Keep login and playlist routing aligned on the same required Twitter and
   Beats auth-state predicate
+- Keep malformed social-auth token metadata behind normalized missing-token
+  boundaries
 - Keep `DJANGO_SECRET_KEY` and social API credentials environment-driven
 - Keep blank `DJANGO_SECRET_KEY` values from satisfying production settings
 - Keep production `DJANGO_SECRET_KEY` values at least 32 characters long

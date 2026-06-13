@@ -66,6 +66,9 @@ Keep malformed Twitter mention text out of Beats searches, and bound cleaned
 search queries before outbound provider calls.
 Skip malformed Beats search results before playlist entries are
 queued.
+Require expected dictionary shapes and nonblank strings for Twitter and Beats
+token metadata before API client construction. Malformed Twitter metadata must
+preserve configured token fallbacks rather than expose raw key errors.
 Keep Twitter and Beats view URL patterns as exact-match integration routes so
 prefix paths cannot reach those authenticated service views.
 Keep `DJANGO_ALLOWED_HOSTS` required outside local debug so production host

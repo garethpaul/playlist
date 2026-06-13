@@ -1,6 +1,6 @@
 # Social Token Metadata Normalization
 
-status: pending
+status: completed
 
 ## Context
 
@@ -27,8 +27,24 @@ before the existing missing-token failure boundary.
 
 ## Work Completed
 
-Pending implementation.
+- Added pure Twitter token-pair and Beats token extractors that require expected
+  dictionary shapes and trimmed nonblank strings.
+- Routed API client construction through the extractors, preserving configured
+  Twitter fallbacks when social metadata is malformed or incomplete and the
+  existing explicit missing-token failures.
+- Added dependency-free malformed-shape fixtures plus current guidance and
+  mutation-sensitive source, test, documentation, and completed-plan contracts.
 
 ## Verification Completed
 
-Pending implementation and validation.
+- `python3 test_views_normalization.py -v`
+- `make lint`, `make test`, `make build`, `make verify`, and `make check`
+- Ran the checker from an external working directory and parsed workflow YAML
+  and the `README SVG`.
+- Confirmed focused hostile mutations to pair atomicity, Beats normalization,
+  live helper wiring, fixtures, documentation, and completed-plan evidence are
+  rejected.
+- `git diff --check`
+- The intended-path secret, captured-identifier, and generated-bytecode scan
+  passed; routes, redirects, templates, settings, dependencies, database,
+  external API call shapes, and deployment behavior had no diff.

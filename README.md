@@ -143,6 +143,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
   200 characters.
 - Keep login and playlist routing on one dependency-free auth-state predicate:
   both Twitter and Beats connections are required before entering `/beats`.
+- Shape-check and trim Twitter and Beats token metadata before API client
+  construction so malformed nested records reach the existing missing-token
+  boundary instead of raising raw key errors.
 - Keep the Twitter and Beats integration URL patterns as exact-match integration routes
   so prefix paths do not enter those views.
 - Do not add debug print statements that expose mention text, track search
