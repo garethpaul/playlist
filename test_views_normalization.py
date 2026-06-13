@@ -112,6 +112,56 @@ class ViewsNormalizationTest(unittest.TestCase):
             with self.subTest(value=value):
                 self.assertFalse(views.has_required_auths(value))
 
+    def test_twitter_access_tokens_require_complete_nested_string_pair(self):
+        views = load_views()
+
+        malformed_values = [
+            None,
+            [],
+            "token",
+            {},
+            {"access_token": None},
+            {"access_token": "token"},
+            {"access_token": {}},
+            {"access_token": {"oauth_token": "key"}},
+            {"access_token": {"oauth_token": "key", "oauth_token_secret": "  "}},
+            {"access_token": {"oauth_token": 123, "oauth_token_secret": "secret"}},
+        ]
+        for value in malformed_values:
+            with self.subTest(value=value):
+                self.assertEqual((None, None), views.twitter_access_tokens(value))
+
+        self.assertEqual(
+            ("key", "secret"),
+            views.twitter_access_tokens({
+                "access_token": {
+                    "oauth_token": " key ",
+                    "oauth_token_secret": " secret ",
+                },
+            }),
+        )
+
+    def test_beats_access_token_requires_nonblank_string(self):
+        views = load_views()
+
+        malformed_values = [
+            None,
+            [],
+            "token",
+            {},
+            {"access_token": None},
+            {"access_token": 123},
+            {"access_token": "  "},
+        ]
+        for value in malformed_values:
+            with self.subTest(value=value):
+                self.assertIsNone(views.beats_access_token(value))
+
+        self.assertEqual(
+            "beats-token",
+            views.beats_access_token({"access_token": " beats-token "}),
+        )
+
     def test_clean_post_text_rejects_non_string_values(self):
         views = load_views()
 

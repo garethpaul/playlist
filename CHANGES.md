@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Normalized Twitter and Beats social-auth token metadata before API client
+  construction and added malformed nested-shape tests.
 - Centralized the required Twitter-and-Beats auth-state decision used by login
   and playlist routing, with dependency-free complete and malformed-state tests.
 - Required production `DJANGO_SECRET_KEY` values to contain at least 32

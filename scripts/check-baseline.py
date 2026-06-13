@@ -39,6 +39,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-10-hosted-security-validation.md",
     "docs/plans/2026-06-13-production-secret-key-length.md",
     "docs/plans/2026-06-13-auth-state-routing.md",
+    "docs/plans/2026-06-13-social-token-metadata-normalization.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -242,6 +243,16 @@ def main():
         "def has_required_auths(auths):",
         "if not isinstance(auths, dict):",
         'return bool(auths.get("twitter")) and bool(auths.get("beats"))',
+        "def twitter_access_tokens(extra_data):",
+        "def beats_access_token(extra_data):",
+        "if not isinstance(access_token, dict):",
+        "token_key = clean_post_text(access_token.get('oauth_token'))",
+        "token_secret = clean_post_text(access_token.get('oauth_token_secret'))",
+        "if not token_key or not token_secret:",
+        "return token_key, token_secret",
+        "clean_post_text(extra_data.get('access_token'))",
+        "twitter_access_tokens(",
+        "beats_access_token(getattr(usa, 'extra_data', None))",
         "if has_required_auths(auths):",
         "if not has_required_auths(auths):",
         "getattr(s, 'favorited', False)",
@@ -271,6 +282,11 @@ def main():
         "beats must use the shared auth-state predicate",
         errors,
     )
+    require(
+        "usa.extra_data['access_token']" not in views,
+        "social token extraction must not directly index extra_data",
+        errors,
+    )
 
     view_tests = read("test_views_normalization.py")
     for snippet in [
@@ -279,6 +295,12 @@ def main():
         'views.has_required_auths({"twitter": object(), "beats": object()})',
         "views.has_required_auths(value)",
         '"twitter,beats"',
+        "test_twitter_access_tokens_require_complete_nested_string_pair",
+        "test_beats_access_token_requires_nonblank_string",
+        "views.twitter_access_tokens(value)",
+        "views.beats_access_token(value)",
+        'self.assertEqual((None, None), views.twitter_access_tokens(value))',
+        'self.assertIsNone(views.beats_access_token(value))',
     ]:
         require(snippet in view_tests, "view tests missing auth-state coverage: %s" % snippet, errors)
 
@@ -346,6 +368,7 @@ def main():
         "malformed Twitter mention text",
         "exact-match integration routes",
         "both Twitter and Beats connections are required",
+        "Shape-check and trim Twitter and Beats token metadata",
         "CSRF-protected POST logout",
         "GitHub Actions",
         "hosted Linux",
@@ -353,11 +376,11 @@ def main():
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "exact-match integration routes", "CSRF-protected POST logout"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "expected dictionary shapes and nonblank strings", "exact-match integration routes", "CSRF-protected POST logout"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "normalized missing-token", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -414,6 +437,46 @@ def main():
         "secret, captured-identifier, and generated-bytecode scan",
     ]:
         require(snippet in auth_state_plan, "auth-state routing plan missing: %s" % snippet, errors)
+    social_token_plan = read(
+        "docs/plans/2026-06-13-social-token-metadata-normalization.md"
+    )
+    social_token_status = re.findall(r"(?mi)^status:\s*(.+?)\s*$", social_token_plan)
+    social_token_work = markdown_section(social_token_plan, "Work Completed")
+    social_token_verification = markdown_section(
+        social_token_plan, "Verification Completed"
+    )
+    require(
+        social_token_status == ["completed"] and bool(social_token_work),
+        "social token plan must record completed status and work",
+        errors,
+    )
+    require(
+        bool(social_token_verification)
+        and not re.search(
+            r"(?i)\b(?:pending|todo|tbd|not run)\b", social_token_verification
+        ),
+        "social token plan must record completed verification",
+        errors,
+    )
+    for evidence in [
+        "python3 test_views_normalization.py -v",
+        "make lint",
+        "make test",
+        "make build",
+        "make verify",
+        "make check",
+        "external working directory",
+        "workflow YAML",
+        "README SVG",
+        "hostile mutations",
+        "git diff --check",
+        "secret, captured-identifier, and generated-bytecode scan",
+    ]:
+        require(
+            evidence in social_token_verification,
+            "social token verification missing: %s" % evidence,
+            errors,
+        )
     hosted_validation_plan = read("docs/plans/2026-06-10-hosted-security-validation.md")
     hosted_validation_status = re.findall(
         r"(?mi)^status:\s*(.+?)\s*$", hosted_validation_plan

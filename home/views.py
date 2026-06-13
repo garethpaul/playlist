@@ -54,6 +54,23 @@ def has_required_auths(auths):
         return False
     return bool(auths.get("twitter")) and bool(auths.get("beats"))
 
+def twitter_access_tokens(extra_data):
+    if not isinstance(extra_data, dict):
+        return None, None
+    access_token = extra_data.get('access_token')
+    if not isinstance(access_token, dict):
+        return None, None
+    token_key = clean_post_text(access_token.get('oauth_token'))
+    token_secret = clean_post_text(access_token.get('oauth_token_secret'))
+    if not token_key or not token_secret:
+        return None, None
+    return token_key, token_secret
+
+def beats_access_token(extra_data):
+    if not isinstance(extra_data, dict):
+        return None
+    return clean_post_text(extra_data.get('access_token'))
+
 def login(request):
     
     auths = get_auths(request)
@@ -168,10 +185,12 @@ def get_twitter(user):
 
     usa = UserSocialAuth.objects.get(user=user, provider='twitter')
     if usa:
-        access_token = usa.extra_data['access_token']
-        if access_token:
-            access_token_key = access_token['oauth_token']
-            access_token_secret = access_token['oauth_token_secret']
+        social_token_key, social_token_secret = twitter_access_tokens(
+            getattr(usa, 'extra_data', None)
+        )
+        if social_token_key and social_token_secret:
+            access_token_key = social_token_key
+            access_token_secret = social_token_secret
 
     if not access_token_key or not access_token_secret:
         raise Exception('No user for twitter API call')
@@ -190,7 +209,7 @@ def get_beats(user):
     access_token = None
     usa = UserSocialAuth.objects.get(user=user, provider='beats')
     if usa:
-        access_token = usa.extra_data['access_token']
+        access_token = beats_access_token(getattr(usa, 'extra_data', None))
             
     if not access_token:
         raise Exception('No user for beats API call')
