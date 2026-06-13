@@ -38,6 +38,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-10-malformed-twitter-mentions.md",
     "docs/plans/2026-06-10-hosted-security-validation.md",
     "docs/plans/2026-06-13-production-secret-key-length.md",
+    "docs/plans/2026-06-13-auth-state-routing.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -238,6 +239,11 @@ def main():
         "def first_track_result(",
         "MAX_TRACK_SEARCH_LENGTH = 200",
         "def clean_track_search(",
+        "def has_required_auths(auths):",
+        "if not isinstance(auths, dict):",
+        'return bool(auths.get("twitter")) and bool(auths.get("beats"))',
+        "if has_required_auths(auths):",
+        "if not has_required_auths(auths):",
         "getattr(s, 'favorited', False)",
         "clean_track_search(getattr(s, 'text', None))",
         "if not search:",
@@ -255,6 +261,26 @@ def main():
     ]:
         require(snippet in views, "views missing guardrail: %s" % snippet, errors)
     require("print(search, tracks)" not in views, "playlist debug print must not expose user-linked data", errors)
+    require(
+        'auths.get("twitter", None) and auths.get("beats", None)' not in views,
+        "login must use the shared auth-state predicate",
+        errors,
+    )
+    require(
+        'not auths.get("twitter", None) or not auths.get("beats", None)' not in views,
+        "beats must use the shared auth-state predicate",
+        errors,
+    )
+
+    view_tests = read("test_views_normalization.py")
+    for snippet in [
+        "test_has_required_auths_accepts_both_integrations",
+        "test_has_required_auths_rejects_incomplete_or_malformed_state",
+        'views.has_required_auths({"twitter": object(), "beats": object()})',
+        "views.has_required_auths(value)",
+        '"twitter,beats"',
+    ]:
+        require(snippet in view_tests, "view tests missing auth-state coverage: %s" % snippet, errors)
 
     beats_template = read("templates/beats.html")
     for snippet in [
@@ -319,6 +345,7 @@ def main():
         "malformed Beats search results",
         "malformed Twitter mention text",
         "exact-match integration routes",
+        "both Twitter and Beats connections are required",
         "CSRF-protected POST logout",
         "GitHub Actions",
         "hosted Linux",
@@ -375,6 +402,18 @@ def main():
     secret_length_plan = read("docs/plans/2026-06-13-production-secret-key-length.md")
     for snippet in ["status: completed", "make check", "six hostile mutations", "32 characters"]:
         require(snippet in secret_length_plan, "secret key length plan missing: %s" % snippet, errors)
+    auth_state_plan = read("docs/plans/2026-06-13-auth-state-routing.md")
+    for snippet in [
+        "status: completed",
+        "has_required_auths",
+        "python3 test_views_normalization.py -v",
+        "make check",
+        "hostile mutations rejected",
+        "external working directory",
+        "git diff --check",
+        "secret, captured-identifier, and generated-bytecode scan",
+    ]:
+        require(snippet in auth_state_plan, "auth-state routing plan missing: %s" % snippet, errors)
     hosted_validation_plan = read("docs/plans/2026-06-10-hosted-security-validation.md")
     hosted_validation_status = re.findall(
         r"(?mi)^status:\s*(.+?)\s*$", hosted_validation_plan

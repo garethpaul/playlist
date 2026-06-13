@@ -92,6 +92,26 @@ def load_views():
 
 
 class ViewsNormalizationTest(unittest.TestCase):
+    def test_has_required_auths_accepts_both_integrations(self):
+        views = load_views()
+
+        self.assertTrue(views.has_required_auths({"twitter": object(), "beats": object()}))
+
+    def test_has_required_auths_rejects_incomplete_or_malformed_state(self):
+        views = load_views()
+
+        for value in [
+            {"twitter": object()},
+            {"beats": object()},
+            {"twitter": object(), "beats": None},
+            {},
+            None,
+            [],
+            "twitter,beats",
+        ]:
+            with self.subTest(value=value):
+                self.assertFalse(views.has_required_auths(value))
+
     def test_clean_post_text_rejects_non_string_values(self):
         views = load_views()
 

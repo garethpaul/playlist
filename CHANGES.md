@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Centralized the required Twitter-and-Beats auth-state decision used by login
+  and playlist routing, with dependency-free complete and malformed-state tests.
 - Required production `DJANGO_SECRET_KEY` values to contain at least 32
   characters after trimming, with standard-library regression coverage.
 

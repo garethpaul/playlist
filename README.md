@@ -141,6 +141,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   queued.
 - Skip malformed Twitter mention text and bound cleaned Beats search queries to
   200 characters.
+- Keep login and playlist routing on one dependency-free auth-state predicate:
+  both Twitter and Beats connections are required before entering `/beats`.
 - Keep the Twitter and Beats integration URL patterns as exact-match integration routes
   so prefix paths do not enter those views.
 - Do not add debug print statements that expose mention text, track search
@@ -164,6 +166,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   Beats search result guardrail.
 - See `docs/plans/2026-06-10-malformed-twitter-mentions.md` for the Twitter
   mention search normalization guardrail.
+- See `docs/plans/2026-06-13-auth-state-routing.md` for the shared integration
+  auth-state routing contract.
 - See `VISION.md` for project direction and contribution guardrails.
 
 ## Contributing
