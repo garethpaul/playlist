@@ -36,6 +36,7 @@ Priority:
 - Keep malformed Twitter mention text out of outbound track searches
 - Keep `DJANGO_SECRET_KEY` and social API credentials environment-driven
 - Keep blank `DJANGO_SECRET_KEY` values from satisfying production settings
+- Keep production `DJANGO_SECRET_KEY` values at least 32 characters long
 - Keep allowed hosts required outside local debug mode
 - Keep wildcard allowed hosts rejected outside local debug mode
 - Keep Twitter and Beats URL patterns as exact-match integration routes

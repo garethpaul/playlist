@@ -37,6 +37,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-10-malformed-beats-results.md",
     "docs/plans/2026-06-10-malformed-twitter-mentions.md",
     "docs/plans/2026-06-10-hosted-security-validation.md",
+    "docs/plans/2026-06-13-production-secret-key-length.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -188,8 +189,11 @@ def main():
         "def env_bool(",
         "def env_list(",
         "DEBUG = env_bool('DJANGO_DEBUG', False)",
+        "MIN_SECRET_KEY_LENGTH = 32",
         "SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')",
         "SECRET_KEY = SECRET_KEY.strip()",
+        "if not DEBUG and len(SECRET_KEY) < MIN_SECRET_KEY_LENGTH:",
+        "DJANGO_SECRET_KEY must be at least 32 characters",
         "raise RuntimeError(",
         "TEMPLATE_DEBUG = DEBUG",
         "ALLOWED_HOSTS = env_list(",
@@ -215,6 +219,15 @@ def main():
             "settings should read %s from the environment" % name,
             errors,
         )
+
+    settings_tests = read("test_settings_security.py")
+    for snippet in [
+        "test_short_secret_key_rejected_when_debug_disabled",
+        '"short-production-secret"',
+        '"at least 32 characters"',
+        'production_secret = "x" * 32',
+    ]:
+        require(snippet in settings_tests, "settings tests missing: %s" % snippet, errors)
 
     views = read("home/views.py")
     require("request.REQUEST" not in views, "legacy request.REQUEST access remains", errors)
@@ -300,6 +313,7 @@ def main():
         "python3 test_views_normalization.py -v",
         "python3 test_url_patterns.py -v",
         "blank",
+        "at least 32 characters",
         "post input normalization",
         "non-string post inputs",
         "malformed Beats search results",
@@ -312,11 +326,11 @@ def main():
         require(snippet in readme, "README missing: %s" % snippet, errors)
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "exact-match integration routes", "CSRF-protected POST logout"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "exact-match integration routes", "CSRF-protected POST logout"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -358,6 +372,9 @@ def main():
     malformed_twitter_plan = read("docs/plans/2026-06-10-malformed-twitter-mentions.md")
     for snippet in ["Status: Complete", "clean_track_search", "malformed Twitter mention text", "make check"]:
         require(snippet in malformed_twitter_plan, "malformed Twitter mention plan missing: %s" % snippet, errors)
+    secret_length_plan = read("docs/plans/2026-06-13-production-secret-key-length.md")
+    for snippet in ["status: completed", "make check", "six hostile mutations", "32 characters"]:
+        require(snippet in secret_length_plan, "secret key length plan missing: %s" % snippet, errors)
     hosted_validation_plan = read("docs/plans/2026-06-10-hosted-security-validation.md")
     hosted_validation_status = re.findall(
         r"(?mi)^status:\s*(.+?)\s*$", hosted_validation_plan

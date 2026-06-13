@@ -29,6 +29,7 @@ def env_list(name, default=''):
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+MIN_SECRET_KEY_LENGTH = 32
 DEBUG = env_bool('DJANGO_DEBUG', False)
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
@@ -41,6 +42,10 @@ if not SECRET_KEY:
         raise RuntimeError(
             'DJANGO_SECRET_KEY must be set unless DJANGO_DEBUG is enabled for local development.'
         )
+if not DEBUG and len(SECRET_KEY) < MIN_SECRET_KEY_LENGTH:
+    raise RuntimeError(
+        'DJANGO_SECRET_KEY must be at least 32 characters when DJANGO_DEBUG is disabled.'
+    )
 
 # SECURITY WARNING: don't run with debug turned on in production!
 TEMPLATE_DEBUG = DEBUG
