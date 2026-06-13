@@ -49,11 +49,16 @@ def first_track_result(results):
         return None
     return track
 
+def has_required_auths(auths):
+    if not isinstance(auths, dict):
+        return False
+    return bool(auths.get("twitter")) and bool(auths.get("beats"))
+
 def login(request):
     
     auths = get_auths(request)
     
-    if auths.get("twitter", None) and auths.get("beats", None):
+    if has_required_auths(auths):
         return redirect("/beats")
 
     context = {"request": request, "auths": auths}
@@ -77,7 +82,7 @@ def twttr(request):
 def beats(request):
     
     auths = get_auths(request)
-    if not auths.get("twitter", None) or not auths.get("beats", None):
+    if not has_required_auths(auths):
         return redirect("/login")
     
     auth_twitter = auths.get("twitter", None)

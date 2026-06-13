@@ -34,6 +34,8 @@ Priority:
 - Keep non-string post inputs out of Twitter service calls
 - Keep malformed Beats search results out of the playlist queue
 - Keep malformed Twitter mention text out of outbound track searches
+- Keep login and playlist routing aligned on the same required Twitter and
+  Beats auth-state predicate
 - Keep `DJANGO_SECRET_KEY` and social API credentials environment-driven
 - Keep blank `DJANGO_SECRET_KEY` values from satisfying production settings
 - Keep production `DJANGO_SECRET_KEY` values at least 32 characters long
@@ -49,7 +51,7 @@ Priority:
 Next priorities:
 
 - Add setup notes for currently unavailable or changed third-party services
-- Add tests around auth-state routing and playlist selection logic
+- Add tests around playlist selection logic
 - Add focused tests around log-safe playlist selection once dependencies are
   pinned or replaced
 - Modernize Django only in a separate compatibility pass

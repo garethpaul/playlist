@@ -1,6 +1,6 @@
 # Integration Auth State Routing
 
-status: planned
+status: completed
 
 ## Context
 
@@ -52,3 +52,23 @@ suite does not isolate this decision from Django or unavailable integrations.
 - Do not install or modernize Django, social-auth, Twitter, Beats, Spotify, or
   deployment dependencies.
 - Do not claim live authentication or service-backed behavior was exercised.
+
+## Work Completed
+
+Centralized complete Twitter-and-Beats auth detection in a dependency-free
+predicate, used it for both login and playlist routing, and added complete,
+partial, empty, and malformed-state tests.
+
+## Verification Completed
+
+- `python3 test_views_normalization.py -v` passed eight tests.
+- `make lint`, `make test`, `make build`, `make verify`, and `make check`
+  passed all dependency-free tests.
+- The checker passed from an external working directory.
+- The workflow YAML and README SVG parsed successfully.
+- Ten focused hostile mutations rejected weakened type, provider, route, test,
+  documentation, status, and evidence contracts.
+- `git diff --check` passed.
+- The `secret, captured-identifier, and generated-bytecode scan` passed.
+- Live authentication and integrations were unavailable because their obsolete
+  dependencies and credentials remain intentionally uninstalled.
