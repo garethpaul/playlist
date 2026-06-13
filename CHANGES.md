@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-13
+
+- Required production `DJANGO_SECRET_KEY` values to contain at least 32
+  characters after trimming, with standard-library regression coverage.
+
 ## 2026-06-10
 
 - Added pinned, credential-free, read-only GitHub Actions validation on Python

@@ -48,6 +48,7 @@
 - Detected references to Twitter. Keep API keys, OAuth credentials, tokens, and account-specific values in local configuration only.
 - Required outside local debug: `DJANGO_SECRET_KEY`.
 - Blank `DJANGO_SECRET_KEY` values are rejected outside local debug mode.
+- Production `DJANGO_SECRET_KEY` values must be at least 32 characters after trimming.
 - `DJANGO_ALLOWED_HOSTS` is required outside local debug mode.
 - `DJANGO_ALLOWED_HOSTS=*` wildcard allowed hosts are rejected outside local debug.
 - Optional runtime controls: `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`.

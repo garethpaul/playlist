@@ -1,6 +1,6 @@
 # Production secret key length
 
-status: planned
+status: completed
 
 ## Context
 
@@ -22,5 +22,21 @@ into source control.
 
 ## Verification
 
-- Run focused settings tests, every Make gate, checker compilation, hostile
-  mutations, diff checks, artifact scans, and secret scans.
+## Work completed
+
+- Added a 32-character production minimum after whitespace normalization.
+- Preserved the explicit debug-only development fallback and environment-only
+  production configuration.
+- Added standard-library settings coverage and mutation-sensitive checker and
+  documentation contracts.
+
+## Verification completed
+
+- `python3 test_settings_security.py -v`, `make lint`, `make test`,
+  `make build`, `make verify`, and `make check` passed without installing the
+  legacy dependency graph.
+- Checker compilation, `git diff --check`, artifact scans, and secret scans
+  passed.
+- The checker rejected six hostile mutations covering removal or weakening of
+  the length guard, debug-mode coupling, missing short-key coverage, an unsafe
+  production fixture, and incomplete plan evidence.

@@ -43,6 +43,7 @@ Helpful reports include:
   `DJANGO_SECRET_KEY` is required unless local debug mode is explicitly enabled.
   A blank `DJANGO_SECRET_KEY` value is rejected in non-debug mode, and wildcard
   allowed hosts are rejected outside local debug.
+  Production secret keys must be at least 32 characters after trimming.
 
 ## Service and API Notes
 

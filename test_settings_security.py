@@ -31,15 +31,26 @@ class SettingsSecurityTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "DJANGO_SECRET_KEY"):
                 spec.loader.exec_module(module)
 
+    def test_short_secret_key_rejected_when_debug_disabled(self):
+        with mock.patch.dict(os.environ, {
+            "DJANGO_SECRET_KEY": "short-production-secret",
+            "DJANGO_DEBUG": "0",
+            "DJANGO_ALLOWED_HOSTS": "playlist.example.com",
+        }, clear=True):
+            spec = importlib.util.spec_from_file_location("playlist_settings_short_secret", str(SETTINGS))
+            module = importlib.util.module_from_spec(spec)
+            with self.assertRaisesRegex(RuntimeError, "at least 32 characters"):
+                spec.loader.exec_module(module)
+
     def test_allowed_hosts_required_when_debug_disabled(self):
-        with mock.patch.dict(os.environ, {"DJANGO_SECRET_KEY": "test-secret", "DJANGO_DEBUG": "0"}, clear=True):
+        with mock.patch.dict(os.environ, {"DJANGO_SECRET_KEY": "x" * 32, "DJANGO_DEBUG": "0"}, clear=True):
             spec = importlib.util.spec_from_file_location("playlist_settings_missing_hosts", str(SETTINGS))
             module = importlib.util.module_from_spec(spec)
             with self.assertRaisesRegex(RuntimeError, "DJANGO_ALLOWED_HOSTS"):
                 spec.loader.exec_module(module)
 
     def test_wildcard_allowed_hosts_rejected_when_debug_disabled(self):
-        with mock.patch.dict(os.environ, {"DJANGO_SECRET_KEY": "test-secret", "DJANGO_DEBUG": "0", "DJANGO_ALLOWED_HOSTS": "*"}, clear=True):
+        with mock.patch.dict(os.environ, {"DJANGO_SECRET_KEY": "x" * 32, "DJANGO_DEBUG": "0", "DJANGO_ALLOWED_HOSTS": "*"}, clear=True):
             spec = importlib.util.spec_from_file_location("playlist_settings_wildcard_hosts", str(SETTINGS))
             module = importlib.util.module_from_spec(spec)
             with self.assertRaisesRegex(RuntimeError, "wildcard"):
@@ -53,8 +64,9 @@ class SettingsSecurityTest(unittest.TestCase):
         self.assertEqual("unsafe-development-secret-key", settings.SECRET_KEY)
 
     def test_production_settings_come_from_environment(self):
+        production_secret = "x" * 32
         settings = self.load_settings({
-            "DJANGO_SECRET_KEY": "  test-production-secret  ",
+            "DJANGO_SECRET_KEY": "  %s  " % production_secret,
             "DJANGO_DEBUG": "0",
             "DJANGO_ALLOWED_HOSTS": "playlist.example.com, api.example.com",
             "SOCIAL_AUTH_TWITTER_KEY": "twitter-key",
@@ -69,7 +81,7 @@ class SettingsSecurityTest(unittest.TestCase):
 
         self.assertFalse(settings.DEBUG)
         self.assertFalse(settings.TEMPLATE_DEBUG)
-        self.assertEqual("test-production-secret", settings.SECRET_KEY)
+        self.assertEqual(production_secret, settings.SECRET_KEY)
         self.assertEqual(["playlist.example.com", "api.example.com"], settings.ALLOWED_HOSTS)
         self.assertEqual("twitter-key", settings.SOCIAL_AUTH_TWITTER_KEY)
         self.assertEqual("twitter-token", settings.TWITTER_ACCESS_TOKEN)
