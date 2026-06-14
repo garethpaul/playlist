@@ -40,6 +40,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-13-production-secret-key-length.md",
     "docs/plans/2026-06-13-auth-state-routing.md",
     "docs/plans/2026-06-13-social-token-metadata-normalization.md",
+    "docs/plans/2026-06-14-location-independent-make-gates.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -120,15 +121,16 @@ def main():
 
     makefile = read("Makefile")
     for snippet in [
+        "override REPO_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))",
         "check: verify",
         "verify: lint test build",
         "lint: static-check",
         "test: settings-test url-test",
         "build: static-check",
-        "PYTHONDONTWRITEBYTECODE=1 python3 scripts/check-baseline.py",
-        "PYTHONDONTWRITEBYTECODE=1 python3 test_settings_security.py -v",
-        "PYTHONDONTWRITEBYTECODE=1 python3 test_views_normalization.py -v",
-        "PYTHONDONTWRITEBYTECODE=1 python3 test_url_patterns.py -v",
+        'PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/scripts/check-baseline.py"',
+        'PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/test_settings_security.py" -v',
+        'PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/test_views_normalization.py" -v',
+        'PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/test_url_patterns.py" -v',
     ]:
         require(snippet in makefile, "Makefile missing guardrail: %s" % snippet, errors)
 
@@ -372,8 +374,15 @@ def main():
         "CSRF-protected POST logout",
         "GitHub Actions",
         "hosted Linux",
+        "absolute Makefile path works from another directory",
     ]:
         require(snippet in readme, "README missing: %s" % snippet, errors)
+    changes = " ".join(read("CHANGES.md").split())
+    require(
+        "external absolute-Makefile calls" in changes,
+        "CHANGES missing external absolute-Makefile calls",
+        errors,
+    )
 
     security = read("SECURITY.md")
     for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "expected dictionary shapes and nonblank strings", "exact-match integration routes", "CSRF-protected POST logout"]:
@@ -475,6 +484,52 @@ def main():
         require(
             evidence in social_token_verification,
             "social token verification missing: %s" % evidence,
+            errors,
+        )
+    location_make_plan = read(
+        "docs/plans/2026-06-14-location-independent-make-gates.md"
+    )
+    location_make_status = re.findall(
+        r"(?mi)^status:\s*(.+?)\s*$", location_make_plan
+    )
+    location_make_work = markdown_section(location_make_plan, "Work Completed")
+    location_make_verification = markdown_section(
+        location_make_plan, "Verification Completed"
+    )
+    require(
+        location_make_status == ["completed"] and bool(location_make_work),
+        "location-independent Make plan must record completed status and work",
+        errors,
+    )
+    require(
+        bool(location_make_verification)
+        and not re.search(
+            r"(?i)\b(?:pending|todo|tbd|not run)\b", location_make_verification
+        ),
+        "location-independent Make plan must record completed verification",
+        errors,
+    )
+    for evidence in [
+        "make lint",
+        "make test",
+        "make build",
+        "make verify",
+        "make check",
+        "make static-check",
+        "make settings-test",
+        "make url-test",
+        "18 dependency-free tests",
+        "from `/tmp`",
+        "absolute",
+        "caller-supplied `REPO_ROOT=/tmp`",
+        "python3 -m py_compile",
+        "workflow YAML",
+        "README SVG",
+        "Twelve isolated hostile mutations were rejected",
+    ]:
+        require(
+            evidence in location_make_verification,
+            "location-independent Make verification missing: %s" % evidence,
             errors,
         )
     hosted_validation_plan = read("docs/plans/2026-06-10-hosted-security-validation.md")

@@ -153,6 +153,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 ## Maintenance Notes
 
+- Standard Make aliases resolve the checker and dependency-free test scripts
+  from `Makefile`, so an absolute Makefile path works from another directory.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `CHANGES.md`, `docs/bugs/`, and
   `docs/plans/2026-06-08-playlist-baseline.md` for the current

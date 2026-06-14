@@ -1,6 +1,6 @@
 # Location-Independent Make Gates
 
-status: planned
+status: completed
 
 ## Context
 
@@ -44,3 +44,27 @@ changing directories.
 - Run isolated hostile mutations over each rooted recipe and plan evidence.
 - Audit intended paths, unchanged integration surfaces, whitespace, generated
   bytecode, captured identifiers, and secret-like data.
+
+## Work Completed
+
+The Makefile now derives an override-protected absolute repository root from
+its own location and invokes the checker plus all three dependency-free test
+scripts through rooted paths. Existing aliases, bytecode suppression, verbose
+output, Python command behavior, integration code, and credentials remain
+unchanged.
+
+## Verification Completed
+
+- `make lint`, `make test`, `make build`, `make verify`, `make check`,
+  `make static-check`, `make settings-test`, and `make url-test` passed from the
+  repository root; test-bearing targets ran all 18 dependency-free tests.
+- Every target passed from `/tmp` through the repository's absolute Makefile
+  path.
+- External `make check` passed with caller-supplied `REPO_ROOT=/tmp`, confirming
+  command-line variables cannot redirect any script.
+- `python3 -m py_compile` passed for the checker and all three test scripts with
+  bytecode routed outside the repository; workflow YAML and README SVG parsed
+  successfully.
+- Twelve isolated hostile mutations were rejected across root derivation,
+  override resistance, all four rooted scripts, completed evidence, README,
+  and change-history contracts.

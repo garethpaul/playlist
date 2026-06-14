@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-14
+
+- Made every standard Make gate resolve the checker and dependency-free test
+  scripts from the repository root, including external absolute-Makefile calls.
+
 ## 2026-06-13
 
 - Normalized Twitter and Beats social-auth token metadata before API client
