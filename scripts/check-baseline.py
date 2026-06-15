@@ -41,6 +41,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-13-auth-state-routing.md",
     "docs/plans/2026-06-13-social-token-metadata-normalization.md",
     "docs/plans/2026-06-14-location-independent-make-gates.md",
+    "docs/plans/2026-06-15-preview-seconds-validation.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -239,8 +240,14 @@ def main():
         "def clean_post_text(",
         "if not isinstance(value, str):",
         "def clean_tweet_id(",
+        "def clean_preview_seconds(",
         "def first_track_result(",
         "MAX_TRACK_SEARCH_LENGTH = 200",
+        "MAX_PREVIEW_SECONDS_LENGTH = 16",
+        "MAX_PREVIEW_SECONDS = Decimal('3600')",
+        "preview_seconds_re = re.compile(r'^(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$')",
+        "seconds = Decimal(value)",
+        "if not seconds.is_finite() or seconds > MAX_PREVIEW_SECONDS:",
         "def clean_track_search(",
         "def has_required_auths(auths):",
         "if not isinstance(auths, dict):",
@@ -266,6 +273,7 @@ def main():
         "tweet_id_re = re.compile(r'^[0-9]+$')",
         'status = clean_post_text(request.POST.get("status", None))',
         'fav = clean_tweet_id(request.POST.get("fav", None))',
+        'preview = clean_preview_seconds(request.POST.get("preview", request.GET.get("preview", None)))',
         'request.POST.get("track", request.GET.get("track", None))',
         "track = first_track_result(tracks)",
         "from django.views.decorators.http import require_POST",
@@ -289,6 +297,12 @@ def main():
         "social token extraction must not directly index extra_data",
         errors,
     )
+    require(
+        'preview = request.POST.get("preview", request.GET.get("preview", None))'
+        not in views,
+        "preview request values must not reach the template without normalization",
+        errors,
+    )
 
     view_tests = read("test_views_normalization.py")
     for snippet in [
@@ -303,6 +317,12 @@ def main():
         "views.beats_access_token(value)",
         'self.assertEqual((None, None), views.twitter_access_tokens(value))',
         'self.assertIsNone(views.beats_access_token(value))',
+        "test_clean_preview_seconds_accepts_bounded_decimal_strings",
+        "test_clean_preview_seconds_rejects_non_numeric_or_unsafe_values",
+        "test_beats_view_normalizes_preview_before_rendering",
+        '"0);alert(1);//"',
+        '"3600.1"',
+        "views.clean_preview_seconds(value)",
     ]:
         require(snippet in view_tests, "view tests missing auth-state coverage: %s" % snippet, errors)
 
@@ -371,6 +391,7 @@ def main():
         "exact-match integration routes",
         "both Twitter and Beats connections are required",
         "Shape-check and trim Twitter and Beats token metadata",
+        "Validate preview durations as bounded decimal seconds",
         "CSRF-protected POST logout",
         "GitHub Actions",
         "hosted Linux",
@@ -383,13 +404,18 @@ def main():
         "CHANGES missing external absolute-Makefile calls",
         errors,
     )
+    require(
+        "bounded decimal preview seconds" in changes,
+        "CHANGES missing bounded preview validation",
+        errors,
+    )
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "expected dictionary shapes and nonblank strings", "exact-match integration routes", "CSRF-protected POST logout"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "expected dictionary shapes and nonblank strings", "bounded nonnegative decimal seconds", "exact-match integration routes", "CSRF-protected POST logout"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "normalized missing-token", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "normalized missing-token", "bounded preview seconds", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -530,6 +556,42 @@ def main():
         require(
             evidence in location_make_verification,
             "location-independent Make verification missing: %s" % evidence,
+            errors,
+        )
+    preview_plan = read("docs/plans/2026-06-15-preview-seconds-validation.md")
+    preview_status = re.findall(r"(?mi)^status:\s*(.+?)\s*$", preview_plan)
+    preview_work = markdown_section(preview_plan, "Work Completed")
+    preview_verification = markdown_section(preview_plan, "Verification Completed")
+    require(
+        preview_status == ["completed"] and bool(preview_work),
+        "preview validation plan must record completed status and work",
+        errors,
+    )
+    require(
+        bool(preview_verification)
+        and not re.search(
+            r"(?i)\b(?:pending|todo|tbd|not run)\b", preview_verification
+        ),
+        "preview validation plan must record completed verification",
+        errors,
+    )
+    for evidence in [
+        "python3 test_views_normalization.py -v",
+        "make lint",
+        "make test",
+        "make build",
+        "make verify",
+        "make check",
+        "external working directory",
+        "workflow YAML",
+        "README SVG",
+        "hostile mutations",
+        "git diff --check",
+        "artifact, credential, and generated-bytecode audits",
+    ]:
+        require(
+            evidence in preview_verification,
+            "preview validation verification missing: %s" % evidence,
             errors,
         )
     hosted_validation_plan = read("docs/plans/2026-06-10-hosted-security-validation.md")

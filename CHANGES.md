@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-15
+
+- Restricted request-controlled player input to bounded decimal preview seconds
+  before server-rendered JavaScript interpolation.
+
 ## 2026-06-14
 
 - Made every standard Make gate resolve the checker and dependency-free test

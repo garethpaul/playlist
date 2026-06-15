@@ -10,10 +10,14 @@ import twitter
 import spotipy
 from pybeats.api import BeatsAPI
 
+from decimal import Decimal, InvalidOperation
 import re
 twitter_username_re = re.compile(r'@([A-Za-z0-9_]+)', re.IGNORECASE)
 tweet_id_re = re.compile(r'^[0-9]+$')
+preview_seconds_re = re.compile(r'^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$')
 MAX_TRACK_SEARCH_LENGTH = 200
+MAX_PREVIEW_SECONDS_LENGTH = 16
+MAX_PREVIEW_SECONDS = Decimal('3600')
 
 def clean_post_text(value):
     if value is None:
@@ -28,6 +32,20 @@ def clean_tweet_id(value):
     if value and tweet_id_re.match(value):
         return value
     return None
+
+def clean_preview_seconds(value):
+    value = clean_post_text(value)
+    if not value or len(value) > MAX_PREVIEW_SECONDS_LENGTH:
+        return None
+    if not preview_seconds_re.match(value):
+        return None
+    try:
+        seconds = Decimal(value)
+    except InvalidOperation:
+        return None
+    if not seconds.is_finite() or seconds > MAX_PREVIEW_SECONDS:
+        return None
+    return value
 
 def clean_track_search(value):
     value = clean_post_text(value)
@@ -107,7 +125,7 @@ def beats(request):
     twitter = get_twitter(request.user)
     twitter_me = twitter.GetUser(auth_twitter.uid)
 
-    preview = request.POST.get("preview", request.GET.get("preview", None))
+    preview = clean_preview_seconds(request.POST.get("preview", request.GET.get("preview", None)))
     track_next = request.POST.get("track", request.GET.get("track", None))
     fav = clean_tweet_id(request.POST.get("fav", None))
     if fav:

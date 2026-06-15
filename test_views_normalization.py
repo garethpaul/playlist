@@ -92,6 +92,56 @@ def load_views():
 
 
 class ViewsNormalizationTest(unittest.TestCase):
+    def test_clean_preview_seconds_accepts_bounded_decimal_strings(self):
+        views = load_views()
+
+        for value, expected in [
+            ("0", "0"),
+            (" 30 ", "30"),
+            ("0.5", "0.5"),
+            ("3600", "3600"),
+            ("3600.0", "3600.0"),
+        ]:
+            with self.subTest(value=value):
+                self.assertEqual(expected, views.clean_preview_seconds(value))
+
+    def test_clean_preview_seconds_rejects_non_numeric_or_unsafe_values(self):
+        views = load_views()
+
+        for value in [
+            None,
+            30,
+            b"30",
+            [],
+            {},
+            "",
+            "  ",
+            "-1",
+            "+1",
+            "01",
+            "1.",
+            ".5",
+            "1e2",
+            "3600.1",
+            "9" * 17,
+            "0);alert(1);//",
+        ]:
+            with self.subTest(value=value):
+                self.assertIsNone(views.clean_preview_seconds(value))
+
+    def test_beats_view_normalizes_preview_before_rendering(self):
+        source = VIEWS.read_text()
+
+        self.assertIn(
+            'preview = clean_preview_seconds(request.POST.get("preview", '
+            'request.GET.get("preview", None)))',
+            source,
+        )
+        self.assertNotIn(
+            'preview = request.POST.get("preview", request.GET.get("preview", None))',
+            source,
+        )
+
     def test_has_required_auths_accepts_both_integrations(self):
         views = load_views()
 

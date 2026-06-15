@@ -38,6 +38,8 @@ Priority:
   Beats auth-state predicate
 - Keep malformed social-auth token metadata behind normalized missing-token
   boundaries
+- Keep request-controlled player input limited to bounded preview seconds
+  before server-rendered JavaScript interpolation
 - Keep `DJANGO_SECRET_KEY` and social API credentials environment-driven
 - Keep blank `DJANGO_SECRET_KEY` values from satisfying production settings
 - Keep production `DJANGO_SECRET_KEY` values at least 32 characters long

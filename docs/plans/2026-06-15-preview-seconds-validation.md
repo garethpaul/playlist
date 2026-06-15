@@ -1,6 +1,6 @@
 # Preview Seconds Validation
 
-status: in_progress
+status: completed
 
 ## Summary
 
@@ -127,3 +127,29 @@ mode, and large-file audits.
   validate pure normalization and source wiring rather than live Django
   rendering or Beats playback.
 - This change must remain stacked on PR #6 and follow base-first merge order.
+
+## Work Completed
+
+- Added strict preview-second normalization for trimmed nonnegative decimal
+  strings with input-length and one-hour bounds.
+- Routed the existing POST-first/GET-fallback preview value through the helper
+  before it enters the render context.
+- Added dependency-free valid, boundary, malformed, executable-punctuation,
+  and source-wiring regressions plus synchronized guidance and static contracts.
+
+## Verification Completed
+
+- `python3 test_views_normalization.py -v` passed all focused normalization
+  cases, and the complete dependency-free suites passed 21 tests.
+- `make lint`, `make test`, `make build`, `make verify`, and `make check` passed.
+- The complete gate passed from an external working directory through the
+  absolute Makefile path.
+- The workflow YAML and README SVG parsed successfully.
+- Browser execution was not available because `agent-browser` and the legacy
+  Django/social/provider runtime are absent; template source and render-context
+  wiring were covered by dependency-free tests and static contracts instead.
+- Six isolated hostile mutations were rejected for direct request wiring,
+  weakened grammar, a raised range cap, removed executable punctuation
+  coverage, missing guidance, and reopened plan status.
+- `git diff --check` and artifact, credential, and generated-bytecode audits
+  passed for the exact intended paths.

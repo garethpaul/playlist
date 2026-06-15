@@ -69,6 +69,9 @@ queued.
 Require expected dictionary shapes and nonblank strings for Twitter and Beats
 token metadata before API client construction. Malformed Twitter metadata must
 preserve configured token fallbacks rather than expose raw key errors.
+Accept player preview durations only as bounded nonnegative decimal seconds
+before rendering them into JavaScript. Reject signs, exponents, executable
+punctuation, overlong values, and durations above one hour.
 Keep Twitter and Beats view URL patterns as exact-match integration routes so
 prefix paths cannot reach those authenticated service views.
 Keep `DJANGO_ALLOWED_HOSTS` required outside local debug so production host
