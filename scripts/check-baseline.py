@@ -42,6 +42,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-13-social-token-metadata-normalization.md",
     "docs/plans/2026-06-14-location-independent-make-gates.md",
     "docs/plans/2026-06-15-preview-seconds-validation.md",
+    "docs/plans/2026-06-16-text-only-player-metadata.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -320,6 +321,9 @@ def main():
         "test_clean_preview_seconds_accepts_bounded_decimal_strings",
         "test_clean_preview_seconds_rejects_non_numeric_or_unsafe_values",
         "test_beats_view_normalizes_preview_before_rendering",
+        "test_player_metadata_and_timing_use_text_only_dom_sinks",
+        'trackName.textContent = "Title:" + data.display;',
+        'self.assertNotIn(".innerHTML", template)',
         '"0);alert(1);//"',
         '"3600.1"',
         "views.clean_preview_seconds(value)",
@@ -338,6 +342,25 @@ def main():
     ]:
         require(snippet in beats_template, "beats template missing POST favorite path: %s" % snippet, errors)
     require('"/beats?fav=' not in beats_template, "favorite action still uses a query string", errors)
+    text_only_player_assignments = [
+        'trackName.textContent = "Title:" + data.display;',
+        'timeDuration.textContent = "Duration: " + value;',
+        'timeElapsed.textContent = "Elapsed: " + elapsed;',
+        'timeRemaining.textContent = "Remaining: " + remaining;',
+        'timeBufferedStart.textContent = "Start: " + buffered.start;',
+        'timeBufferedEnd.textContent = "End: " + buffered.end;',
+        'timeBufferedLength.textContent = "Length: " + buffered.length;',
+        'timeSeekableStart.textContent = "Start: " + seekable.start;',
+        'timeSeekableEnd.textContent = "End: " + seekable.end;',
+        'timeSeekableLength.textContent = "Length: " + seekable.length;',
+    ]
+    require(
+        all(assignment in beats_template for assignment in text_only_player_assignments)
+        and beats_template.count(".textContent =") == len(text_only_player_assignments)
+        and ".innerHTML" not in beats_template,
+        "player metadata and timing must use only the reviewed textContent sinks",
+        errors,
+    )
 
     twitter_template = read("templates/twitter.html")
     for snippet in ['action="/twttr"', 'method="post"', "{% csrf_token %}"]:
@@ -392,6 +415,7 @@ def main():
         "both Twitter and Beats connections are required",
         "Shape-check and trim Twitter and Beats token metadata",
         "Validate preview durations as bounded decimal seconds",
+        "provider-controlled player metadata",
         "CSRF-protected POST logout",
         "GitHub Actions",
         "hosted Linux",
@@ -409,13 +433,18 @@ def main():
         "CHANGES missing bounded preview validation",
         errors,
     )
+    require(
+        "text-only" in changes and "textContent" in changes,
+        "CHANGES missing text-only player metadata hardening",
+        errors,
+    )
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "expected dictionary shapes and nonblank strings", "bounded nonnegative decimal seconds", "exact-match integration routes", "CSRF-protected POST logout"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "expected dictionary shapes and nonblank strings", "bounded nonnegative decimal seconds", "player metadata and timing fields with `textContent`", "exact-match integration routes", "CSRF-protected POST logout"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "normalized missing-token", "bounded preview seconds", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "normalized missing-token", "bounded preview seconds", "provider-controlled player metadata on text-only DOM sinks", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -592,6 +621,43 @@ def main():
         require(
             evidence in preview_verification,
             "preview validation verification missing: %s" % evidence,
+            errors,
+        )
+    text_only_plan = read("docs/plans/2026-06-16-text-only-player-metadata.md")
+    text_only_status = re.findall(r"(?mi)^status:\s*(.+?)\s*$", text_only_plan)
+    text_only_work = markdown_section(text_only_plan, "Work Completed")
+    text_only_verification = markdown_section(
+        text_only_plan, "Verification Completed"
+    )
+    require(
+        text_only_status == ["completed"] and bool(text_only_work),
+        "text-only player metadata plan must record completed status and work",
+        errors,
+    )
+    require(
+        bool(text_only_verification)
+        and not re.search(
+            r"(?i)\b(?:pending|todo|tbd|not run)\b", text_only_verification
+        ),
+        "text-only player metadata plan must record completed verification",
+        errors,
+    )
+    for evidence in [
+        "python3 test_views_normalization.py -v",
+        "make lint",
+        "make test",
+        "make build",
+        "make verify",
+        "make check",
+        "external working directory",
+        "template JavaScript syntax",
+        "Seven isolated hostile mutations were rejected",
+        "git diff --check",
+        "artifact, credential, conflict-marker, binary, size, mode, and whitespace audits",
+    ]:
+        require(
+            evidence in text_only_verification,
+            "text-only player metadata verification missing: %s" % evidence,
             errors,
         )
     hosted_validation_plan = read("docs/plans/2026-06-10-hosted-security-validation.md")

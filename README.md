@@ -149,6 +149,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Validate preview durations as bounded decimal seconds before rendering them
   into the player script; reject signs, exponents, executable punctuation,
   overlong values, and durations above one hour.
+- Render provider-controlled player metadata and timing values through
+  `textContent`; never interpret SDK callback values as HTML.
 - Keep the Twitter and Beats integration URL patterns as exact-match integration routes
   so prefix paths do not enter those views.
 - Do not add debug print statements that expose mention text, track search

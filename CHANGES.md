@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-16
+
+- Replaced player metadata and timing `innerHTML` writes with `textContent` so
+  provider SDK callback values remain text-only.
+
 ## 2026-06-15
 
 - Restricted request-controlled player input to bounded decimal preview seconds

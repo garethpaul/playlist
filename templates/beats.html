@@ -326,7 +326,7 @@ function handleError(value) {
 }
 
 function handleDuration(value) {
-    timeDuration.innerHTML = "Duration: " + value;
+    timeDuration.textContent = "Duration: " + value;
     debug("bam:handleDuration: " + value);
 }
 
@@ -372,7 +372,7 @@ function handleStreamEnded() {
 }
 
 function handleMetadataLoaded(data) {
-    trackName.innerHTML = "Title:" + data.display;
+    trackName.textContent = "Title:" + data.display;
     debug("bam:handleMetadataLoaded");
 }
 
@@ -387,14 +387,14 @@ function handleTimeUpdate() {
     var buffered = bam.buffered;
     var seekable = bam.seekable;
     var remaining = bam.duration - elapsed;
-    timeElapsed.innerHTML = "Elapsed: " + elapsed;
-    timeRemaining.innerHTML = "Remaining: " + remaining;
-    timeBufferedStart.innerHTML = "Start: " + buffered.start;
-    timeBufferedEnd.innerHTML = "End: " + buffered.end;
-    timeBufferedLength.innerHTML = "Length: " + buffered.length;
-    timeSeekableStart.innerHTML = "Start: " + seekable.start;
-    timeSeekableEnd.innerHTML = "End: " + seekable.end;
-    timeSeekableLength.innerHTML = "Length: " + seekable.length;
+    timeElapsed.textContent = "Elapsed: " + elapsed;
+    timeRemaining.textContent = "Remaining: " + remaining;
+    timeBufferedStart.textContent = "Start: " + buffered.start;
+    timeBufferedEnd.textContent = "End: " + buffered.end;
+    timeBufferedLength.textContent = "Length: " + buffered.length;
+    timeSeekableStart.textContent = "Start: " + seekable.start;
+    timeSeekableEnd.textContent = "End: " + seekable.end;
+    timeSeekableLength.textContent = "Length: " + seekable.length;
     
     {% if preview %}
     if (elapsed > {{ preview }}){

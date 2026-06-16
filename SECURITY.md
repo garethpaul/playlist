@@ -72,6 +72,8 @@ preserve configured token fallbacks rather than expose raw key errors.
 Accept player preview durations only as bounded nonnegative decimal seconds
 before rendering them into JavaScript. Reject signs, exponents, executable
 punctuation, overlong values, and durations above one hour.
+Render player metadata and timing fields with `textContent` so provider SDK
+callback values cannot become executable DOM markup.
 Keep Twitter and Beats view URL patterns as exact-match integration routes so
 prefix paths cannot reach those authenticated service views.
 Keep `DJANGO_ALLOWED_HOSTS` required outside local debug so production host

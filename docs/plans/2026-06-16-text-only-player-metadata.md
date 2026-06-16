@@ -1,7 +1,7 @@
 ---
 title: Text-Only Player Metadata
 type: security
-status: planned
+status: completed
 date: 2026-06-16
 ---
 
@@ -64,11 +64,24 @@ unsafe.
 - This change prevents HTML interpretation at the identified DOM sinks; it does
   not make provider data trustworthy for other contexts.
 
-## Verification Planned
+## Work Completed
 
-- Run focused normalization/static tests and all repository Make gates from the
-  repository root and an external directory.
-- Reject isolated mutations for the title sink, timing sinks, global
-  `innerHTML` absence, tests, guidance, and plan completion evidence.
-- Run final intended-path, artifact, credential, conflict-marker, binary,
-  size, mode, and whitespace audits.
+- Replaced every reviewed player metadata and timing `innerHTML` assignment
+  with `textContent` while preserving the existing labels, values, handlers,
+  and playback arithmetic.
+- Added dependency-free regression and static contracts that require the exact
+  title/timing sink inventory and reject every `innerHTML` assignment.
+- Synchronized README, security, vision, and changelog guidance around the
+  text-only provider callback boundary.
+
+## Verification Completed
+
+- `python3 test_views_normalization.py -v`, `make lint`, `make test`, `make build`,
+  `make verify`, and `make check` passed from the repository root and an
+  external working directory.
+- The template JavaScript syntax check passed after Django template delimiters
+  were replaced with inert syntax-only placeholders.
+- Seven isolated hostile mutations were rejected.
+- `git diff --check` passed; artifact, credential, conflict-marker, binary, size, mode, and whitespace audits passed.
+- The obsolete Django/provider/browser runtime remains unavailable, so no live
+  SDK callback or playback claim is made.

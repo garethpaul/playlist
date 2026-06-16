@@ -7,6 +7,7 @@ import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parent
 VIEWS = ROOT / "home" / "views.py"
+BEATS_TEMPLATE = ROOT / "templates" / "beats.html"
 
 
 def decorator(function):
@@ -92,6 +93,28 @@ def load_views():
 
 
 class ViewsNormalizationTest(unittest.TestCase):
+    def test_player_metadata_and_timing_use_text_only_dom_sinks(self):
+        template = BEATS_TEMPLATE.read_text()
+
+        self.assertNotIn(".innerHTML", template)
+        self.assertIn(
+            'trackName.textContent = "Title:" + data.display;',
+            template,
+        )
+        for assignment in [
+            'timeDuration.textContent = "Duration: " + value;',
+            'timeElapsed.textContent = "Elapsed: " + elapsed;',
+            'timeRemaining.textContent = "Remaining: " + remaining;',
+            'timeBufferedStart.textContent = "Start: " + buffered.start;',
+            'timeBufferedEnd.textContent = "End: " + buffered.end;',
+            'timeBufferedLength.textContent = "Length: " + buffered.length;',
+            'timeSeekableStart.textContent = "Start: " + seekable.start;',
+            'timeSeekableEnd.textContent = "End: " + seekable.end;',
+            'timeSeekableLength.textContent = "Length: " + seekable.length;',
+        ]:
+            with self.subTest(assignment=assignment):
+                self.assertIn(assignment, template)
+
     def test_clean_preview_seconds_accepts_bounded_decimal_strings(self):
         views = load_views()
 

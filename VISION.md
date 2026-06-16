@@ -40,6 +40,7 @@ Priority:
   boundaries
 - Keep request-controlled player input limited to bounded preview seconds
   before server-rendered JavaScript interpolation
+- Keep provider-controlled player metadata on text-only DOM sinks
 - Keep `DJANGO_SECRET_KEY` and social API credentials environment-driven
 - Keep blank `DJANGO_SECRET_KEY` values from satisfying production settings
 - Keep production `DJANGO_SECRET_KEY` values at least 32 characters long
