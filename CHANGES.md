@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-17
+
+- Removed the OAuth access token from the visible player control while keeping
+  the existing SDK authentication object for playback.
+
 ## 2026-06-16
 
 - Replaced player metadata and timing `innerHTML` writes with `textContent` so

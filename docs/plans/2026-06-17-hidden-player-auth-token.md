@@ -1,7 +1,7 @@
 ---
 title: Hidden Player Authentication Token
 type: security
-status: planned
+status: completed
 date: 2026-06-17
 ---
 
@@ -71,3 +71,22 @@ Document the no-visible-token boundary and record actual bounded validation.
   client-side SDK requires it; this change removes only unnecessary UI exposure.
 - Live provider behavior remains dependent on an obsolete external service.
 - This change is stacked on PR #8, which must remain open and merge first.
+
+## Work Completed
+
+- Removed the visible access-token input, token-to-control assignment, and
+  reload-time token readback while preserving the initial SDK authentication
+  object and playback controls.
+- Added a focused source regression, checker contracts, and synchronized
+  README, security, vision, and changelog guidance.
+
+## Verification Completed
+
+- `python3 test_views_normalization.py -v` passed all 15 tests.
+- `make lint`, `make test`, `make build`, `make verify`, and `make check` passed.
+- The absolute Makefile check passed from an external working directory.
+- Six isolated hostile mutations were rejected: visible control, token
+  assignment, token readback, regression, guidance, and completed plan status.
+- `git diff --check` and bytecode-free artifact checks passed.
+- Live provider authorization and browser playback were not exercised in the
+  dependency-free Linux baseline.

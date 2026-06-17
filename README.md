@@ -151,6 +151,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   overlong values, and durations above one hour.
 - Render provider-controlled player metadata and timing values through
   `textContent`; never interpret SDK callback values as HTML.
+- Keep OAuth access tokens out of visible player controls; the legacy SDK may
+  hold its token in memory, but the UI must not display or edit it.
 - Keep the Twitter and Beats integration URL patterns as exact-match integration routes
   so prefix paths do not enter those views.
 - Do not add debug print statements that expose mention text, track search

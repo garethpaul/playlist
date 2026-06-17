@@ -43,6 +43,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-14-location-independent-make-gates.md",
     "docs/plans/2026-06-15-preview-seconds-validation.md",
     "docs/plans/2026-06-16-text-only-player-metadata.md",
+    "docs/plans/2026-06-17-hidden-player-auth-token.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -322,6 +323,9 @@ def main():
         "test_clean_preview_seconds_rejects_non_numeric_or_unsafe_values",
         "test_beats_view_normalizes_preview_before_rendering",
         "test_player_metadata_and_timing_use_text_only_dom_sinks",
+        "test_player_auth_token_is_not_exposed_as_control",
+        'self.assertNotIn(\'id="accessToken"\', template)',
+        'self.assertNotIn("accessToken.value", template)',
         'trackName.textContent = "Title:" + data.display;',
         'self.assertNotIn(".innerHTML", template)',
         '"0);alert(1);//"',
@@ -342,6 +346,13 @@ def main():
     ]:
         require(snippet in beats_template, "beats template missing POST favorite path: %s" % snippet, errors)
     require('"/beats?fav=' not in beats_template, "favorite action still uses a query string", errors)
+    require(
+        "access_token: '{{ beats.access_token }}'" in beats_template
+        and 'id="accessToken"' not in beats_template
+        and "accessToken.value" not in beats_template,
+        "player authentication token must remain in the SDK object and out of visible controls",
+        errors,
+    )
     text_only_player_assignments = [
         'trackName.textContent = "Title:" + data.display;',
         'timeDuration.textContent = "Duration: " + value;',
@@ -416,6 +427,7 @@ def main():
         "Shape-check and trim Twitter and Beats token metadata",
         "Validate preview durations as bounded decimal seconds",
         "provider-controlled player metadata",
+        "visible player controls",
         "CSRF-protected POST logout",
         "GitHub Actions",
         "hosted Linux",
@@ -438,13 +450,18 @@ def main():
         "CHANGES missing text-only player metadata hardening",
         errors,
     )
+    require(
+        "visible player control" in changes and "OAuth access token" in changes,
+        "CHANGES missing player token visibility hardening",
+        errors,
+    )
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "expected dictionary shapes and nonblank strings", "bounded nonnegative decimal seconds", "player metadata and timing fields with `textContent`", "exact-match integration routes", "CSRF-protected POST logout"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "expected dictionary shapes and nonblank strings", "bounded nonnegative decimal seconds", "player metadata and timing fields with `textContent`", "visible player controls", "exact-match integration routes", "CSRF-protected POST logout"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "normalized missing-token", "bounded preview seconds", "provider-controlled player metadata on text-only DOM sinks", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "normalized missing-token", "bounded preview seconds", "provider-controlled player metadata on text-only DOM sinks", "OAuth access tokens out of visible player controls", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -658,6 +675,41 @@ def main():
         require(
             evidence in text_only_verification,
             "text-only player metadata verification missing: %s" % evidence,
+            errors,
+        )
+    hidden_token_plan = read("docs/plans/2026-06-17-hidden-player-auth-token.md")
+    hidden_token_status = re.findall(r"(?mi)^status:\s*(.+?)\s*$", hidden_token_plan)
+    hidden_token_work = markdown_section(hidden_token_plan, "Work Completed")
+    hidden_token_verification = markdown_section(
+        hidden_token_plan, "Verification Completed"
+    )
+    require(
+        hidden_token_status == ["completed"] and bool(hidden_token_work),
+        "hidden player auth token plan must record completed status and work",
+        errors,
+    )
+    require(
+        bool(hidden_token_verification)
+        and not re.search(
+            r"(?i)\b(?:pending|todo|tbd|not run)\b", hidden_token_verification
+        ),
+        "hidden player auth token plan must record completed verification",
+        errors,
+    )
+    for evidence in [
+        "python3 test_views_normalization.py -v",
+        "make lint",
+        "make test",
+        "make build",
+        "make verify",
+        "make check",
+        "external working directory",
+        "Six isolated hostile mutations were rejected",
+        "git diff --check",
+    ]:
+        require(
+            evidence in hidden_token_verification,
+            "hidden player auth token verification missing: %s" % evidence,
             errors,
         )
     hosted_validation_plan = read("docs/plans/2026-06-10-hosted-security-validation.md")

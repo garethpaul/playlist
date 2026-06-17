@@ -162,9 +162,7 @@ xdiv {
     <input type="hidden" name="preview" id="play-next-preview">
 </form>
 
-<form action="">authentication
-    <input type="text" id="accessToken" size="50">
-    <br>trackId
+<form action="">trackId
     <input type="text" id="trackId" size="50">
     <br>autoplay
     <input id="autoplay" type="checkbox" checked>
@@ -230,17 +228,11 @@ function handleReady(value) {
     };
     bam.identifier = '{{ track.1.id }}'; 
     trackId.value = bam.identifier; // show trackId
-    accessToken.value = bam.authentication.access_token; // show auth token
 
     muted.hidden = true;
     pauseStream.hidden = true;
 
     loadStream.onclick = function () {
-        bam.authentication = {
-            access_token: accessToken.value,
-            user_id: "{{ beats_me.result.user_context }}"
-        };
-        // bam.authentication = accessToken.value;
         bam.identifier = trackId.value;
         bam.load();
     };

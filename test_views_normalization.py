@@ -93,6 +93,13 @@ def load_views():
 
 
 class ViewsNormalizationTest(unittest.TestCase):
+    def test_player_auth_token_is_not_exposed_as_control(self):
+        template = BEATS_TEMPLATE.read_text()
+
+        self.assertIn("access_token: '{{ beats.access_token }}'", template)
+        self.assertNotIn('id="accessToken"', template)
+        self.assertNotIn("accessToken.value", template)
+
     def test_player_metadata_and_timing_use_text_only_dom_sinks(self):
         template = BEATS_TEMPLATE.read_text()
 
