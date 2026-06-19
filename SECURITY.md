@@ -74,6 +74,9 @@ before rendering them into JavaScript. Reject signs, exponents, executable
 punctuation, overlong values, and durations above one hour.
 Render player metadata and timing fields with `textContent` so provider SDK
 callback values cannot become executable DOM markup.
+Escape provider-controlled values with Django's `escapejs` filter before
+placing them in JavaScript string literals. HTML autoescaping alone does not
+protect a script context.
 Keep OAuth access tokens out of visible player controls. The legacy SDK may
 retain its token in memory, but the UI must not display or edit it.
 Keep Twitter and Beats view URL patterns as exact-match integration routes so
@@ -82,6 +85,8 @@ Keep `DJANGO_ALLOWED_HOSTS` required outside local debug so production host
 validation cannot be omitted accidentally.
 Reject wildcard allowed hosts outside local debug so production host validation
 stays explicit.
+Mark session and CSRF cookies secure outside local debug. Production
+deployments must use HTTPS.
 
 Do not add debug print statements that expose OAuth tokens, mention text, track
 search terms, track results, playlist choices, or other user-linked service

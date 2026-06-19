@@ -49,6 +49,8 @@ if not DEBUG and len(SECRET_KEY) < MIN_SECRET_KEY_LENGTH:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 TEMPLATE_DEBUG = DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 ALLOWED_HOSTS = env_list(
     'DJANGO_ALLOWED_HOSTS',

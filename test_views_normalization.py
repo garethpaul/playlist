@@ -93,10 +93,44 @@ def load_views():
 
 
 class ViewsNormalizationTest(unittest.TestCase):
+    def test_provider_values_are_escaped_for_javascript_string_literals(self):
+        template = BEATS_TEMPLATE.read_text()
+
+        for interpolation in [
+            "{{ pair.1.id|escapejs }}",
+            "{{ beats_me.result.client_id|escapejs }}",
+            "{{ beats.access_token|escapejs }}",
+            "{{ beats_me.result.user_context|escapejs }}",
+            "{{ track.1.id|escapejs }}",
+            "{{ track.0.id|escapejs }}",
+        ]:
+            with self.subTest(interpolation=interpolation):
+                self.assertIn(interpolation, template)
+
+        for unsafe_interpolation in [
+            "playNext('{{pair.1.id}}')",
+            "'{{ beats_me.result.client_id }}'",
+            "'{{ beats.access_token }}'",
+            "'{{ beats_me.result.user_context }}'",
+            "'{{ track.1.id }}'",
+            '"{{ track.0.id }}"',
+        ]:
+            with self.subTest(unsafe_interpolation=unsafe_interpolation):
+                self.assertNotIn(unsafe_interpolation, template)
+
+    def test_player_sdk_is_loaded_over_https(self):
+        template = BEATS_TEMPLATE.read_text()
+
+        self.assertIn(
+            'src="https://bam.cdn.beatsmusic.com/bam-1.0.2.min.js"',
+            template,
+        )
+        self.assertNotIn('src="http://bam.cdn.beatsmusic.com/', template)
+
     def test_player_auth_token_is_not_exposed_as_control(self):
         template = BEATS_TEMPLATE.read_text()
 
-        self.assertIn("access_token: '{{ beats.access_token }}'", template)
+        self.assertIn("access_token: '{{ beats.access_token|escapejs }}'", template)
         self.assertNotIn('id="accessToken"', template)
         self.assertNotIn("accessToken.value", template)
 
@@ -171,6 +205,12 @@ class ViewsNormalizationTest(unittest.TestCase):
             'preview = request.POST.get("preview", request.GET.get("preview", None))',
             source,
         )
+
+    def test_incomplete_integration_auth_returns_to_registered_login_page(self):
+        source = VIEWS.read_text()
+
+        self.assertIn('if not has_required_auths(auths):\n        return redirect("/")', source)
+        self.assertNotIn('return redirect("/login")', source)
 
     def test_has_required_auths_accepts_both_integrations(self):
         views = load_views()

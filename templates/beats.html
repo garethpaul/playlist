@@ -138,7 +138,7 @@ xdiv {
   {% if forloop.first %}
     <a href="javascript:playNext();">Skip this</a>
   {% else %}
-    <a href="javascript:playNext('{{pair.1.id}}');">Play this</a>
+    <a href="javascript:playNext('{{ pair.1.id|escapejs }}');">Play this</a>
   {% endif %}
   </div>
 </div>
@@ -198,7 +198,7 @@ xdiv {
     <div id="timeSeekableLength"></div>
 </form>
 
-<script src="http://bam.cdn.beatsmusic.com/bam-1.0.2.min.js"></script>
+<script src="https://bam.cdn.beatsmusic.com/bam-1.0.2.min.js"></script>
 <script language="JavaScript1.2">
 
 var bam = new BeatsAudioManager();
@@ -221,12 +221,12 @@ function handleReady(value) {
     // bam_engine.style.width = "500px";
     // bam_engine.style.height = "300px";
     // set credentials
-    bam.clientId = '{{ beats_me.result.client_id }}';
+    bam.clientId = '{{ beats_me.result.client_id|escapejs }}';
     bam.authentication = {
-        access_token: '{{ beats.access_token }}',
-        user_id: '{{ beats_me.result.user_context }}'
+        access_token: '{{ beats.access_token|escapejs }}',
+        user_id: '{{ beats_me.result.user_context|escapejs }}'
     };
-    bam.identifier = '{{ track.1.id }}'; 
+    bam.identifier = '{{ track.1.id|escapejs }}';
     trackId.value = bam.identifier; // show trackId
 
     muted.hidden = true;
@@ -349,7 +349,7 @@ function handleStreamPlaying() {
 
 function playNext(trackId){
     var form = document.getElementById("play-next-form");
-    document.getElementById("play-next-fav").value = "{{ track.0.id }}";
+    document.getElementById("play-next-fav").value = "{{ track.0.id|escapejs }}";
     document.getElementById("play-next-track").value = trackId || "";
     {% if preview %}
     document.getElementById("play-next-preview").value = "{{ preview }}";

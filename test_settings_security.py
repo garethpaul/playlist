@@ -81,12 +81,20 @@ class SettingsSecurityTest(unittest.TestCase):
 
         self.assertFalse(settings.DEBUG)
         self.assertFalse(settings.TEMPLATE_DEBUG)
+        self.assertTrue(settings.SESSION_COOKIE_SECURE)
+        self.assertTrue(settings.CSRF_COOKIE_SECURE)
         self.assertEqual(production_secret, settings.SECRET_KEY)
         self.assertEqual(["playlist.example.com", "api.example.com"], settings.ALLOWED_HOSTS)
         self.assertEqual("twitter-key", settings.SOCIAL_AUTH_TWITTER_KEY)
         self.assertEqual("twitter-token", settings.TWITTER_ACCESS_TOKEN)
         self.assertEqual("beats-key", settings.SOCIAL_AUTH_BEATS_KEY)
         self.assertEqual("spotify-key", settings.SOCIAL_AUTH_SPOTIFY_KEY)
+
+    def test_local_debug_does_not_require_secure_transport_cookies(self):
+        settings = self.load_settings({"DJANGO_DEBUG": "1"})
+
+        self.assertFalse(settings.SESSION_COOKIE_SECURE)
+        self.assertFalse(settings.CSRF_COOKIE_SECURE)
 
 
 if __name__ == "__main__":

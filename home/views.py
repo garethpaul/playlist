@@ -118,7 +118,7 @@ def beats(request):
     
     auths = get_auths(request)
     if not has_required_auths(auths):
-        return redirect("/login")
+        return redirect("/")
     
     auth_twitter = auths.get("twitter", None)
 

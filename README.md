@@ -70,6 +70,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - For non-debug execution set `DJANGO_SECRET_KEY` and `DJANGO_ALLOWED_HOSTS`.
 - `DJANGO_ALLOWED_HOSTS=*` wildcard allowed hosts are rejected outside local
   debug.
+- Session and CSRF cookies are marked secure outside local debug mode, so
+  production deployments must terminate HTTPS before requests reach Django.
 - Set Twitter, Beats, and Spotify credentials through environment variables
   before using the integration views.
 
@@ -109,6 +111,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - `DJANGO_ALLOWED_HOSTS` is required outside local debug mode.
 - `DJANGO_ALLOWED_HOSTS=*` wildcard allowed hosts are rejected outside local
   debug.
+- Production session and CSRF cookies require HTTPS.
 - Optional runtime controls: `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`.
 - Social credentials: `SOCIAL_AUTH_TWITTER_KEY`,
   `SOCIAL_AUTH_TWITTER_SECRET`, `TWITTER_ACCESS_TOKEN`,
@@ -117,6 +120,10 @@ When the required SDK or runtime is unavailable, use static checks and source re
   `SOCIAL_AUTH_SPOTIFY_SECRET`.
 - Do not commit `.env`, local settings modules, SQLite databases, access
   tokens, OAuth secrets, or captured user data.
+- The Beats Music and legacy Twitter/social-auth integrations are retired or
+  obsolete. The dependency-free gates validate security boundaries but do not
+  establish that the historical provider flow is deployable on a supported
+  Django/Python stack.
 
 ## Security and Privacy Notes
 

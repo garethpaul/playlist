@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-19
+
+- Escaped provider-controlled values before placing them in JavaScript string
+  literals and loaded the legacy Beats player SDK over HTTPS.
+- Marked session and CSRF cookies secure outside local debug mode.
+- Returned incomplete integration authentication to the registered root login
+  page instead of the unregistered `/login` path.
+
 ## 2026-06-17
 
 - Removed the OAuth access token from the visible player control while keeping

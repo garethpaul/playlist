@@ -203,6 +203,8 @@ def main():
         "DJANGO_SECRET_KEY must be at least 32 characters",
         "raise RuntimeError(",
         "TEMPLATE_DEBUG = DEBUG",
+        "SESSION_COOKIE_SECURE = not DEBUG",
+        "CSRF_COOKIE_SECURE = not DEBUG",
         "ALLOWED_HOSTS = env_list(",
         "DJANGO_ALLOWED_HOSTS",
         "if not DEBUG and not ALLOWED_HOSTS:",
@@ -233,6 +235,9 @@ def main():
         '"short-production-secret"',
         '"at least 32 characters"',
         'production_secret = "x" * 32',
+        "test_local_debug_does_not_require_secure_transport_cookies",
+        "self.assertTrue(settings.SESSION_COOKIE_SECURE)",
+        "self.assertTrue(settings.CSRF_COOKIE_SECURE)",
     ]:
         require(snippet in settings_tests, "settings tests missing: %s" % snippet, errors)
 
@@ -295,6 +300,12 @@ def main():
         errors,
     )
     require(
+        'if not has_required_auths(auths):\n        return redirect("/")' in views
+        and 'return redirect("/login")' not in views,
+        "incomplete integration auth must return to the registered login page",
+        errors,
+    )
+    require(
         "usa.extra_data['access_token']" not in views,
         "social token extraction must not directly index extra_data",
         errors,
@@ -323,7 +334,10 @@ def main():
         "test_clean_preview_seconds_rejects_non_numeric_or_unsafe_values",
         "test_beats_view_normalizes_preview_before_rendering",
         "test_player_metadata_and_timing_use_text_only_dom_sinks",
+        "test_provider_values_are_escaped_for_javascript_string_literals",
+        "test_player_sdk_is_loaded_over_https",
         "test_player_auth_token_is_not_exposed_as_control",
+        "test_incomplete_integration_auth_returns_to_registered_login_page",
         'self.assertNotIn(\'id="accessToken"\', template)',
         'self.assertNotIn("accessToken.value", template)',
         'trackName.textContent = "Title:" + data.display;',
@@ -347,10 +361,29 @@ def main():
         require(snippet in beats_template, "beats template missing POST favorite path: %s" % snippet, errors)
     require('"/beats?fav=' not in beats_template, "favorite action still uses a query string", errors)
     require(
-        "access_token: '{{ beats.access_token }}'" in beats_template
+        "access_token: '{{ beats.access_token|escapejs }}'" in beats_template
         and 'id="accessToken"' not in beats_template
         and "accessToken.value" not in beats_template,
         "player authentication token must remain in the SDK object and out of visible controls",
+        errors,
+    )
+    javascript_interpolations = [
+        "{{ pair.1.id|escapejs }}",
+        "{{ beats_me.result.client_id|escapejs }}",
+        "{{ beats.access_token|escapejs }}",
+        "{{ beats_me.result.user_context|escapejs }}",
+        "{{ track.1.id|escapejs }}",
+        "{{ track.0.id|escapejs }}",
+    ]
+    require(
+        all(value in beats_template for value in javascript_interpolations),
+        "provider-controlled JavaScript strings must use escapejs",
+        errors,
+    )
+    require(
+        'src="https://bam.cdn.beatsmusic.com/bam-1.0.2.min.js"' in beats_template
+        and 'src="http://bam.cdn.beatsmusic.com/' not in beats_template,
+        "player SDK must load over HTTPS",
         errors,
     )
     text_only_player_assignments = [
