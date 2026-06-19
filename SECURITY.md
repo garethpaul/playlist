@@ -31,9 +31,10 @@ Helpful reports include:
 - Review found mobile permission or privacy-sensitive data handling; changes in those areas should receive security-focused review before merge.
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
 - Dependency manifests detected: requirements.txt. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
-- Pinned, read-only hosted Linux validation runs the dependency-free settings,
-  route, and input-normalization baseline without installing legacy packages or
-  using Twitter, Beats, Spotify, or Django production credentials.
+- Pinned, credential-free, read-only GitHub Actions validation runs the
+  dependency-free settings, route, and input-normalization baseline without
+  installing legacy packages or using Twitter, Beats, Spotify, or Django
+  production credentials.
 - Keep verification bytecode-free so generated Python caches do not enter
   commits or obscure the reviewed source tree.
 - Current baseline reads Django `SECRET_KEY`, `DJANGO_DEBUG`,
@@ -42,6 +43,7 @@ Helpful reports include:
   `DJANGO_SECRET_KEY` is required unless local debug mode is explicitly enabled.
   A blank `DJANGO_SECRET_KEY` value is rejected in non-debug mode, and wildcard
   allowed hosts are rejected outside local debug.
+  Production secret keys must be at least 32 characters after trimming.
 
 ## Service and API Notes
 
@@ -64,12 +66,27 @@ Keep malformed Twitter mention text out of Beats searches, and bound cleaned
 search queries before outbound provider calls.
 Skip malformed Beats search results before playlist entries are
 queued.
+Require expected dictionary shapes and nonblank strings for Twitter and Beats
+token metadata before API client construction. Malformed Twitter metadata must
+preserve configured token fallbacks rather than expose raw key errors.
+Accept player preview durations only as bounded nonnegative decimal seconds
+before rendering them into JavaScript. Reject signs, exponents, executable
+punctuation, overlong values, and durations above one hour.
+Render player metadata and timing fields with `textContent` so provider SDK
+callback values cannot become executable DOM markup.
+Escape provider-controlled values with Django's `escapejs` filter before
+placing them in JavaScript string literals. HTML autoescaping alone does not
+protect a script context.
+Keep OAuth access tokens out of visible player controls. The legacy SDK may
+retain its token in memory, but the UI must not display or edit it.
 Keep Twitter and Beats view URL patterns as exact-match integration routes so
 prefix paths cannot reach those authenticated service views.
 Keep `DJANGO_ALLOWED_HOSTS` required outside local debug so production host
 validation cannot be omitted accidentally.
 Reject wildcard allowed hosts outside local debug so production host validation
 stays explicit.
+Mark session and CSRF cookies secure outside local debug. Production
+deployments must use HTTPS.
 
 Do not add debug print statements that expose OAuth tokens, mention text, track
 search terms, track results, playlist choices, or other user-linked service

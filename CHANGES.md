@@ -1,12 +1,50 @@
 # Changelog
 
+## 2026-06-19
+
+- Escaped provider-controlled values before placing them in JavaScript string
+  literals and loaded the legacy Beats player SDK over HTTPS.
+- Marked session and CSRF cookies secure outside local debug mode.
+- Returned incomplete integration authentication to the registered root login
+  page instead of the unregistered `/login` path.
+
+## 2026-06-17
+
+- Removed the OAuth access token from the visible player control while keeping
+  the existing SDK authentication object for playback.
+
+## 2026-06-16
+
+- Replaced player metadata and timing `innerHTML` writes with `textContent` so
+  provider SDK callback values remain text-only.
+
+## 2026-06-15
+
+- Restricted request-controlled player input to bounded decimal preview seconds
+  before server-rendered JavaScript interpolation.
+
+## 2026-06-14
+
+- Made every standard Make gate resolve the checker and dependency-free test
+  scripts from the repository root, including external absolute-Makefile calls.
+
+## 2026-06-13
+
+- Normalized Twitter and Beats social-auth token metadata before API client
+  construction and added malformed nested-shape tests.
+- Centralized the required Twitter-and-Beats auth-state decision used by login
+  and playlist routing, with dependency-free complete and malformed-state tests.
+- Required production `DJANGO_SECRET_KEY` values to contain at least 32
+  characters after trimming, with standard-library regression coverage.
+
 ## 2026-06-10
 
-- Added pinned, read-only hosted Linux validation on Python 3.10 and 3.12 for
-  the dependency-free Django security baseline.
+- Added pinned, credential-free, read-only GitHub Actions validation on Python
+  3.10 and 3.12 for the dependency-free Django security baseline.
 - Made every Make gate bytecode-free and added a guard against leftover Python
   cache output.
-
+- Extended the static baseline to require both completed hosted-validation
+  plans and the exact least-privilege workflow contract.
 ## 2026-06-09
 
 - Rejected non-string post inputs before Twitter status or favorite

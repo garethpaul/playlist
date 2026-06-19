@@ -34,21 +34,33 @@ Priority:
 - Keep non-string post inputs out of Twitter service calls
 - Keep malformed Beats search results out of the playlist queue
 - Keep malformed Twitter mention text out of outbound track searches
+- Keep login and playlist routing aligned on the same required Twitter and
+  Beats auth-state predicate
+- Keep malformed social-auth token metadata behind normalized missing-token
+  boundaries
+- Keep request-controlled player input limited to bounded preview seconds
+  before server-rendered JavaScript interpolation
+- Keep provider-controlled player metadata on text-only DOM sinks
+- Keep provider-controlled JavaScript string values behind `escapejs`
+- Keep OAuth access tokens out of visible player controls
+- Keep production session and CSRF cookies restricted to HTTPS
+- Keep incomplete integration auth routed to the registered root login page
 - Keep `DJANGO_SECRET_KEY` and social API credentials environment-driven
 - Keep blank `DJANGO_SECRET_KEY` values from satisfying production settings
+- Keep production `DJANGO_SECRET_KEY` values at least 32 characters long
 - Keep allowed hosts required outside local debug mode
 - Keep wildcard allowed hosts rejected outside local debug mode
 - Keep Twitter and Beats URL patterns as exact-match integration routes
 - Keep user-linked playlist data out of debug print output
 - Keep standard Make gate aliases available for local verification
-- Keep the dependency-free security baseline running on pinned hosted Linux
-  with Python 3.10 and 3.12
+- Keep the dependency-free security baseline running in pinned,
+  credential-free, read-only GitHub Actions with Python 3.10 and 3.12
 - Keep local and hosted verification free of generated Python bytecode
 
 Next priorities:
 
 - Add setup notes for currently unavailable or changed third-party services
-- Add tests around auth-state routing and playlist selection logic
+- Add tests around playlist selection logic
 - Add focused tests around log-safe playlist selection once dependencies are
   pinned or replaced
 - Modernize Django only in a separate compatibility pass

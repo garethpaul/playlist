@@ -10,10 +10,14 @@ import twitter
 import spotipy
 from pybeats.api import BeatsAPI
 
+from decimal import Decimal, InvalidOperation
 import re
 twitter_username_re = re.compile(r'@([A-Za-z0-9_]+)', re.IGNORECASE)
 tweet_id_re = re.compile(r'^[0-9]+$')
+preview_seconds_re = re.compile(r'^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$')
 MAX_TRACK_SEARCH_LENGTH = 200
+MAX_PREVIEW_SECONDS_LENGTH = 16
+MAX_PREVIEW_SECONDS = Decimal('3600')
 
 def clean_post_text(value):
     if value is None:
@@ -28,6 +32,20 @@ def clean_tweet_id(value):
     if value and tweet_id_re.match(value):
         return value
     return None
+
+def clean_preview_seconds(value):
+    value = clean_post_text(value)
+    if not value or len(value) > MAX_PREVIEW_SECONDS_LENGTH:
+        return None
+    if not preview_seconds_re.match(value):
+        return None
+    try:
+        seconds = Decimal(value)
+    except InvalidOperation:
+        return None
+    if not seconds.is_finite() or seconds > MAX_PREVIEW_SECONDS:
+        return None
+    return value
 
 def clean_track_search(value):
     value = clean_post_text(value)
@@ -49,11 +67,33 @@ def first_track_result(results):
         return None
     return track
 
+def has_required_auths(auths):
+    if not isinstance(auths, dict):
+        return False
+    return bool(auths.get("twitter")) and bool(auths.get("beats"))
+
+def twitter_access_tokens(extra_data):
+    if not isinstance(extra_data, dict):
+        return None, None
+    access_token = extra_data.get('access_token')
+    if not isinstance(access_token, dict):
+        return None, None
+    token_key = clean_post_text(access_token.get('oauth_token'))
+    token_secret = clean_post_text(access_token.get('oauth_token_secret'))
+    if not token_key or not token_secret:
+        return None, None
+    return token_key, token_secret
+
+def beats_access_token(extra_data):
+    if not isinstance(extra_data, dict):
+        return None
+    return clean_post_text(extra_data.get('access_token'))
+
 def login(request):
     
     auths = get_auths(request)
     
-    if auths.get("twitter", None) and auths.get("beats", None):
+    if has_required_auths(auths):
         return redirect("/beats")
 
     context = {"request": request, "auths": auths}
@@ -77,15 +117,15 @@ def twttr(request):
 def beats(request):
     
     auths = get_auths(request)
-    if not auths.get("twitter", None) or not auths.get("beats", None):
-        return redirect("/login")
+    if not has_required_auths(auths):
+        return redirect("/")
     
     auth_twitter = auths.get("twitter", None)
 
     twitter = get_twitter(request.user)
     twitter_me = twitter.GetUser(auth_twitter.uid)
 
-    preview = request.POST.get("preview", request.GET.get("preview", None))
+    preview = clean_preview_seconds(request.POST.get("preview", request.GET.get("preview", None)))
     track_next = request.POST.get("track", request.GET.get("track", None))
     fav = clean_tweet_id(request.POST.get("fav", None))
     if fav:
@@ -163,10 +203,12 @@ def get_twitter(user):
 
     usa = UserSocialAuth.objects.get(user=user, provider='twitter')
     if usa:
-        access_token = usa.extra_data['access_token']
-        if access_token:
-            access_token_key = access_token['oauth_token']
-            access_token_secret = access_token['oauth_token_secret']
+        social_token_key, social_token_secret = twitter_access_tokens(
+            getattr(usa, 'extra_data', None)
+        )
+        if social_token_key and social_token_secret:
+            access_token_key = social_token_key
+            access_token_secret = social_token_secret
 
     if not access_token_key or not access_token_secret:
         raise Exception('No user for twitter API call')
@@ -185,7 +227,7 @@ def get_beats(user):
     access_token = None
     usa = UserSocialAuth.objects.get(user=user, provider='beats')
     if usa:
-        access_token = usa.extra_data['access_token']
+        access_token = beats_access_token(getattr(usa, 'extra_data', None))
             
     if not access_token:
         raise Exception('No user for beats API call')
