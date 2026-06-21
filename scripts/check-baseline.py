@@ -44,11 +44,13 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-15-preview-seconds-validation.md",
     "docs/plans/2026-06-16-text-only-player-metadata.md",
     "docs/plans/2026-06-17-hidden-player-auth-token.md",
+    "docs/plans/2026-06-21-safe-make-root.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
     "manage.py",
     "requirements.txt",
+    "scripts/test-makefile-root.py",
     "templates/beats.html",
     "templates/twitter.html",
     "test_settings_security.py",
@@ -67,6 +69,7 @@ PYTHON_FILES = [
     "home/views.py",
     "manage.py",
     "scripts/check-baseline.py",
+    "scripts/test-makefile-root.py",
     "test_settings_security.py",
     "test_views_normalization.py",
     "test_url_patterns.py",
@@ -124,18 +127,40 @@ def main():
 
     makefile = read("Makefile")
     for snippet in [
-        "override REPO_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))",
+        "ifneq ($(origin MAKEFILE_LIST),file)",
+        "$(error MAKEFILE_LIST must not be overridden)",
+        "override REPO_ROOT := $(shell path=",
+        "/usr/bin/dirname",
+        "/bin/pwd -P",
         "check: verify",
-        "verify: lint test build",
+        "verify: lint test build root-test",
         "lint: static-check",
         "test: settings-test url-test",
         "build: static-check",
+        "root-test:",
+        'PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/scripts/test-makefile-root.py"',
         'PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/scripts/check-baseline.py"',
         'PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/test_settings_security.py" -v',
         'PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/test_views_normalization.py" -v',
         'PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/test_url_patterns.py" -v',
     ]:
         require(snippet in makefile, "Makefile missing guardrail: %s" % snippet, errors)
+
+    root_test = read("scripts/test-makefile-root.py")
+    for snippet in [
+        "TARGETS = (",
+        '"command override"',
+        '"environment override"',
+        '"command MAKEFILE_LIST override"',
+        '"environment MAKEFILE_LIST override"',
+        "MAKEFILE_LIST must not be overridden",
+        "27 target/override cases",
+    ]:
+        require(
+            snippet in root_test,
+            "Makefile root regression test missing: %s" % snippet,
+            errors,
+        )
 
     workflow = read(".github/workflows/check.yml")
     actions = re.findall(r"(?m)^\s*(?:-\s*)?uses:\s*(\S+)(?:\s+#.*)?$", workflow)

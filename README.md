@@ -82,6 +82,7 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `make test`
 - `make build`
 - `make verify`
+- `make root-test`
 - `python3 scripts/check-baseline.py`
 - `python3 test_settings_security.py -v`
 - `python3 test_views_normalization.py -v`
@@ -169,6 +170,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - Standard Make aliases resolve the checker and dependency-free test scripts
   from `Makefile`, so an absolute Makefile path works from another directory.
+  They reject caller-controlled `MAKEFILE_LIST` values, ignore `REPO_ROOT`
+  overrides, and are regression-tested from paths containing shell-sensitive
+  characters.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `CHANGES.md`, `docs/bugs/`, and
   `docs/plans/2026-06-08-playlist-baseline.md` for the current

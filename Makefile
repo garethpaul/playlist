@@ -1,16 +1,22 @@
-.PHONY: build check lint settings-test static-check test url-test verify
+.PHONY: build check lint root-test settings-test static-check test url-test verify
 
-override REPO_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+ifneq ($(origin MAKEFILE_LIST),file)
+$(error MAKEFILE_LIST must not be overridden)
+endif
+override REPO_ROOT := $(shell path='$(subst ','"'"',$(MAKEFILE_LIST))'; path=$$(printf '%s' "$$path" | /usr/bin/sed 's/^ //'); directory=$$(/usr/bin/dirname -- "$$path"); CDPATH= cd -- "$$directory" && /bin/pwd -P)
 
 check: verify
 
-verify: lint test build
+verify: lint test build root-test
 
 lint: static-check
 
 test: settings-test url-test
 
 build: static-check
+
+root-test:
+	PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/scripts/test-makefile-root.py"
 
 static-check:
 	PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/scripts/check-baseline.py"
