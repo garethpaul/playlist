@@ -44,11 +44,13 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-15-preview-seconds-validation.md",
     "docs/plans/2026-06-16-text-only-player-metadata.md",
     "docs/plans/2026-06-17-hidden-player-auth-token.md",
+    "docs/plans/2026-06-21-safe-make-root.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
     "manage.py",
     "requirements.txt",
+    "scripts/test-makefile-root.py",
     "templates/beats.html",
     "templates/twitter.html",
     "test_settings_security.py",
@@ -67,6 +69,7 @@ PYTHON_FILES = [
     "home/views.py",
     "manage.py",
     "scripts/check-baseline.py",
+    "scripts/test-makefile-root.py",
     "test_settings_security.py",
     "test_views_normalization.py",
     "test_url_patterns.py",
@@ -124,18 +127,60 @@ def main():
 
     makefile = read("Makefile")
     for snippet in [
-        "override REPO_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))",
+        "override SHELL := /bin/sh",
+        "override .SHELLFLAGS := -c",
+        "ifneq ($(strip $(MAKEFILES)),)",
+        "$(error MAKEFILES must not be set)",
+        "override MAKEFILES :=",
+        "ifneq ($(origin MAKEFILE_LIST),file)",
+        "$(error MAKEFILE_LIST must not be overridden)",
+        "override REPO_ROOT := $(shell MAKEFILE_LIST_RAW=",
+        "trusted Makefile path not found",
+        "shlex.quote(os.path.dirname(os.path.realpath(path)))",
+        "override PYTHON := python3",
+        "verify: override REPO_ROOT := $(REPO_ROOT)",
+        "verify: override PYTHON := $(PYTHON)",
         "check: verify",
-        "verify: lint test build",
+        "verify: lint test build root-test",
         "lint: static-check",
         "test: settings-test url-test",
         "build: static-check",
-        'PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/scripts/check-baseline.py"',
-        'PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/test_settings_security.py" -v',
-        'PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/test_views_normalization.py" -v',
-        'PYTHONDONTWRITEBYTECODE=1 python3 "$(REPO_ROOT)/test_url_patterns.py" -v',
+        "root-test:",
+        "PYTHONDONTWRITEBYTECODE=1 $(PYTHON) $(REPO_ROOT)/scripts/test-makefile-root.py",
+        "PYTHONDONTWRITEBYTECODE=1 $(PYTHON) $(REPO_ROOT)/scripts/check-baseline.py",
+        "PYTHONDONTWRITEBYTECODE=1 $(PYTHON) $(REPO_ROOT)/test_settings_security.py -v",
+        "PYTHONDONTWRITEBYTECODE=1 $(PYTHON) $(REPO_ROOT)/test_views_normalization.py -v",
+        "PYTHONDONTWRITEBYTECODE=1 $(PYTHON) $(REPO_ROOT)/test_url_patterns.py -v",
     ]:
         require(snippet in makefile, "Makefile missing guardrail: %s" % snippet, errors)
+
+    root_test = read("scripts/test-makefile-root.py")
+    for snippet in [
+        "TARGETS = (",
+        '"command ROOT override"',
+        '"environment ROOT override"',
+        '"command SHELL override"',
+        '"environment SHELL override"',
+        '"command shell flags override"',
+        '"environment shell flags override"',
+        '"command PYTHON override"',
+        '"environment PYTHON override"',
+        '"command MAKEFILE_LIST override"',
+        '"environment MAKEFILE_LIST override"',
+        '"command MAKEFILES override"',
+        '"environment MAKEFILES override"',
+        '"earlier explicit Makefile"',
+        "caller-controlled shell or Python executed",
+        "backticks in the checkout path executed",
+        "MAKEFILE_LIST must not be overridden",
+        "MAKEFILES must not be set",
+        "81 executable target/override cases",
+    ]:
+        require(
+            snippet in root_test,
+            "Makefile root regression test missing: %s" % snippet,
+            errors,
+        )
 
     workflow = read(".github/workflows/check.yml")
     actions = re.findall(r"(?m)^\s*(?:-\s*)?uses:\s*(\S+)(?:\s+#.*)?$", workflow)
