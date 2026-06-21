@@ -2,9 +2,10 @@
 
 ## 2026-06-21
 
-- Hardened every public Make quality gate against `MAKEFILE_LIST` and
-  `REPO_ROOT` redirection, including regression coverage from temporary paths
-  containing spaces and apostrophes.
+- Hardened every public Make quality gate against `MAKEFILE_LIST`, `MAKEFILES`,
+  `REPO_ROOT`, `SHELL`, shell-flag, and `PYTHON` redirection. Executable
+  regressions cover temporary paths containing spaces, apostrophes, double
+  quotes, and backticks.
 
 ## 2026-06-19
 

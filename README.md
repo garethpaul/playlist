@@ -170,9 +170,11 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - Standard Make aliases resolve the checker and dependency-free test scripts
   from `Makefile`, so an absolute Makefile path works from another directory.
-  They reject caller-controlled `MAKEFILE_LIST` values, ignore `REPO_ROOT`
-  overrides, and are regression-tested from paths containing shell-sensitive
-  characters.
+  They reject caller-controlled `MAKEFILE_LIST` and `MAKEFILES` values, freeze
+  recipe/interpreter authority, ignore `REPO_ROOT` overrides, and are
+  executable-regression-tested from paths containing shell-sensitive
+  characters. Caller-supplied Makefiles and the host executable search path
+  remain outside this repository's trust boundary.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `CHANGES.md`, `docs/bugs/`, and
   `docs/plans/2026-06-08-playlist-baseline.md` for the current
