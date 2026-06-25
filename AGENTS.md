@@ -53,6 +53,8 @@
 - `DJANGO_ALLOWED_HOSTS` is required outside local debug mode.
 - `DJANGO_ALLOWED_HOSTS=*` wildcard allowed hosts are rejected outside local debug.
 - Optional runtime controls: `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`.
+- `.explore/` is local maintainer intelligence; keep it ignored and move durable
+  decisions into tracked plans, changes, policies, tests, or source.
 - `SOCIAL_AUTH_LOGIN_ERROR_URL` must remain the registered root login path;
   do not restore the unregistered `/login-error/` target.
 

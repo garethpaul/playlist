@@ -57,6 +57,7 @@ Priority:
 - Keep the dependency-free security baseline running in pinned,
   credential-free, read-only GitHub Actions with Python 3.10 and 3.12
 - Keep local and hosted verification free of generated Python bytecode
+- Keep local maintainer intelligence ignored and out of the tracked source set
 
 Next priorities:
 

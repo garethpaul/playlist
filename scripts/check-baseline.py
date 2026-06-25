@@ -3,6 +3,7 @@
 
 import ast
 import re
+import subprocess
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -45,6 +46,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-16-text-only-player-metadata.md",
     "docs/plans/2026-06-17-hidden-player-auth-token.md",
     "docs/plans/2026-06-21-safe-make-root.md",
+    "docs/plans/2026-06-25-local-repository-metadata-ignore.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -488,9 +490,38 @@ def main():
     ]:
         require(snippet in view_tests, "view normalization tests missing: %s" % snippet, errors)
 
-    gitignore = read(".gitignore")
+    gitignore_patterns = {
+        line for line in read(".gitignore").splitlines() if line and not line.startswith("#")
+    }
     for snippet in [".env", "__pycache__/", "*.py[cod]", ".pytest_cache/", "db.sqlite3", "*.log"]:
-        require(snippet in gitignore, ".gitignore missing: %s" % snippet, errors)
+        require(snippet in gitignore_patterns, ".gitignore missing active pattern: %s" % snippet, errors)
+    require(".explore/" in gitignore_patterns, ".gitignore missing active pattern: .explore/", errors)
+    for metadata_path in [".explore/", ".explore/REPO_MAP.md"]:
+        ignored = subprocess.run(
+            ["/usr/bin/git", "check-ignore", "--quiet", metadata_path],
+            cwd=ROOT,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        require(ignored.returncode == 0, ".gitignore must effectively ignore %s" % metadata_path, errors)
+    tracked_metadata = subprocess.run(
+        ["/usr/bin/git", "ls-files", "--", ".explore"],
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        check=False,
+    )
+    require(tracked_metadata.returncode == 0, "git ls-files must inspect .explore", errors)
+    require(not tracked_metadata.stdout.splitlines(), ".explore must not contain tracked files", errors)
+    local_metadata_plan = read("docs/plans/2026-06-25-local-repository-metadata-ignore.md")
+    for snippet in ["status: completed", "git check-ignore", "git ls-files", "make check"]:
+        require(
+            snippet in local_metadata_plan,
+            "local metadata plan missing evidence: %s" % snippet,
+            errors,
+        )
 
     readme = read("README.md")
     for snippet in [
