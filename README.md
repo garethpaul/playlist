@@ -197,6 +197,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   auth-state routing contract.
 - See `docs/plans/2026-06-25-social-auth-error-route.md` for registered
   social-auth failure recovery.
+- See `docs/plans/2026-06-25-local-repository-metadata-ignore.md` for effective
+  local intelligence ignore and tracked-index coverage.
 - See `VISION.md` for project direction and contribution guardrails.
 
 ## Contributing

@@ -96,7 +96,7 @@ data.
 
 ## Dependency and Supply Chain Security
 
-Dependency updates should come from trusted package managers and should keep lockfiles in sync when lockfiles exist. Do not commit credentials, private keys, tokens, generated secrets, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.
+Dependency updates should come from trusted package managers and should keep lockfiles in sync when lockfiles exist. Do not commit credentials, private keys, tokens, generated secrets, machine-local configuration, or `.explore/` maintainer intelligence. Copy durable security decisions into reviewed plans, changes, policies, tests, or source. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.
 
 ## Safe Research Guidelines
 

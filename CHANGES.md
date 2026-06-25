@@ -1,5 +1,34 @@
 # Changelog
 
+## 2026-06-25T15:28:19-07:00 — P2 local repository metadata
+
+- Cycle: inspected the MIT-licensed legacy Django sample, disabled issue state,
+  recent auth/security work, settings, routes, templates, provider boundaries,
+  dependency-free tests, and hosted lanes.
+- Threads: started portable local intelligence enforcement; continued
+  dependency-free security and repository-contract hardening; stopped none.
+- Bug: `.explore/` was hidden only by this clone's private `.git/info/exclude`,
+  so fresh checkouts could report maintainer notes as untracked source or stage
+  them accidentally.
+- Work: added the active rule; replaced raw ignore substring checks with exact
+  active patterns, effective `git check-ignore`, and `git ls-files` index state.
+- Files: changed `.gitignore`, `scripts/check-baseline.py`, `README.md`,
+  `SECURITY.md`, `VISION.md`, `AGENTS.md`, and
+  `docs/plans/2026-06-25-local-repository-metadata-ignore.md`.
+- Validation: the red-first baseline failed on the absent active `.explore/`
+  rule. The focused baseline, 9 settings tests, and 2 URL tests pass. Root and
+  external `make check` each pass 29 dependency-free tests plus 81 executable
+  Make target/override cases; isolated Python compilation, generated-bytecode,
+  and `git diff --check` gates also pass. Exact-head Codex review reported no
+  actionable findings, and duplicate hosted Python 3.10/3.12 lanes plus CodeQL
+  passed on PR #13.
+- Findings: clone-local excludes are not portable repository policy, and raw
+  text cannot prove ordered ignore behavior or an empty tracked source set.
+- Blockers: retired provider SDKs and unbounded legacy requirements remain
+  intentionally uninstalled; validation protects source/security boundaries.
+- Next: merge PR #13, persist the repository map and evidence, then continue
+  the licensed public-repository loop.
+
 ## 2026-06-25T13:22:43-07:00 — P1 social-auth failure recovery
 
 - Cycle: inspected the MIT-licensed legacy Django sample, disabled issue state,
