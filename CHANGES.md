@@ -19,14 +19,15 @@
   rule. The focused baseline, 9 settings tests, and 2 URL tests pass. Root and
   external `make check` each pass 29 dependency-free tests plus 81 executable
   Make target/override cases; isolated Python compilation, generated-bytecode,
-  and `git diff --check` gates also pass. Hosted and review evidence remains
-  pending.
+  and `git diff --check` gates also pass. Exact-head Codex review reported no
+  actionable findings, and duplicate hosted Python 3.10/3.12 lanes plus CodeQL
+  passed on PR #13.
 - Findings: clone-local excludes are not portable repository policy, and raw
   text cannot prove ordered ignore behavior or an empty tracked source set.
 - Blockers: retired provider SDKs and unbounded legacy requirements remain
   intentionally uninstalled; validation protects source/security boundaries.
-- Next: run exact-head Codex review and hosted Python 3.10/3.12 plus CodeQL;
-  merge only when all evidence is clean.
+- Next: merge PR #13, persist the repository map and evidence, then continue
+  the licensed public-repository loop.
 
 ## 2026-06-25T13:22:43-07:00 — P1 social-auth failure recovery
 

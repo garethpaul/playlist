@@ -46,5 +46,5 @@ negations, or separate from tracked index state.
 
 ## Merge Gates
 
-- Require exact-head Codex review plus hosted Python 3.10/3.12 and CodeQL before
-  merge.
+- Exact-head Codex review reported no actionable findings.
+- Duplicate hosted Python 3.10/3.12 lanes and CodeQL passed on PR #13.
