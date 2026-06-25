@@ -223,6 +223,7 @@ def main():
     )
     urls = read("app/urls.py")
     for snippet in [
+        "url(r'^$', 'home.views.login', name='login')",
         "url(r'^twttr$', 'home.views.twttr', name='twttr')",
         "url(r'^beats$', 'home.views.beats', name='beats')",
     ]:
@@ -255,8 +256,14 @@ def main():
         "if not DEBUG and not ALLOWED_HOSTS:",
         "if not DEBUG and '*' in ALLOWED_HOSTS:",
         "DJANGO_SQLITE_PATH",
+        "SOCIAL_AUTH_LOGIN_ERROR_URL    = '/'",
     ]:
         require(snippet in settings, "settings missing guardrail: %s" % snippet, errors)
+    require(
+        "/login-error/" not in settings,
+        "social-auth failures must not target an unregistered login-error route",
+        errors,
+    )
 
     for name in [
         "SOCIAL_AUTH_TWITTER_KEY",
@@ -283,8 +290,19 @@ def main():
         "test_local_debug_does_not_require_secure_transport_cookies",
         "self.assertTrue(settings.SESSION_COOKIE_SECURE)",
         "self.assertTrue(settings.CSRF_COOKIE_SECURE)",
+        "test_social_auth_errors_return_to_registered_root_login",
+        'self.assertEqual("/", settings.SOCIAL_AUTH_LOGIN_ERROR_URL)',
     ]:
         require(snippet in settings_tests, "settings tests missing: %s" % snippet, errors)
+
+    url_tests = read("test_url_patterns.py")
+    for snippet in [
+        "test_social_auth_error_target_is_registered_root_login",
+        "SOCIAL_AUTH_LOGIN_ERROR_URL    = '/'",
+        'self.assertNotIn("/login-error/", settings)',
+        "home\\.views\\.login",
+    ]:
+        require(snippet in url_tests, "URL tests missing auth-error guard: %s" % snippet, errors)
 
     views = read("home/views.py")
     require("request.REQUEST" not in views, "legacy request.REQUEST access remains", errors)
@@ -502,6 +520,7 @@ def main():
         "malformed Twitter mention text",
         "exact-match integration routes",
         "both Twitter and Beats connections are required",
+        "social-auth failures return to the registered root login",
         "Shape-check and trim Twitter and Beats token metadata",
         "Validate preview durations as bounded decimal seconds",
         "provider-controlled player metadata",
@@ -535,11 +554,11 @@ def main():
     )
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "expected dictionary shapes and nonblank strings", "bounded nonnegative decimal seconds", "player metadata and timing fields with `textContent`", "visible player controls", "exact-match integration routes", "CSRF-protected POST logout"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "expected dictionary shapes and nonblank strings", "bounded nonnegative decimal seconds", "player metadata and timing fields with `textContent`", "visible player controls", "exact-match integration routes", "CSRF-protected POST logout", "social-auth failures"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "normalized missing-token", "bounded preview seconds", "provider-controlled player metadata on text-only DOM sinks", "OAuth access tokens out of visible player controls", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "normalized missing-token", "bounded preview seconds", "provider-controlled player metadata on text-only DOM sinks", "OAuth access tokens out of visible player controls", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout", "social-auth failures"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -836,6 +855,36 @@ def main():
         require(
             evidence in hosted_validation_verification,
             "hosted validation plan must preserve verification evidence: %s" % evidence,
+            errors,
+        )
+
+    auth_error_plan = read("docs/plans/2026-06-25-social-auth-error-route.md")
+    auth_error_status = re.findall(r"(?mi)^status:\s*(.+?)\s*$", auth_error_plan)
+    auth_error_work = markdown_section(auth_error_plan, "Work Completed")
+    auth_error_verification = markdown_section(auth_error_plan, "Verification Completed")
+    require(
+        auth_error_status == ["completed"] and bool(auth_error_work),
+        "social-auth error route plan must record completed status and work",
+        errors,
+    )
+    require(
+        bool(auth_error_verification)
+        and not re.search(r"(?i)\b(?:pending|todo|tbd|not run)\b", auth_error_verification),
+        "social-auth error route plan must record completed verification",
+        errors,
+    )
+    for evidence in [
+        "registered root login",
+        "29 dependency-free tests",
+        "make check",
+        "external working directory",
+        "Six isolated hostile mutations were rejected",
+        "git diff --check",
+        "Exact diff",
+    ]:
+        require(
+            evidence in auth_error_verification,
+            "social-auth error route verification missing: %s" % evidence,
             errors,
         )
 

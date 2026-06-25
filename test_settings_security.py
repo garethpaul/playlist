@@ -96,6 +96,11 @@ class SettingsSecurityTest(unittest.TestCase):
         self.assertFalse(settings.SESSION_COOKIE_SECURE)
         self.assertFalse(settings.CSRF_COOKIE_SECURE)
 
+    def test_social_auth_errors_return_to_registered_root_login(self):
+        settings = self.load_settings({"DJANGO_DEBUG": "1"})
+
+        self.assertEqual("/", settings.SOCIAL_AUTH_LOGIN_ERROR_URL)
+
 
 if __name__ == "__main__":
     unittest.main()

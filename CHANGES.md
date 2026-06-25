@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-06-25T13:22:43-07:00 — P1 social-auth failure recovery
+
+- Cycle: inspected the MIT-licensed legacy Django sample, disabled issue state,
+  recent security work, settings, URL patterns, auth routing, provider response
+  boundaries, templates, dependency-free tests, and hosted verification.
+- Threads: prioritized authentication recovery over provider modernization
+  because `SOCIAL_AUTH_LOGIN_ERROR_URL` pointed at `/login-error/` even though
+  the application registers no route for that path.
+- Bug: Twitter/social-auth failures could redirect users to an application 404
+  instead of the existing root login and reconnection flow.
+- Files: changed `app/settings.py`, `test_settings_security.py`,
+  `test_url_patterns.py`, `scripts/check-baseline.py`, repository guidance, and
+  `docs/plans/2026-06-25-social-auth-error-route.md`.
+- Validation: the pre-fix focused settings regression failed on
+  `/login-error/`; focused settings and URL-source tests pass with the root
+  target and exact registered login pattern. Six isolated mutations were
+  rejected. Root and external `make check` each passed 29 dependency-free
+  tests plus 81 executable Make target/override cases, and isolated Python
+  compilation plus generated-bytecode checks passed.
+- Blockers: retired provider SDKs and unbounded legacy requirements remain
+  intentionally uninstalled; verification protects local source boundaries,
+  not live Twitter/Beats/social-auth deployability.
+- Next: run hostile mutations, root and external full gates, exact-head Codex
+  review, and hosted Python 3.10/3.12 checks before merge.
+
 ## 2026-06-21
 
 - Hardened every public Make quality gate against `MAKEFILE_LIST`, `MAKEFILES`,
