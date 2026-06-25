@@ -53,6 +53,8 @@
 - `DJANGO_ALLOWED_HOSTS` is required outside local debug mode.
 - `DJANGO_ALLOWED_HOSTS=*` wildcard allowed hosts are rejected outside local debug.
 - Optional runtime controls: `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`.
+- `SOCIAL_AUTH_LOGIN_ERROR_URL` must remain the registered root login path;
+  do not restore the unregistered `/login-error/` target.
 
 ## Agent workflow
 

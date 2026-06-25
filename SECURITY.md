@@ -81,6 +81,8 @@ Keep OAuth access tokens out of visible player controls. The legacy SDK may
 retain its token in memory, but the UI must not display or edit it.
 Keep Twitter and Beats view URL patterns as exact-match integration routes so
 prefix paths cannot reach those authenticated service views.
+Keep social-auth failures routed to the registered root login so provider
+errors do not strand users on an unregistered 404 path.
 Keep `DJANGO_ALLOWED_HOSTS` required outside local debug so production host
 validation cannot be omitted accidentally.
 Reject wildcard allowed hosts outside local debug so production host validation

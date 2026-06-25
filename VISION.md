@@ -45,6 +45,7 @@ Priority:
 - Keep OAuth access tokens out of visible player controls
 - Keep production session and CSRF cookies restricted to HTTPS
 - Keep incomplete integration auth routed to the registered root login page
+- Keep social-auth failures routed to the registered root login page
 - Keep `DJANGO_SECRET_KEY` and social API credentials environment-driven
 - Keep blank `DJANGO_SECRET_KEY` values from satisfying production settings
 - Keep production `DJANGO_SECRET_KEY` values at least 32 characters long

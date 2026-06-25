@@ -151,6 +151,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   200 characters.
 - Keep login and playlist routing on one dependency-free auth-state predicate:
   both Twitter and Beats connections are required before entering `/beats`.
+- Ensure social-auth failures return to the registered root login instead of
+  an unregistered error path that would turn provider failures into a 404.
 - Shape-check and trim Twitter and Beats token metadata before API client
   construction so malformed nested records reach the existing missing-token
   boundary instead of raising raw key errors.
@@ -193,6 +195,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   mention search normalization guardrail.
 - See `docs/plans/2026-06-13-auth-state-routing.md` for the shared integration
   auth-state routing contract.
+- See `docs/plans/2026-06-25-social-auth-error-route.md` for registered
+  social-auth failure recovery.
 - See `VISION.md` for project direction and contribution guardrails.
 
 ## Contributing
