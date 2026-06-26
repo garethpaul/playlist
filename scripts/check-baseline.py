@@ -48,6 +48,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-21-safe-make-root.md",
     "docs/plans/2026-06-25-local-repository-metadata-ignore.md",
     "docs/plans/2026-06-26-playlist-selection.md",
+    "docs/plans/2026-06-26-secure-playlist-template-links.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -463,6 +464,25 @@ def main():
         "player SDK must load over HTTPS",
         errors,
     )
+    for snippet in [
+        '<span class="service-label" aria-label="Twitter">Twitter</span>',
+        'src="{{pair.0.user.profile_image_url_https}}"',
+        'href="https://twitter.com/{{pair.0.user.screen_name}}" target="_blank" rel="noopener noreferrer"',
+        'href="https://twitter.com/{{pair.0.user.screen_name}}/status/{{pair.0.id}}" target="_blank" rel="noopener noreferrer"',
+    ]:
+        require(
+            snippet in beats_template,
+            "beats template missing secure external resource contract: %s" % snippet,
+            errors,
+        )
+    require(
+        "aweebitirish.com" not in beats_template
+        and 'href="http://twitter.com/' not in beats_template
+        and "profile_image_url}}" not in beats_template
+        and 'target="_target"' not in beats_template,
+        "playlist template must not restore insecure external resources or shared opener targets",
+        errors,
+    )
     text_only_player_assignments = [
         'trackName.textContent = "Title:" + data.display;',
         'timeDuration.textContent = "Duration: " + value;',
@@ -500,6 +520,7 @@ def main():
         "test_select_playlist_track_promotes_trimmed_request",
         "test_select_playlist_track_handles_empty_and_non_string_requests",
         "test_beats_view_delegates_playlist_ordering",
+        "test_playlist_template_uses_secure_external_resources",
         "test_clean_track_search_rejects_malformed_twitter_mentions",
         "test_clean_track_search_removes_handles_and_bounds_queries",
         "views.MAX_TRACK_SEARCH_LENGTH + 1",
@@ -513,11 +534,24 @@ def main():
         "README must document deterministic non-mutating playlist selection",
         errors,
     )
+    require(
+        "Render the Twitter service label locally" in readme
+        and "profile_image_url_https" in readme
+        and "noopener noreferrer" in readme,
+        "README must document secure playlist template resources and links",
+        errors,
+    )
     vision = read("VISION.md")
     require(
         "Keep playlist ordering stable while promoting one normalized requested track" in vision
         and "without mutating the collected provider results" in vision,
         "vision must preserve stable non-mutating playlist ordering",
+        errors,
+    )
+    require(
+        "Keep playlist avatars and Twitter links on HTTPS" in vision
+        and "opener-isolated" in vision,
+        "vision must preserve secure external playlist resources",
         errors,
     )
     require(
@@ -621,11 +655,11 @@ def main():
     )
 
     security = read("SECURITY.md")
-    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "expected dictionary shapes and nonblank strings", "bounded nonnegative decimal seconds", "player metadata and timing fields with `textContent`", "visible player controls", "exact-match integration routes", "CSRF-protected POST logout", "social-auth failures"]:
+    for snippet in ["DJANGO_SECRET_KEY", "DJANGO_DEBUG", "DJANGO_ALLOWED_HOSTS", "required outside local debug", "wildcard allowed hosts", "OAuth", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "expected dictionary shapes and nonblank strings", "bounded nonnegative decimal seconds", "player metadata and timing fields with `textContent`", "visible player controls", "exact-match integration routes", "CSRF-protected POST logout", "social-auth failures", "profile_image_url_https", "noopener noreferrer"]:
         require(snippet in security, "SECURITY missing: %s" % snippet, errors)
 
     vision = read("VISION.md")
-    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "normalized missing-token", "bounded preview seconds", "provider-controlled player metadata on text-only DOM sinks", "OAuth access tokens out of visible player controls", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout", "social-auth failures"]:
+    for snippet in ["environment-based configuration", "POST", "make check", "make lint", "make test", "make build", "make verify", "debug print", "blank", "at least 32 characters", "post input normalization", "non-string post inputs", "malformed Beats search results", "malformed Twitter mention text", "normalized missing-token", "bounded preview seconds", "provider-controlled player metadata on text-only DOM sinks", "OAuth access tokens out of visible player controls", "allowed hosts", "wildcard allowed hosts", "exact-match integration routes", "POST-only logout", "social-auth failures", "playlist avatars and Twitter links on HTTPS", "opener-isolated"]:
         require(snippet in vision, "VISION missing: %s" % snippet, errors)
 
     plan = read("docs/plans/2026-06-08-playlist-baseline.md")
@@ -997,13 +1031,41 @@ def main():
             errors,
         )
 
+    secure_template_plan = read(
+        "docs/plans/2026-06-26-secure-playlist-template-links.md"
+    )
+    secure_template_status = re.findall(
+        r"(?mi)^status:\s*(.+?)\s*$",
+        secure_template_plan,
+    )
+    secure_template_work = markdown_section(secure_template_plan, "Work Completed")
+    secure_template_verification = markdown_section(
+        secure_template_plan,
+        "Verification Completed",
+    )
+    require(
+        secure_template_status == ["completed"] and bool(secure_template_work),
+        "secure playlist template plan must record completed status and work",
+        errors,
+    )
+    require(
+        bool(secure_template_verification)
+        and "make check" in secure_template_verification
+        and not re.search(
+            r"(?i)\b(?:pending|todo|tbd|not run)\b",
+            secure_template_verification,
+        ),
+        "secure playlist template plan must record completed verification",
+        errors,
+    )
+
     changelog_entries = re.split(r"(?m)^## ", read("CHANGES.md"))
     latest_changelog = changelog_entries[1] if len(changelog_entries) > 1 else ""
     for evidence in [
-        "playlist selection",
-        "select_playlist_track",
-        "22 dependency-free view tests",
-        "hostile mutations",
+        "secure playlist template resources",
+        "profile_image_url_https",
+        "noopener noreferrer",
+        "23 dependency-free view tests",
     ]:
         require(
             evidence in latest_changelog,

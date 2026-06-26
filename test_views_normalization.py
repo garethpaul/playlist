@@ -93,6 +93,24 @@ def load_views():
 
 
 class ViewsNormalizationTest(unittest.TestCase):
+    def test_playlist_template_uses_secure_external_resources(self):
+        template = BEATS_TEMPLATE.read_text()
+
+        self.assertNotIn("aweebitirish.com", template)
+        self.assertNotIn('href="http://twitter.com/', template)
+        self.assertIn(
+            'src="{{pair.0.user.profile_image_url_https}}"',
+            template,
+        )
+        self.assertIn(
+            'href="https://twitter.com/{{pair.0.user.screen_name}}" target="_blank" rel="noopener noreferrer"',
+            template,
+        )
+        self.assertIn(
+            'href="https://twitter.com/{{pair.0.user.screen_name}}/status/{{pair.0.id}}" target="_blank" rel="noopener noreferrer"',
+            template,
+        )
+
     def test_provider_values_are_escaped_for_javascript_string_literals(self):
         template = BEATS_TEMPLATE.read_text()
 

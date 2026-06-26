@@ -166,6 +166,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
   `textContent`; never interpret SDK callback values as HTML.
 - Keep OAuth access tokens out of visible player controls; the legacy SDK may
   hold its token in memory, but the UI must not display or edit it.
+- Render the Twitter service label locally instead of loading an unrelated
+  remote icon. Use `profile_image_url_https` for playlist avatars, HTTPS for
+  Twitter profile and status links, and `noopener noreferrer` on new tabs.
 - Keep the Twitter and Beats integration URL patterns as exact-match integration routes
   so prefix paths do not enter those views.
 - Do not add debug print statements that expose mention text, track search

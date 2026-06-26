@@ -45,6 +45,8 @@ Priority:
 - Keep provider-controlled player metadata on text-only DOM sinks
 - Keep provider-controlled JavaScript string values behind `escapejs`
 - Keep OAuth access tokens out of visible player controls
+- Keep playlist avatars and Twitter links on HTTPS, render service labels
+  locally, and keep new external tabs opener-isolated
 - Keep production session and CSRF cookies restricted to HTTPS
 - Keep incomplete integration auth routed to the registered root login page
 - Keep social-auth failures routed to the registered root login page
