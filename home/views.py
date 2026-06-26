@@ -67,6 +67,22 @@ def first_track_result(results):
         return None
     return track
 
+def select_playlist_track(playlist, requested_track_id):
+    ordered_playlist = list(playlist)
+    requested_track_id = clean_post_text(requested_track_id)
+    if requested_track_id:
+        for index, pair in enumerate(ordered_playlist):
+            if not isinstance(pair, (list, tuple)) or len(pair) < 2:
+                continue
+            track = pair[1]
+            if not isinstance(track, dict):
+                continue
+            if clean_post_text(track.get('id')) == requested_track_id:
+                ordered_playlist.insert(0, ordered_playlist.pop(index))
+                break
+    selected_pair = ordered_playlist[0] if ordered_playlist else None
+    return selected_pair, ordered_playlist
+
 def has_required_auths(auths):
     if not isinstance(auths, dict):
         return False
@@ -143,7 +159,6 @@ def beats(request):
     statuses = twitter.GetMentions(count=100, since_id=467486341941325824)
     statuses = reversed(statuses)
 
-    track_pair = None
     count = 0
     for s in statuses:
         if getattr(s, 'favorited', False):
@@ -159,23 +174,12 @@ def beats(request):
             count = count + 1
             
             pair = [s, track]
-            
-            # if specified track to play, save for top of queue
-            if track['id'] == track_next:
-                track_pair = pair
-            else:
-                playlist.append(pair)
+            playlist.append(pair)
                 
             if count == 5:
                 break
     
-    # if specified track to play, save for top of queue
-    if track_pair:
-        playlist.insert(0, track_pair)
-    else:
-        # if there's a playlist, choose first to play
-        if playlist and len(playlist):
-            track_pair = playlist[0]
+    track_pair, playlist = select_playlist_track(playlist, track_next)
             
 
     context = {"request": request, "settings": settings, 'beats': beats, "beats_me": beats_me, 'twitter': twitter, 'twitter_me': twitter_me, 'track': track_pair, 'playlist': playlist, 'preview': preview}
