@@ -8,6 +8,8 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parent
 VIEWS = ROOT / "home" / "views.py"
 BEATS_TEMPLATE = ROOT / "templates" / "beats.html"
+TWITTER_TEMPLATE = ROOT / "templates" / "twitter.html"
+SPOTIFY_TEMPLATE = ROOT / "templates" / "spotify.html"
 
 
 def decorator(function):
@@ -93,6 +95,19 @@ def load_views():
 
 
 class ViewsNormalizationTest(unittest.TestCase):
+    def test_status_templates_use_secure_twitter_links(self):
+        secure_link = (
+            'href="https://twitter.com/{{s.user.screen_name}}/status/{{s.id}}" '
+            'target="_blank" rel="noopener noreferrer"'
+        )
+
+        for template_path in (TWITTER_TEMPLATE, SPOTIFY_TEMPLATE):
+            template = template_path.read_text()
+            with self.subTest(template=template_path.name):
+                self.assertIn(secure_link, template)
+                self.assertNotIn('href="http://twitter.com/', template)
+                self.assertNotIn('target="_target"', template)
+
     def test_playlist_template_uses_secure_external_resources(self):
         template = BEATS_TEMPLATE.read_text()
 

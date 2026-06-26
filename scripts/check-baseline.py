@@ -49,6 +49,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-25-local-repository-metadata-ignore.md",
     "docs/plans/2026-06-26-playlist-selection.md",
     "docs/plans/2026-06-26-secure-playlist-template-links.md",
+    "docs/plans/2026-06-26-status-template-links.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -506,6 +507,22 @@ def main():
     twitter_template = read("templates/twitter.html")
     for snippet in ['action="/twttr"', 'method="post"', "{% csrf_token %}"]:
         require(snippet in twitter_template, "twitter template missing POST status path: %s" % snippet, errors)
+    spotify_template = read("templates/spotify.html")
+    secure_status_link = (
+        'href="https://twitter.com/{{s.user.screen_name}}/status/{{s.id}}" '
+        'target="_blank" rel="noopener noreferrer"'
+    )
+    for template_name, template in [
+        ("twitter.html", twitter_template),
+        ("spotify.html", spotify_template),
+    ]:
+        require(
+            secure_status_link in template
+            and 'href="http://twitter.com/' not in template
+            and 'target="_target"' not in template,
+            "%s must keep Twitter status links HTTPS and opener-isolated" % template_name,
+            errors,
+        )
 
     base_template = read("templates/base.html")
     for snippet in ['action="/logout"', 'method="post"', "{% csrf_token %}"]:
@@ -521,6 +538,7 @@ def main():
         "test_select_playlist_track_handles_empty_and_non_string_requests",
         "test_beats_view_delegates_playlist_ordering",
         "test_playlist_template_uses_secure_external_resources",
+        "test_status_templates_use_secure_twitter_links",
         "test_clean_track_search_rejects_malformed_twitter_mentions",
         "test_clean_track_search_removes_handles_and_bounds_queries",
         "views.MAX_TRACK_SEARCH_LENGTH + 1",
@@ -539,6 +557,11 @@ def main():
         and "profile_image_url_https" in readme
         and "noopener noreferrer" in readme,
         "README must document secure playlist template resources and links",
+        errors,
+    )
+    require(
+        "Every tracked Twitter status list uses HTTPS" in readme,
+        "README must document secure status-template links",
         errors,
     )
     vision = read("VISION.md")
@@ -1059,17 +1082,34 @@ def main():
         errors,
     )
 
+    status_template_plan = read(
+        "docs/plans/2026-06-26-status-template-links.md"
+    )
+    status_template_status = re.findall(
+        r"(?mi)^status:\s*(.+?)\s*$",
+        status_template_plan,
+    )
+    require(
+        status_template_status == ["Completed"]
+        and "## Work Completed" in status_template_plan
+        and "## Verification Completed" in status_template_plan
+        and "make check" in status_template_plan,
+        "status template link plan must record completed work and verification",
+        errors,
+    )
+
     changelog_entries = re.split(r"(?m)^## ", read("CHANGES.md"))
     latest_changelog = changelog_entries[1] if len(changelog_entries) > 1 else ""
     for evidence in [
-        "secure playlist template resources",
-        "profile_image_url_https",
+        "secure Twitter status template links",
+        "twitter.html",
+        "spotify.html",
         "noopener noreferrer",
-        "23 dependency-free view tests",
+        "24 dependency-free view tests",
     ]:
         require(
             evidence in latest_changelog,
-            "latest changelog entry missing playlist selection evidence: %s" % evidence,
+            "latest changelog entry missing status template evidence: %s" % evidence,
             errors,
         )
 

@@ -47,6 +47,7 @@ Priority:
 - Keep OAuth access tokens out of visible player controls
 - Keep playlist avatars and Twitter links on HTTPS, render service labels
   locally, and keep new external tabs opener-isolated
+- Keep every tracked Twitter status-list template HTTPS-only and opener-isolated
 - Keep production session and CSRF cookies restricted to HTTPS
 - Keep incomplete integration auth routed to the registered root login page
 - Keep social-auth failures routed to the registered root login page

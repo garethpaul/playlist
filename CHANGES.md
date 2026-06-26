@@ -1,5 +1,35 @@
 # Changelog
 
+## 2026-06-26T13:47:00-07:00 — P2 secure Twitter status template links
+
+- Cycle: inspected the current legacy Django routes, templates, dependency-free
+  tests, retired-provider boundaries, open work, alerts, and roadmap after the
+  playlist-resource hardening merge.
+- Bug: the active `twitter.html` and dormant `spotify.html` status lists still
+  linked to Twitter over HTTP, reused a named target, and omitted opener
+  isolation.
+- Work: preserved status interpolation and visible text while upgrading both
+  tracked links to HTTPS, `_blank`, and `noopener noreferrer`.
+- Tests: added a red-first regression that failed independently for both
+  templates; all 24 dependency-free view tests pass after the fix.
+- Contracts: the baseline now requires the exact safe anchor in both copies,
+  rejects plaintext/shared-target regressions, and binds the focused test,
+  guidance, completed plan, and latest history evidence.
+- Threads: started and completed the focused status-template boundary directly;
+  no parallel thread or overlapping public PR existed.
+- Validation: focused red/green evidence passed. Root and external `make check`
+  each passed the complete 35-test dependency-free suite and all 81 executable
+  Make authority cases; isolated compilation, `git diff --check`, current-tree
+  gitleaks, and the 70-commit history scan also passed.
+- The first final static-check rerun found bytecode produced by the explicit
+  `py_compile` probe. An attempted `make clean` confirmed that this repository
+  has no clean target, so the generated `.pyc` files and `__pycache__`
+  directories were removed explicitly before the gate was rerun successfully.
+- Review gates: exact-head Codex review and hosted Python/CodeQL remain required.
+- Blockers: retired provider SDKs and unbounded legacy requirements remain
+  intentionally uninstalled; this change is dependency-free and source-level.
+- Next: run full validation and merge only the exact reviewed green head.
+
 ## 2026-06-26T11:59:46Z — P2 secure playlist template resources
 
 - Cycle: inspected the clean MIT-licensed legacy Django sample after the

@@ -82,6 +82,8 @@ retain its token in memory, but the UI must not display or edit it.
 Render the playlist's Twitter label locally, use `profile_image_url_https` for
 avatars, keep Twitter profile and status links on HTTPS, and isolate new tabs
 with `noopener noreferrer` so external pages cannot retain an opener handle.
+Apply the same HTTPS and opener-isolation boundary to every tracked status-list
+template, including dormant legacy templates that could be restored later.
 Keep Twitter and Beats view URL patterns as exact-match integration routes so
 prefix paths cannot reach those authenticated service views.
 Keep social-auth failures routed to the registered root login so provider
