@@ -47,6 +47,7 @@ REQUIRED_FILES = [
     "docs/plans/2026-06-17-hidden-player-auth-token.md",
     "docs/plans/2026-06-21-safe-make-root.md",
     "docs/plans/2026-06-25-local-repository-metadata-ignore.md",
+    "docs/plans/2026-06-26-playlist-selection.md",
     "docs/readme-overview.svg",
     "fabfile.py",
     "home/views.py",
@@ -314,6 +315,11 @@ def main():
         "def clean_tweet_id(",
         "def clean_preview_seconds(",
         "def first_track_result(",
+        "def select_playlist_track(",
+        "ordered_playlist = list(playlist)",
+        "requested_track_id = clean_post_text(requested_track_id)",
+        "ordered_playlist.insert(0, ordered_playlist.pop(index))",
+        "return selected_pair, ordered_playlist",
         "MAX_TRACK_SEARCH_LENGTH = 200",
         "MAX_PREVIEW_SECONDS_LENGTH = 16",
         "MAX_PREVIEW_SECONDS = Decimal('3600')",
@@ -348,12 +354,18 @@ def main():
         'preview = clean_preview_seconds(request.POST.get("preview", request.GET.get("preview", None)))',
         'request.POST.get("track", request.GET.get("track", None))',
         "track = first_track_result(tracks)",
+        "track_pair, playlist = select_playlist_track(playlist, track_next)",
         "from django.views.decorators.http import require_POST",
         "@login_required\n@require_POST\ndef logout(request):",
         "except Exception:",
     ]:
         require(snippet in views, "views missing guardrail: %s" % snippet, errors)
     require("print(search, tracks)" not in views, "playlist debug print must not expose user-linked data", errors)
+    require(
+        "if track['id'] == track_next:" not in views,
+        "playlist ordering must remain delegated to the tested helper",
+        errors,
+    )
     require(
         'auths.get("twitter", None) and auths.get("beats", None)' not in views,
         "login must use the shared auth-state predicate",
@@ -484,11 +496,35 @@ def main():
     for snippet in [
         "test_first_track_result_rejects_malformed_beats_results",
         "test_first_track_result_accepts_first_identified_track",
+        "test_select_playlist_track_preserves_default_order",
+        "test_select_playlist_track_promotes_trimmed_request",
+        "test_select_playlist_track_handles_empty_and_non_string_requests",
+        "test_beats_view_delegates_playlist_ordering",
         "test_clean_track_search_rejects_malformed_twitter_mentions",
         "test_clean_track_search_removes_handles_and_bounds_queries",
         "views.MAX_TRACK_SEARCH_LENGTH + 1",
     ]:
         require(snippet in view_tests, "view normalization tests missing: %s" % snippet, errors)
+
+    readme = read("README.md")
+    require(
+        "Keep playlist selection deterministic: preserve provider order by default" in readme
+        and "without mutating the collected list" in readme,
+        "README must document deterministic non-mutating playlist selection",
+        errors,
+    )
+    vision = read("VISION.md")
+    require(
+        "Keep playlist ordering stable while promoting one normalized requested track" in vision
+        and "without mutating the collected provider results" in vision,
+        "vision must preserve stable non-mutating playlist ordering",
+        errors,
+    )
+    require(
+        "Add tests around playlist selection logic" not in vision,
+        "vision must retire the completed playlist selection test priority",
+        errors,
+    )
 
     gitignore_patterns = {
         line for line in read(".gitignore").splitlines() if line and not line.startswith("#")
@@ -916,6 +952,62 @@ def main():
         require(
             evidence in auth_error_verification,
             "social-auth error route verification missing: %s" % evidence,
+            errors,
+        )
+
+    playlist_selection_plan = read("docs/plans/2026-06-26-playlist-selection.md")
+    playlist_selection_status = re.findall(
+        r"(?mi)^status:\s*(.+?)\s*$",
+        playlist_selection_plan,
+    )
+    playlist_selection_work = markdown_section(playlist_selection_plan, "Work Completed")
+    playlist_selection_verification = markdown_section(
+        playlist_selection_plan,
+        "Verification Completed",
+    )
+    require(
+        playlist_selection_status == ["completed"] and bool(playlist_selection_work),
+        "playlist selection plan must record completed status and work",
+        errors,
+    )
+    require(
+        bool(playlist_selection_verification)
+        and not re.search(
+            r"(?i)\b(?:pending|todo|tbd|not run)\b",
+            playlist_selection_verification,
+        ),
+        "playlist selection plan must record completed verification",
+        errors,
+    )
+    for evidence in [
+        "22 dependency-free view tests",
+        "make lint",
+        "make test",
+        "make build",
+        "make verify",
+        "make check",
+        "external working directory",
+        "hostile mutations",
+        "Python bytecode scan",
+        "git diff --check",
+    ]:
+        require(
+            evidence in playlist_selection_verification,
+            "playlist selection verification missing: %s" % evidence,
+            errors,
+        )
+
+    changelog_entries = re.split(r"(?m)^## ", read("CHANGES.md"))
+    latest_changelog = changelog_entries[1] if len(changelog_entries) > 1 else ""
+    for evidence in [
+        "playlist selection",
+        "select_playlist_track",
+        "22 dependency-free view tests",
+        "hostile mutations",
+    ]:
+        require(
+            evidence in latest_changelog,
+            "latest changelog entry missing playlist selection evidence: %s" % evidence,
             errors,
         )
 

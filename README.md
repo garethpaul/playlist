@@ -149,6 +149,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
   queued.
 - Skip malformed Twitter mention text and bound cleaned Beats search queries to
   200 characters.
+- Keep playlist selection deterministic: preserve provider order by default,
+  trim request-controlled track IDs, and move one requested match to the front
+  without mutating the collected list.
 - Keep login and playlist routing on one dependency-free auth-state predicate:
   both Twitter and Beats connections are required before entering `/beats`.
 - Ensure social-auth failures return to the registered root login instead of

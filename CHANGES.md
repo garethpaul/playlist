@@ -1,5 +1,29 @@
 # Changelog
 
+## 2026-06-26T11:49:35Z — P2 correctness/testability — playlist selection ordering
+
+- Cycle: confirmed the MIT-licensed legacy Django sample was current, clean,
+  and free of open work, then selected the explicit playlist selection test
+  priority without mixing in framework or retired-provider modernization.
+- Behavior: extracted `select_playlist_track` from the Beats view. The helper
+  copies the collected list, preserves provider order by default, normalizes
+  request-controlled track IDs, and promotes the first requested match.
+- Integration: the view now appends each of its five bounded valid pairs and
+  delegates the current-track decision once after collection instead of
+  interleaving ordering with provider calls.
+- Tests: added empty, unmatched, matched, trimmed, non-string, non-mutation,
+  identity, and view-delegation regressions; all 22 dependency-free view tests
+  pass, and the complete gate runs 33 tests.
+- Documentation: recorded stable playlist selection in `README.md`, promoted
+  it to a maintained `VISION.md` invariant, and retired the completed roadmap
+  item.
+- Contracts: the baseline requires the helper shape, view delegation, focused
+  tests, completed plan, current vision, latest changelog evidence, and eight
+  hostile mutations.
+- Validation: focused tests, complete dependency-free tests, Python compilation
+  and bytecode cleanup passed. Repository/external Make gates and mutation
+  details are recorded in the completed implementation plan.
+
 ## 2026-06-25T15:28:19-07:00 — P2 local repository metadata
 
 - Cycle: inspected the MIT-licensed legacy Django sample, disabled issue state,

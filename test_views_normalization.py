@@ -331,6 +331,53 @@ class ViewsNormalizationTest(unittest.TestCase):
 
         self.assertEqual(track, views.first_track_result({"data": [track]}))
 
+    def test_select_playlist_track_preserves_default_order(self):
+        views = load_views()
+        first = [object(), {"id": "track-1"}]
+        second = [object(), {"id": "track-2"}]
+        playlist = [first, second]
+
+        selected, ordered = views.select_playlist_track(playlist, "missing")
+
+        self.assertIs(first, selected)
+        self.assertEqual([first, second], ordered)
+        self.assertEqual([first, second], playlist)
+        self.assertIsNot(playlist, ordered)
+
+    def test_select_playlist_track_promotes_trimmed_request(self):
+        views = load_views()
+        first = [object(), {"id": "track-1"}]
+        requested = [object(), {"id": "track-2"}]
+        third = [object(), {"id": "track-3"}]
+
+        selected, ordered = views.select_playlist_track(
+            [first, requested, third],
+            " track-2 ",
+        )
+
+        self.assertIs(requested, selected)
+        self.assertEqual([requested, first, third], ordered)
+
+    def test_select_playlist_track_handles_empty_and_non_string_requests(self):
+        views = load_views()
+        pair = [object(), {"id": "track-1"}]
+
+        self.assertEqual((None, []), views.select_playlist_track([], "track-1"))
+        for value in [None, 1, b"track-1", [], {}]:
+            with self.subTest(value=value):
+                selected, ordered = views.select_playlist_track([pair], value)
+                self.assertIs(pair, selected)
+                self.assertEqual([pair], ordered)
+
+    def test_beats_view_delegates_playlist_ordering(self):
+        source = VIEWS.read_text()
+
+        self.assertIn(
+            "track_pair, playlist = select_playlist_track(playlist, track_next)",
+            source,
+        )
+        self.assertNotIn("if track['id'] == track_next:", source)
+
 
 if __name__ == "__main__":
     unittest.main()
