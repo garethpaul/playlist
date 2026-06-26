@@ -169,6 +169,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Render the Twitter service label locally instead of loading an unrelated
   remote icon. Use `profile_image_url_https` for playlist avatars, HTTPS for
   Twitter profile and status links, and `noopener noreferrer` on new tabs.
+- Every tracked Twitter status list uses HTTPS and opens external status links
+  with `noopener noreferrer`, including the active Twitter view and dormant
+  Spotify-era template.
 - Keep the Twitter and Beats integration URL patterns as exact-match integration routes
   so prefix paths do not enter those views.
 - Do not add debug print statements that expose mention text, track search
