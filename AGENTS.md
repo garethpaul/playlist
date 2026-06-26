@@ -57,6 +57,8 @@
   decisions into tracked plans, changes, policies, tests, or source.
 - `SOCIAL_AUTH_LOGIN_ERROR_URL` must remain the registered root login path;
   do not restore the unregistered `/login-error/` target.
+- The playlist template must use the provider's HTTPS avatar field and HTTPS,
+  opener-isolated Twitter links; do not restore third-party service-label art.
 
 ## Agent workflow
 

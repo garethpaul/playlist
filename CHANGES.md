@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-06-26T11:59:46Z — P2 secure playlist template resources
+
+- Cycle: inspected the clean MIT-licensed legacy Django sample after the
+  playlist-ordering merge and selected a bounded template security gap rather
+  than mixing in retired-provider or framework modernization.
+- Bug: the rendered playlist loaded a plain-HTTP Twitter icon from an unrelated
+  third-party site, requested the non-HTTPS avatar field, linked profiles and
+  statuses over HTTP, and reused a named target without opener isolation.
+- Work: replaced the remote icon with a local text label, selected
+  `profile_image_url_https`, upgraded Twitter links to HTTPS, and opened each
+  external link in an isolated tab with `noopener noreferrer`.
+- Tests: added a red-first source regression covering every resource and link
+  invariant; all 23 dependency-free view tests pass after the template fix.
+- Contracts: the static baseline now rejects the retired remote host, HTTP
+  Twitter links, the non-HTTPS avatar field, and the shared target while
+  requiring the focused regression, documentation, and completed plan.
+- Validation: focused tests, repository and external Make gates, isolated
+  Python compilation, generated-bytecode cleanup, hostile mutations, and
+  `git diff --check` are recorded in the completed implementation plan.
+
 ## 2026-06-26T11:49:35Z — P2 correctness/testability — playlist selection ordering
 
 - Cycle: confirmed the MIT-licensed legacy Django sample was current, clean,
